@@ -12,7 +12,7 @@ namespace PsychologHan;
 internal sealed class FontFallbackManager
 {
     internal const string FontDirectoryName = "fonts";
-    internal const string FontFileName = "NotoSansSC-VF.ttf";
+    internal const string FontFileName = "汇文明朝体汇文明朝体.ttf";
 
     private readonly ManualLogSource logger;
     private Font sourceFont;
@@ -26,8 +26,8 @@ internal sealed class FontFallbackManager
 
     internal bool TryInstall(string pluginDirectory)
     {
-        string fontPath = Path.Combine(pluginDirectory, FontDirectoryName, FontFileName);
-        if (!File.Exists(fontPath))
+        string fontPath = ResolveFontPath(pluginDirectory);
+        if (fontPath == null)
         {
             return false;
         }
@@ -42,7 +42,7 @@ internal sealed class FontFallbackManager
                     return false;
                 }
 
-                sourceFont.name = "PsychologHan Noto Sans SC";
+                sourceFont.name = "PsychologHan 汇文明朝体";
                 fontAsset = TMP_FontAsset.CreateFontAsset(
                     sourceFont,
                     90,
@@ -57,7 +57,7 @@ internal sealed class FontFallbackManager
                     return false;
                 }
 
-                fontAsset.name = "PsychologHan Noto Sans SC Dynamic";
+                fontAsset.name = "PsychologHan 汇文明朝体 Dynamic";
             }
 
             List<TMP_FontAsset> fallbackFontAssets = TMP_Settings.fallbackFontAssets;
@@ -72,14 +72,30 @@ internal sealed class FontFallbackManager
             }
 
             registered = true;
-            logger.LogInfo("Installed Noto Sans SC as the plugin-local TMP fallback font. Chinese glyphs will be generated dynamically as needed.");
+            logger.LogInfo("Installed the configured Chinese TMP fallback font from " + fontPath + ". Chinese glyphs will be generated dynamically as needed.");
             return true;
         }
         catch (Exception exception)
         {
-            logger.LogWarning("Could not install the plugin-local TMP fallback font; original font behavior will be preserved. " + exception.GetType().Name + ": " + exception.Message);
+            logger.LogWarning("Could not install the configured TMP fallback font; original font behavior will be preserved. " + exception.GetType().Name + ": " + exception.Message);
             return false;
         }
+    }
+
+    internal static string ResolveFontPath(string pluginDirectory)
+    {
+        string pluginLocalPath = Path.Combine(pluginDirectory, FontDirectoryName, FontFileName);
+        string pluginsDirectory = Directory.GetParent(pluginDirectory)?.FullName;
+        string sharedPath = pluginsDirectory == null
+            ? null
+            : Path.Combine(pluginsDirectory, FontDirectoryName, FontFileName);
+
+        if (sharedPath != null && File.Exists(sharedPath))
+        {
+            return sharedPath;
+        }
+
+        return File.Exists(pluginLocalPath) ? pluginLocalPath : null;
     }
 
     internal void Uninstall()

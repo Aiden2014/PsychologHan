@@ -35,8 +35,8 @@ public class Plugin : BaseUnityPlugin
         Translations = TranslationManager.Load(localizationDirectory, MissingText);
 
         fontFallback = new FontFallbackManager(Logger);
-        string fontPath = Path.Combine(pluginDirectory, FontFallbackManager.FontDirectoryName, FontFallbackManager.FontFileName);
-        if (File.Exists(fontPath))
+        string fontPath = FontFallbackManager.ResolveFontPath(pluginDirectory);
+        if (fontPath != null)
         {
             if (!fontFallback.TryInstall(pluginDirectory))
             {
@@ -45,7 +45,7 @@ public class Plugin : BaseUnityPlugin
         }
         else
         {
-            Logger.LogWarning("No plugin-local TMP fallback font found at " + fontPath + ". Chinese glyphs may display as tofu until the font file is deployed.");
+            Logger.LogWarning("No configured TMP fallback font found. Expected a sibling or plugin-local path ending in fonts\\" + FontFallbackManager.FontFileName + ". Chinese glyphs may display as tofu until the font file is deployed.");
         }
 
         harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
@@ -53,7 +53,7 @@ public class Plugin : BaseUnityPlugin
         harmony.PatchAll();
 
         Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} loaded. Localization directory: {localizationDirectory}. Loaded {Translations.EntryCount} translations from {Translations.FileCount} file(s).");
-        Logger.LogInfo("UI localization extension seam: Task 4 loads ui.csv when present, but applies no UI patch because no stable non-global UI refresh hook is verified in the current references. Missing or malformed ui.csv preserves original UI text.");
+        Logger.LogInfo("UI localization hooks enabled for GameManager main-menu refresh and the verified SettingsButton/LoadGameButton screen controllers. Other UI preserves original text when no approved ui.csv match exists.");
     }
 
     private void OnDestroy()

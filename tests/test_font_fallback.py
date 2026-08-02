@@ -30,7 +30,7 @@ class FontFallbackContractTests(unittest.TestCase):
         fonts = profile["fonts"]
 
         self.assertEqual(fonts["strategy"], "runtime-ttf")
-        self.assertEqual(fonts["plugin_relative_path"], "fonts/NotoSansSC-VF.ttf")
+        self.assertEqual(fonts["plugin_relative_path"], "fonts/汇文明朝体汇文明朝体.ttf")
         self.assertIn("CreateFontAsset", fonts["runtime_api_evidence"]["tmp_create_font_asset"])
 
 

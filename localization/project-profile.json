@@ -82,15 +82,15 @@
   },
   "fonts": {
     "strategy": "runtime-ttf",
-    "source_font": "resources/fonts/NotoSansSC-VF.ttf",
+    "source_font": "resources/fonts/汇文明朝体汇文明朝体.ttf",
     "character_file": "resources/work/font-characters.txt",
-    "plugin_relative_path": "fonts/NotoSansSC-VF.ttf",
+    "plugin_relative_path": "fonts/汇文明朝体汇文明朝体.ttf",
     "runtime_api_evidence": {
       "unity_font_constructor": "UnityEngine.Font(string name) loads a font from a file path",
       "tmp_create_font_asset": "TMPro.TMP_FontAsset.CreateFontAsset(Font font, int samplingPointSize, int atlasPadding, GlyphRenderMode renderMode, int atlasWidth, int atlasHeight, AtlasPopulationMode atlasPopulationMode, bool enableMultiAtlasSupport)",
       "target_assembly": "D:/SteamLibrary/steamapps/common/Psycholog/Psycholog_Data/Managed/Unity.TextMeshPro.dll"
     },
-    "license": "Noto Sans SC is distributed under the SIL Open Font License 1.1; retain the upstream license when redistributing the font."
+    "license": "User-provided 汇文明朝体 font copied from the existing BepInEx plugins/fonts directory; redistribution license has not been independently verified."
   },
   "images": {
     "strategy": "human-confirmed targeted replacement",

@@ -1,7 +1,7 @@
 using System;
 using System.Globalization;
-using System.Reflection;
 using HarmonyLib;
+using TMPro;
 
 namespace PsychologHan;
 
@@ -14,109 +14,74 @@ internal static class GamePatches
     private const string ClientInfoCategory = "client_info";
     private const string EndingCategory = "ending";
 
-    public static void Apply(Harmony harmony)
+    [HarmonyPatch(typeof(global::GameManager), nameof(global::GameManager.addMe), new Type[] { typeof(int), typeof(string), typeof(int), typeof(Action) })]
+    private static class AddMePatch
     {
-        if (harmony == null)
+        [HarmonyPrefix]
+        private static void Prefix(int id, ref string text)
         {
-            return;
-        }
-
-        int patchedCount = 0;
-        Type gameManagerType = AccessTools.TypeByName("GameManager");
-        if (gameManagerType == null)
-        {
-            Plugin.Logger.LogWarning("GameManager type was not found; dialogue, choice, and client info localization patches were skipped.");
-        }
-        else
-        {
-            patchedCount += PatchPrefix(harmony, gameManagerType, "addMe", new[] { typeof(int), typeof(string), typeof(int), typeof(Action) }, nameof(AddMePrefix));
-            patchedCount += PatchPrefix(harmony, gameManagerType, "addSpeaker", new[] { typeof(int), typeof(string), typeof(string), typeof(int), typeof(Action), typeof(string) }, nameof(AddSpeakerPrefix));
-            patchedCount += PatchPrefix(harmony, gameManagerType, "addOpt", new[] { typeof(int), typeof(long), typeof(string), typeof(int) }, nameof(AddOptPrefix));
-            patchedCount += PatchPostfix(harmony, gameManagerType, "updateClientsSection", Type.EmptyTypes, nameof(UpdateClientsSectionPostfix));
-        }
-
-        Type deathRunesType = AccessTools.TypeByName("DeathRunes");
-        if (deathRunesType == null)
-        {
-            Plugin.Logger.LogWarning("DeathRunes type was not found; ending rune localization patch was skipped.");
-        }
-        else
-        {
-            patchedCount += PatchPostfix(harmony, deathRunesType, "setRunes", Type.EmptyTypes, nameof(DeathRunesSetRunesPostfix));
-        }
-
-        Plugin.Logger.LogInfo("Applied " + patchedCount.ToString(CultureInfo.InvariantCulture) + " PsychologHan localization patch(es).");
-    }
-
-    private static int PatchPrefix(Harmony harmony, Type targetType, string methodName, Type[] argumentTypes, string prefixName)
-    {
-        MethodInfo target = AccessTools.Method(targetType, methodName, argumentTypes);
-        if (target == null)
-        {
-            Plugin.Logger.LogWarning(targetType.FullName + "." + methodName + " signature was not found; patch skipped.");
-            return 0;
-        }
-
-        harmony.Patch(target, prefix: new HarmonyMethod(typeof(GamePatches), prefixName));
-        return 1;
-    }
-
-    private static int PatchPostfix(Harmony harmony, Type targetType, string methodName, Type[] argumentTypes, string postfixName)
-    {
-        MethodInfo target = AccessTools.Method(targetType, methodName, argumentTypes);
-        if (target == null)
-        {
-            Plugin.Logger.LogWarning(targetType.FullName + "." + methodName + " signature was not found; patch skipped.");
-            return 0;
-        }
-
-        harmony.Patch(target, postfix: new HarmonyMethod(typeof(GamePatches), postfixName));
-        return 1;
-    }
-
-    private static void AddMePrefix(int id, ref string text)
-    {
-        string dialogueKey = DialogueKey(id, "ME");
-        text = TranslateRuntimeKeyWithOptionalOriginalFallback(DialogueCategory, dialogueKey, text, ItemCategory);
-    }
-
-    private static void AddSpeakerPrefix(int id, ref string speakerName, ref string text)
-    {
-        string originalSpeakerName = speakerName;
-        string dialogueKey = DialogueKey(id, originalSpeakerName);
-        text = TranslateRuntimeKeyWithOptionalOriginalFallback(DialogueCategory, dialogueKey, text, ItemCategory);
-
-        if (!string.Equals(originalSpeakerName, "(ME)", StringComparison.Ordinal))
-        {
-            speakerName = TranslateDirectOrOriginal(CharacterNameCategory, originalSpeakerName, originalSpeakerName);
+            string dialogueKey = DialogueKey(id, "ME");
+            text = TranslateRuntimeKeyWithOptionalOriginalFallback(DialogueCategory, dialogueKey, text, ItemCategory);
         }
     }
 
-    private static void AddOptPrefix(int fromId, long id, ref string text)
+    [HarmonyPatch(typeof(global::GameManager), nameof(global::GameManager.addSpeaker), new Type[] { typeof(int), typeof(string), typeof(string), typeof(int), typeof(Action), typeof(string) })]
+    private static class AddSpeakerPatch
     {
-        string choiceKey = ChoiceKey(fromId, id);
-        text = TranslateRuntimeKeyOrOriginal(ChoiceCategory, choiceKey, text);
-    }
-
-    private static void UpdateClientsSectionPostfix(object __instance)
-    {
-        string suffix;
-        if (!TryGetClientSuffix(GetStringField(__instance, "clientCurrentlyChosen"), out suffix))
+        [HarmonyPrefix]
+        private static void Prefix(int id, ref string speakerName, ref string text)
         {
-            return;
-        }
+            string originalSpeakerName = speakerName;
+            string dialogueKey = DialogueKey(id, originalSpeakerName);
+            text = TranslateRuntimeKeyWithOptionalOriginalFallback(DialogueCategory, dialogueKey, text, ItemCategory);
 
-        TranslateTextComponentField(__instance, "trustComment", ClientInfoCategory, "trustComment" + suffix);
-        TranslateTextComponentField(__instance, "treatmentComment", ClientInfoCategory, "treatmentComment" + suffix);
+            if (!string.Equals(originalSpeakerName, "(ME)", StringComparison.Ordinal))
+            {
+                speakerName = TranslateDirectOrOriginal(CharacterNameCategory, originalSpeakerName, originalSpeakerName);
+            }
+        }
     }
 
-    private static void DeathRunesSetRunesPostfix(object __instance)
+    [HarmonyPatch(typeof(global::GameManager), nameof(global::GameManager.addOpt), new Type[] { typeof(int), typeof(long), typeof(string), typeof(int) })]
+    private static class AddOptPatch
     {
-        TranslateTextComponentField(__instance, "runeVera", EndingCategory, "runeVera");
-        TranslateTextComponentField(__instance, "runeJaden", EndingCategory, "runeJaden");
-        TranslateTextComponentField(__instance, "runeJoe", EndingCategory, "runeJoe");
-        TranslateTextComponentField(__instance, "runeDeborah", EndingCategory, "runeDeborah");
-        TranslateTextComponentField(__instance, "runeAshley", EndingCategory, "runeAshley");
+        [HarmonyPrefix]
+        private static void Prefix(int fromId, long id, ref string text)
+        {
+            string choiceKey = ChoiceKey(fromId, id);
+            text = TranslateRuntimeKeyOrOriginal(ChoiceCategory, choiceKey, text);
+        }
+    }
+
+    [HarmonyPatch(typeof(global::GameManager), nameof(global::GameManager.updateClientsSection))]
+    private static class UpdateClientsSectionPatch
+    {
+        [HarmonyPostfix]
+        private static void Postfix(global::GameManager __instance)
+        {
+            string suffix;
+            if (!TryGetClientSuffix(__instance.clientCurrentlyChosen, out suffix))
+            {
+                return;
+            }
+
+            TranslateTextComponent(__instance.trustComment, ClientInfoCategory, "trustComment" + suffix);
+            TranslateTextComponent(__instance.treatmentComment, ClientInfoCategory, "treatmentComment" + suffix);
+        }
+    }
+
+    [HarmonyPatch(typeof(global::DeathRunes), "setRunes")]
+    private static class DeathRunesSetRunesPatch
+    {
+        [HarmonyPostfix]
+        private static void Postfix(global::DeathRunes __instance)
+        {
+            TranslateTextComponent(__instance.runeVera, EndingCategory, "runeVera");
+            TranslateTextComponent(__instance.runeJaden, EndingCategory, "runeJaden");
+            TranslateTextComponent(__instance.runeJoe, EndingCategory, "runeJoe");
+            TranslateTextComponent(__instance.runeDeborah, EndingCategory, "runeDeborah");
+            TranslateTextComponent(__instance.runeAshley, EndingCategory, "runeAshley");
+        }
     }
 
     private static string DialogueKey(int nodeId, string speaker)
@@ -194,19 +159,18 @@ internal static class GamePatches
         return Plugin.Translations.TranslateRuntimeOrOriginal(category, key, original);
     }
 
-    private static void TranslateTextComponentField(object instance, string fieldName, string category, string key)
+    private static void TranslateTextComponent(TextMeshProUGUI textComponent, string category, string key)
     {
-        object textComponent = GetFieldValue(instance, fieldName);
-        string original = GetText(textComponent);
-        if (original == null)
+        if (textComponent == null)
         {
             return;
         }
 
+        string original = textComponent.text;
         string translated = TranslateWithCategoryOriginalFallback(category, key, original);
         if (!string.Equals(translated, original, StringComparison.Ordinal))
         {
-            SetText(textComponent, translated);
+            textComponent.text = translated;
         }
     }
 
@@ -237,48 +201,6 @@ internal static class GamePatches
                 return true;
             default:
                 return false;
-        }
-    }
-
-    private static string GetStringField(object instance, string fieldName)
-    {
-        object value = GetFieldValue(instance, fieldName);
-        return value as string;
-    }
-
-    private static object GetFieldValue(object instance, string fieldName)
-    {
-        if (instance == null || string.IsNullOrEmpty(fieldName))
-        {
-            return null;
-        }
-
-        FieldInfo field = AccessTools.Field(instance.GetType(), fieldName);
-        return field == null ? null : field.GetValue(instance);
-    }
-
-    private static string GetText(object textComponent)
-    {
-        if (textComponent == null)
-        {
-            return null;
-        }
-
-        PropertyInfo textProperty = AccessTools.Property(textComponent.GetType(), "text");
-        return textProperty == null ? null : textProperty.GetValue(textComponent, null) as string;
-    }
-
-    private static void SetText(object textComponent, string text)
-    {
-        if (textComponent == null)
-        {
-            return;
-        }
-
-        PropertyInfo textProperty = AccessTools.Property(textComponent.GetType(), "text");
-        if (textProperty != null && textProperty.CanWrite)
-        {
-            textProperty.SetValue(textComponent, text, null);
         }
     }
 }

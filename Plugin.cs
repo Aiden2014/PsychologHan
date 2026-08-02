@@ -35,7 +35,7 @@ public class Plugin : BaseUnityPlugin
 
         harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
         Logger.LogInfo("PsychologHan localization guard: supports GameManager.addMe(int,string,int,Action), addSpeaker(int,string,string,int,Action,string), addOpt(int,long,string,int), updateClientsSection(), and DeathRunes.setRunes(). Missing signatures are skipped safely.");
-        GamePatches.Apply(harmony);
+        harmony.PatchAll();
 
         Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} loaded. Localization directory: {localizationDirectory}. Loaded {Translations.EntryCount} translations from {Translations.FileCount} file(s).");
         Logger.LogInfo("UI localization extension seam: Task 4 loads ui.csv when present, but applies no UI patch because no stable non-global UI refresh hook is verified in the current references. Missing or malformed ui.csv preserves original UI text.");

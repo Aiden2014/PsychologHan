@@ -81,11 +81,16 @@
     "fallback": "preserve original text and assets"
   },
   "fonts": {
-    "strategy": "unity-bundle",
-    "source_font": "resources/fonts/licensed-cjk.ttf",
+    "strategy": "runtime-ttf",
+    "source_font": "resources/fonts/NotoSansSC-VF.ttf",
     "character_file": "resources/work/font-characters.txt",
-    "bundle_name": "localized-font",
-    "bundle_output": "artifacts/tmp-font"
+    "plugin_relative_path": "fonts/NotoSansSC-VF.ttf",
+    "runtime_api_evidence": {
+      "unity_font_constructor": "UnityEngine.Font(string name) loads a font from a file path",
+      "tmp_create_font_asset": "TMPro.TMP_FontAsset.CreateFontAsset(Font font, int samplingPointSize, int atlasPadding, GlyphRenderMode renderMode, int atlasWidth, int atlasHeight, AtlasPopulationMode atlasPopulationMode, bool enableMultiAtlasSupport)",
+      "target_assembly": "D:/SteamLibrary/steamapps/common/Psycholog/Psycholog_Data/Managed/Unity.TextMeshPro.dll"
+    },
+    "license": "Noto Sans SC is distributed under the SIL Open Font License 1.1; retain the upstream license when redistributing the font."
   },
   "images": {
     "strategy": "human-confirmed targeted replacement",

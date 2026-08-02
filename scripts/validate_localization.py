@@ -199,6 +199,17 @@ def _collect_validation(
     if not translations_dir.exists():
         errors.append(f"missing translations directory: {translations_dir.as_posix()}")
 
+    font_source: Path | None = None
+    fonts = profile.get("fonts")
+    if isinstance(fonts, dict) and fonts.get("strategy") == "runtime-ttf":
+        configured_font = fonts.get("source_font", "resources/fonts/NotoSansSC-VF.ttf")
+        if not isinstance(configured_font, str) or not configured_font:
+            errors.append("runtime-ttf profile has no valid source_font")
+        else:
+            font_source = (project_root / configured_font).resolve()
+            if not font_source.is_file():
+                errors.append(f"missing runtime font source: {_relative_to(font_source, project_root)}")
+
     present_csvs: dict[str, Path] = {}
     if not errors:
         category_errors, present_csvs = _validate_categories(
@@ -230,6 +241,7 @@ def _collect_validation(
             "version_path": version_path,
             "version": version,
             "present_csvs": present_csvs,
+            "font_source": font_source,
         }
     )
     return errors, details
@@ -241,6 +253,7 @@ def _build_manifest(
     package_root: Path,
     plugin_target: Path,
     translation_targets: dict[str, Path],
+    font_target: Path | None,
     details: dict[str, object],
 ) -> dict[str, object]:
     scope = details["scope"]
@@ -257,6 +270,12 @@ def _build_manifest(
         },
         "translations": {},
     }
+    if font_target is not None:
+        files["font"] = {
+            "package_path": font_target.relative_to(package_root).as_posix(),
+            "sha256": _sha256(font_target),
+            "size": font_target.stat().st_size,
+        }
     translations_section: dict[str, object] = files["translations"]  # type: ignore[assignment]
     for category, target in sorted(translation_targets.items()):
         translations_section[category] = {
@@ -303,6 +322,13 @@ def _create_dist_package(
     plugin_target = package_root / plugin_dll.name
     shutil.copy2(plugin_dll, plugin_target)
 
+    font_source = details.get("font_source")
+    font_target: Path | None = None
+    if isinstance(font_source, Path):
+        font_target = package_root / "fonts" / font_source.name
+        font_target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(font_source, font_target)
+
     scope = details["scope"]
     translation_targets: dict[str, Path] = {}
     for category in scope.get("approved_categories", []):
@@ -316,6 +342,7 @@ def _create_dist_package(
         package_root=package_root,
         plugin_target=plugin_target,
         translation_targets=translation_targets,
+        font_target=font_target,
         details=details,
     )
     (package_root / "package-manifest.json").write_text(

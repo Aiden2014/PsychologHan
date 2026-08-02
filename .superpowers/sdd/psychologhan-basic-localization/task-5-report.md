@@ -203,3 +203,23 @@ Commit only Task 5 tracked files:
 - `.superpowers/sdd/psychologhan-basic-localization/task-5-report.md`
 
 Do not commit ignored `dist/`, `bin/`, `obj/`, `resources/`, `.skill-build/`, `.npm-cache/`, or local `Directory.Build.props`.
+
+## Post-release TMP font fix
+
+The first runtime check showed Chinese text rendered as tofu because the game's TMP font assets do not contain CJK glyphs. The release package now includes an optional plugin-local runtime fallback:
+
+```text
+fonts/NotoSansSC-VF.ttf
+```
+
+`FontFallbackManager.cs` creates a dynamic TMP font asset through the verified target-version API and registers it in `TMP_Settings.fallbackFontAssets`. It does not patch text setters or modify the original game font assets. If the file is missing or creation fails, the plugin keeps the original behavior and logs a warning.
+
+Final verification after the font fix:
+
+```text
+39 Python tests: OK
+Release target-DLL build: 0 warnings, 0 errors
+validator --dist dist: validation ok
+```
+
+The final package contains `fonts/NotoSansSC-VF.ttf`; its manifest SHA-256 is `763146584cf0710223441356b4395e279021b0806c196614377a7a0174ae074a`. The plugin DLL hash is recorded and matched against the Release build by the validator.

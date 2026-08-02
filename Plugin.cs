@@ -17,6 +17,7 @@ public class Plugin : BaseUnityPlugin
 
     private ConfigEntry<bool> developmentDiagnostics;
     private Harmony harmony;
+    private FontFallbackManager fontFallback;
 
     private void Awake()
     {
@@ -33,6 +34,20 @@ public class Plugin : BaseUnityPlugin
         string localizationDirectory = Path.Combine(pluginDirectory, LocalizationDirectoryName);
         Translations = TranslationManager.Load(localizationDirectory, MissingText);
 
+        fontFallback = new FontFallbackManager(Logger);
+        string fontPath = Path.Combine(pluginDirectory, FontFallbackManager.FontDirectoryName, FontFallbackManager.FontFileName);
+        if (File.Exists(fontPath))
+        {
+            if (!fontFallback.TryInstall(pluginDirectory))
+            {
+                Logger.LogWarning("TMP fallback font was present but could not be installed; Chinese text may display as tofu. Original font behavior is preserved.");
+            }
+        }
+        else
+        {
+            Logger.LogWarning("No plugin-local TMP fallback font found at " + fontPath + ". Chinese glyphs may display as tofu until the font file is deployed.");
+        }
+
         harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
         Logger.LogInfo("PsychologHan localization guard: supports GameManager.addMe(int,string,int,Action), addSpeaker(int,string,string,int,Action,string), addOpt(int,long,string,int), updateClientsSection(), and DeathRunes.setRunes(). Missing signatures are skipped safely.");
         harmony.PatchAll();
@@ -43,6 +58,12 @@ public class Plugin : BaseUnityPlugin
 
     private void OnDestroy()
     {
+        if (fontFallback != null)
+        {
+            fontFallback.Uninstall();
+            fontFallback = null;
+        }
+
         if (harmony != null)
         {
             harmony.UnpatchSelf();

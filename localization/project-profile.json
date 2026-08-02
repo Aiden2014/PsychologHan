@@ -82,15 +82,23 @@
   },
   "fonts": {
     "strategy": "runtime-ttf",
-    "source_font": "resources/fonts/汇文明朝体汇文明朝体.ttf",
+    "source_font": "resources/fonts/南西油墨宋.ttf",
     "character_file": "resources/work/font-characters.txt",
-    "plugin_relative_path": "fonts/汇文明朝体汇文明朝体.ttf",
+    "plugin_relative_path": "fonts/南西油墨宋.ttf",
+    "mappings": {
+      "Adler": "fonts/南西油墨宋.ttf",
+      "Typewriter_standard": "fonts/朝華打字機.ttf"
+    },
+    "mapping_source_fonts": [
+      "resources/fonts/南西油墨宋.ttf",
+      "resources/fonts/朝華打字機.ttf"
+    ],
     "runtime_api_evidence": {
       "unity_font_constructor": "UnityEngine.Font(string name) loads a font from a file path",
       "tmp_create_font_asset": "TMPro.TMP_FontAsset.CreateFontAsset(Font font, int samplingPointSize, int atlasPadding, GlyphRenderMode renderMode, int atlasWidth, int atlasHeight, AtlasPopulationMode atlasPopulationMode, bool enableMultiAtlasSupport)",
       "target_assembly": "D:/SteamLibrary/steamapps/common/Psycholog/Psycholog_Data/Managed/Unity.TextMeshPro.dll"
     },
-    "license": "User-provided 汇文明朝体 font copied from the existing BepInEx plugins/fonts directory; redistribution license has not been independently verified."
+    "license": "User-provided 南西油墨宋 font copied from the existing BepInEx plugins/fonts directory; redistribution license has not been independently verified."
   },
   "images": {
     "strategy": "human-confirmed targeted replacement",

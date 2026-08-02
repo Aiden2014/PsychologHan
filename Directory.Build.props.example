@@ -8,7 +8,7 @@
     - Deploy the DLL under BepInEx/plugins/PsychologHan/ (or another plugin-local folder).
     - Copy approved CSVs from ignored resources/work/approved-translations/ into
       the sibling plugin-local localization/ directory.
-    - The release validator copies the ignored resources/fonts/汇文明朝体汇文明朝体.ttf
+    - The release validator copies the ignored resources/fonts/南西油墨宋.ttf
       into the sibling plugin-local fonts/ directory when the runtime-ttf profile is enabled.
     - The plugin never reads resources/work at runtime and preserves original text
       when the plugin-local localization directory or a CSV row is absent/malformed.

@@ -12,10 +12,9 @@ class Task4StructureTests(unittest.TestCase):
 
         self.assertIn("[HarmonyPatch(typeof(global::GameManager), nameof(global::GameManager.addMe)", patches)
         self.assertIn("[HarmonyPatch(typeof(global::GameManager), nameof(global::GameManager.addSpeaker)", patches)
-        self.assertIn("[HarmonyPatch(typeof(global::GameManager), nameof(global::GameManager.addOpt)", patches)
         self.assertIn("[HarmonyPatch(typeof(global::GameManager), nameof(global::GameManager.updateClientsSection))]", patches)
         self.assertIn('[HarmonyPatch(typeof(global::DeathRunes), "setRunes")]', patches)
-        self.assertGreaterEqual(patches.count("[HarmonyPrefix]"), 3)
+        self.assertGreaterEqual(patches.count("[HarmonyPrefix]"), 2)
         self.assertGreaterEqual(patches.count("[HarmonyPostfix]"), 2)
         self.assertIn("global::GameManager __instance", patches)
         self.assertIn("global::DeathRunes __instance", patches)

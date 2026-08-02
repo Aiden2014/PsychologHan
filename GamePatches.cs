@@ -8,7 +8,6 @@ namespace PsychologHan;
 internal static class GamePatches
 {
     private const string DialogueCategory = "dialogue";
-    private const string ChoiceCategory = "choice";
     private const string CharacterNameCategory = "character_name";
     private const string ItemCategory = "item";
     private const string ClientInfoCategory = "client_info";
@@ -39,17 +38,6 @@ internal static class GamePatches
             {
                 speakerName = TranslateDirectOrOriginal(CharacterNameCategory, originalSpeakerName, originalSpeakerName);
             }
-        }
-    }
-
-    [HarmonyPatch(typeof(global::GameManager), nameof(global::GameManager.addOpt), new Type[] { typeof(int), typeof(long), typeof(string), typeof(int) })]
-    private static class AddOptPatch
-    {
-        [HarmonyPrefix]
-        private static void Prefix(int fromId, long id, ref string text)
-        {
-            string choiceKey = ChoiceKey(fromId, id);
-            text = TranslateRuntimeKeyOrOriginal(ChoiceCategory, choiceKey, text);
         }
     }
 
@@ -90,13 +78,6 @@ internal static class GamePatches
         return node + "|||" + speaker + "|||" + node;
     }
 
-    private static string ChoiceKey(int fromId, long optionId)
-    {
-        string from = fromId == 0 ? "None" : fromId.ToString(CultureInfo.InvariantCulture);
-        string option = optionId.ToString(CultureInfo.InvariantCulture);
-        return from + "|||" + option + "|||" + option;
-    }
-
     private static string TranslateDirectOrOriginal(string category, string key, string original)
     {
         if (Plugin.Translations == null)
@@ -105,16 +86,6 @@ internal static class GamePatches
         }
 
         return Plugin.Translations.TranslateOrOriginal(category, key, original);
-    }
-
-    private static string TranslateRuntimeKeyOrOriginal(string category, string runtimeKey, string original)
-    {
-        if (Plugin.Translations == null)
-        {
-            return original;
-        }
-
-        return Plugin.Translations.TranslateRuntimeOrOriginal(category, runtimeKey, original);
     }
 
     private static string TranslateWithCategoryOriginalFallback(string category, string key, string original)
@@ -164,6 +135,11 @@ internal static class GamePatches
         if (textComponent == null)
         {
             return;
+        }
+
+        if (Plugin.Fonts != null)
+        {
+            Plugin.Fonts.TryApplyMapping(textComponent);
         }
 
         string original = textComponent.text;

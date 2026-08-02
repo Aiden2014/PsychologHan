@@ -48,9 +48,18 @@ class Task4RuntimeAliasTests(unittest.TestCase):
     def test_csharp_uses_runtime_alias_lookup_for_dialogue_and_choice_prefixes(self):
         manager = (PROJECT / "TranslationManager.cs").read_text(encoding="utf-8-sig")
         patches = (PROJECT / "GamePatches.cs").read_text(encoding="utf-8-sig")
+        ui_patches = (PROJECT / "UiPatches.cs").read_text(encoding="utf-8-sig")
 
         self.assertIn("TryTranslateRuntimeKey", manager)
         self.assertIn("FirstTwoSegmentPrefix", manager)
         self.assertIn("RecordAmbiguousAlias", manager)
         self.assertIn("TranslateRuntimeKeyWithOptionalOriginalFallback(DialogueCategory", patches)
-        self.assertIn("TranslateRuntimeKeyOrOriginal(ChoiceCategory", patches)
+        self.assertIn('TranslateRuntimeOrOriginal("choice", choiceKey, original)', ui_patches)
+
+    def test_choice_patch_preserves_pac_button_identity_and_translates_display_text_later(self):
+        patches = (PROJECT / "GamePatches.cs").read_text(encoding="utf-8-sig")
+        ui_patches = (PROJECT / "UiPatches.cs").read_text(encoding="utf-8-sig")
+
+        self.assertNotIn("text = TranslateRuntimeKeyOrOriginal(ChoiceCategory", patches)
+        self.assertIn("TranslateChoiceButtons(__instance);", ui_patches)
+        self.assertIn('TranslateRuntimeOrOriginal("choice", choiceKey, original)', ui_patches)

@@ -15,12 +15,23 @@ class Task4UiHookTests(unittest.TestCase):
         self.assertIn('[HarmonyPatch(typeof(global::LoadGameButton), "onClick")]', patches)
         self.assertIn("TryTranslateByOriginal", patches)
 
+    def test_main_menu_hook_scans_the_whole_menu_subtree(self):
+        patches = (PROJECT / "UiPatches.cs").read_text(encoding="utf-8-sig")
+
+        self.assertIn("TranslateScreen(gameManager.mainMenuScreen);", patches)
+
     def test_ui_hook_is_not_a_global_tmp_setter(self):
         patches = (PROJECT / "UiPatches.cs").read_text(encoding="utf-8-sig")
 
         self.assertNotIn("TMP_Text.text", patches)
         self.assertNotIn("Resources.FindObjectsOfTypeAll", patches)
         self.assertNotIn("Update()", patches)
+
+    def test_dialogue_font_mapping_targets_the_verified_dialogue_components(self):
+        patches = (PROJECT / "UiPatches.cs").read_text(encoding="utf-8-sig")
+
+        self.assertIn("ApplyFontMappings(__instance.meText);", patches)
+        self.assertIn("ApplyFontMappings(__instance.speakerText);", patches)
 
     def test_approved_menu_labels_are_present(self):
         translations = (PROJECT / "resources" / "work" / "approved-translations" / "ui.csv").read_text(encoding="utf-8-sig")

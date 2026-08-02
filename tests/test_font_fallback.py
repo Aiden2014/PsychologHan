@@ -21,6 +21,13 @@ class FontFallbackContractTests(unittest.TestCase):
         manager = (PROJECT / "FontFallbackManager.cs").read_text(encoding="utf-8-sig")
 
         self.assertIn('Path.Combine(pluginDirectory, FontDirectoryName, FontFileName)', manager)
+        self.assertIn("南西油墨宋.ttf", manager)
+        self.assertIn("朝華打字機.ttf", manager)
+        self.assertIn("faceInfo.familyName", manager)
+        self.assertIn("Typewriter_standard", manager)
+        self.assertIn("textComponent.font =", manager)
+        self.assertIn("originalFontByComponent", manager)
+        self.assertIn("originalFontByComponent.Clear()", manager)
         self.assertNotIn("TMP_Text.text", manager)
         self.assertNotIn("SetText", manager)
         self.assertNotIn("Update()", manager)
@@ -30,8 +37,27 @@ class FontFallbackContractTests(unittest.TestCase):
         fonts = profile["fonts"]
 
         self.assertEqual(fonts["strategy"], "runtime-ttf")
-        self.assertEqual(fonts["plugin_relative_path"], "fonts/汇文明朝体汇文明朝体.ttf")
+        self.assertEqual(fonts["source_font"], "resources/fonts/南西油墨宋.ttf")
+        self.assertEqual(fonts["plugin_relative_path"], "fonts/南西油墨宋.ttf")
+        self.assertEqual(
+            fonts["mappings"],
+            {
+                "Adler": "fonts/南西油墨宋.ttf",
+                "Typewriter_standard": "fonts/朝華打字機.ttf",
+            },
+        )
         self.assertIn("CreateFontAsset", fonts["runtime_api_evidence"]["tmp_create_font_asset"])
+
+    def test_global_fallback_uses_the_adler_mapped_font(self):
+        manager = (PROJECT / "FontFallbackManager.cs").read_text(encoding="utf-8-sig")
+
+        self.assertIn('internal const string FontFileName = "南西油墨宋.ttf";', manager)
+        self.assertNotIn('internal const string FontFileName = "汇文明朝体汇文明朝体.ttf";', manager)
+
+    def test_mapped_font_replaces_the_component_material_with_the_mapped_asset_material(self):
+        manager = (PROJECT / "FontFallbackManager.cs").read_text(encoding="utf-8-sig")
+
+        self.assertIn("textComponent.fontSharedMaterial = mappedFontAsset.material;", manager)
 
 
 if __name__ == "__main__":

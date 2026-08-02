@@ -2,19 +2,16 @@
   "schema_version": 1,
   "locale": "zh-CN",
   "approved_categories": [
+    "dialogue",
+    "choice",
     "character_name",
     "item",
     "client_info",
     "ending",
     "ui"
   ],
-  "fallback_categories": [
-    "dialogue",
-    "choice"
-  ],
-  "partial_fallback_categories": {
-    "ui": "Only reviewed common menu and settings labels are approved in Task 3; all other UI rows remain English by runtime fallback."
-  },
+  "fallback_categories": [],
+  "partial_fallback_categories": {},
   "non_translation_context_categories": [
     "asset_index",
     "flow_context",

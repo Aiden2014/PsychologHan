@@ -17,13 +17,25 @@ apartment,公寓,Location label
 office,办公室,Location label
 mall,商场,Location label
 park,公园,Location label
-Ashley,Ashley,Proper name
-Deborah,Deborah,Proper name
-Jaden,Jaden,Proper name
-Joe,Joe,Proper name
-Vera,Vera,Proper name
-Mike,Mike,Proper name
-Dr. Bennett,Dr. Bennett,Proper name and honorific
-Det. Jackson,Det. Jackson,Proper name and honorific
-Sgt. Tanaka,Sgt. Tanaka,Proper name and honorific
-
+Ashley,阿什莉,Proper name
+Deborah,黛博拉,Proper name
+Jaden,杰登,Proper name
+Joe,乔,Proper name
+Vera,薇拉,Proper name
+Mike,迈克,Proper name
+Dr. Bennett,贝内特医生,Proper name and honorific
+Det. Jackson,杰克逊警探,Proper name and honorific
+Sgt. Tanaka,田中警佐,Proper name and honorific
+Mandy,曼迪,Proper name mentioned in dialogue
+Emily,艾米莉,Proper name
+Em,艾米,Nickname for Emily
+Jennifer,珍妮弗,Proper name
+Wilson,威尔逊,Proper name mentioned in dialogue
+Steven,史蒂文,Proper name mentioned in dialogue
+Julie,朱莉,Proper name mentioned in dialogue
+Mark,马克,Proper name mentioned in dialogue
+Hannah,汉娜,Proper name mentioned in dialogue
+Frank,弗兰克,Proper name mentioned in dialogue
+Thompson,汤普森,Family name
+Benny's,本尼餐馆,Restaurant name
+Longhorn Street,长角街,Street name

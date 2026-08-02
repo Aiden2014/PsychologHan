@@ -3,6 +3,7 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 using System.IO;
+using UnityEngine;
 
 namespace PsychologHan;
 
@@ -16,6 +17,7 @@ public class Plugin : BaseUnityPlugin
     private const string LocalizationDirectoryName = "localization";
 
     private ConfigEntry<bool> developmentDiagnostics;
+    private ConfigEntry<KeyboardShortcut> scanCurrentSceneHotkey;
     private Harmony harmony;
     private FontFallbackManager fontFallback;
 
@@ -27,6 +29,11 @@ public class Plugin : BaseUnityPlugin
             "DevelopmentDiagnostics",
             false,
             "When true, logs deduplicated missing/malformed localization diagnostics. Default false preserves original text silently.");
+        scanCurrentSceneHotkey = Config.Bind(
+            "Audit",
+            "ScanCurrentSceneHotkey",
+            new KeyboardShortcut(KeyCode.F8),
+            "Prints all TMP text components in the active scene to the BepInEx log. Read-only diagnostic; default F8.");
 
         MissingText = new MissingTextTracker(Logger, () => developmentDiagnostics.Value);
 
@@ -54,6 +61,15 @@ public class Plugin : BaseUnityPlugin
 
         Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} loaded. Localization directory: {localizationDirectory}. Loaded {Translations.EntryCount} translations from {Translations.FileCount} file(s).");
         Logger.LogInfo("UI localization hooks enabled for GameManager main-menu refresh and the verified SettingsButton/LoadGameButton screen controllers. Other UI preserves original text when no approved ui.csv match exists.");
+        Logger.LogInfo("Scene text scan diagnostic is bound to " + scanCurrentSceneHotkey.Value + ". Press it in-game to print active-scene TMP components.");
+    }
+
+    private void Update()
+    {
+        if (scanCurrentSceneHotkey != null && scanCurrentSceneHotkey.Value.IsDown())
+        {
+            SceneTextScanner.LogCurrentScene(Logger);
+        }
     }
 
     private void OnDestroy()

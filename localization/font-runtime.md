@@ -10,12 +10,13 @@ BepInEx/plugins/fonts/南西油墨宋.ttf
 
 ## 已配置的字体映射
 
-根据 AssetStudio 导出和运行时扫描结果，插件还会创建两个受控的 TMP 字体映射：
+根据 AssetStudio 导出和运行时扫描结果，插件还会创建三个受控的 TMP 字体映射：
 
 | 游戏原字体标识 | 映射字体 |
 | --- | --- |
 | TMP `faceInfo.familyName` 为 `Adler` | `fonts/南西油墨宋.ttf`（复用全局 fallback asset） |
 | TMP 资源名以 `Typewriter_standard` 开头 | `fonts/朝華打字機.ttf` |
+| TMP 资源名以 `GochiHand-Regular` 开头 | `fonts/JasonHandwriting1-Regular.ttf` |
 
 映射在主菜单、设置/读档屏幕、剧情屏幕和客户端信息组件上应用；其他未验证的 TMP 对象保留原字体并继续使用中文 fallback。若映射字体缺失或创建失败，则保留原字体行为，不阻止游戏启动。
 
@@ -25,6 +26,6 @@ BepInEx/plugins/fonts/南西油墨宋.ttf
 - `TMP_FontAsset.CreateFontAsset(Font, int, int, GlyphRenderMode, int, int, AtlasPopulationMode, bool)`；
 - 目标程序集中的 `UnityEngine.TextCoreFontEngineModule.dll` 和 `UnityEngine.TextCoreTextEngineModule.dll`。
 
-字体源文件来自项目现有的 `resources/fonts`；其再分发许可尚未由项目独立确认。验证器会把 fallback 和 Typewriter 映射字体复制到 dist，并在 `package-manifest.json` 中记录字体 hash。
+字体源文件来自项目现有的 `resources/fonts`；其再分发许可尚未由项目独立确认。验证器会把 fallback、Typewriter 映射字体和 GochiHand 手写映射字体复制到 dist，并在 `package-manifest.json` 中记录字体 hash。
 
 如果字体文件缺失或运行时创建失败，插件会保留原字体行为并记录警告；这不会阻塞游戏启动。

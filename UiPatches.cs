@@ -163,6 +163,129 @@ internal static class UiPatches
         }
     }
 
+    internal static void TranslateClientWeeklyPlanner(GameObject notesSection)
+    {
+        if (notesSection == null)
+        {
+            return;
+        }
+
+        TranslateScreen(notesSection);
+        TextMeshProUGUI[] texts = notesSection.GetComponentsInChildren<TextMeshProUGUI>(includeInactive: true);
+        for (int index = 0; index < texts.Length; index++)
+        {
+            TranslateHandwrittenPlannerText(texts[index]);
+        }
+    }
+
+    private static void TranslateHandwrittenPlannerText(TextMeshProUGUI textComponent)
+    {
+        if (textComponent == null ||
+            GetHierarchyPath(textComponent).IndexOf("/NotesHandwritten/", System.StringComparison.Ordinal) < 0)
+        {
+            return;
+        }
+
+        string translated = ReplacePlannerNameFragments(textComponent.name, textComponent.text);
+        if (!string.Equals(textComponent.text, translated, System.StringComparison.Ordinal))
+        {
+            textComponent.text = translated;
+        }
+
+        if (Plugin.Fonts != null)
+        {
+            Plugin.Fonts.TryApplyMapping(textComponent);
+        }
+    }
+
+    private static string ReplacePlannerNameFragments(string componentName, string value)
+    {
+        if (componentName == "AshleyText2" && value == "Ashl")
+        {
+            return "阿什";
+        }
+
+        if (componentName == "AshleyText2_ey" && value == "ey")
+        {
+            return "莉";
+        }
+
+        if (componentName == "AshleyText3" && value == "As")
+        {
+            return "阿";
+        }
+
+        if (componentName == "AshleyText3_hley" && value == "hley")
+        {
+            return "什莉";
+        }
+
+        if (componentName == "Deborah2" && value == "bora")
+        {
+            return "博";
+        }
+
+        if (componentName == "Deborah2 (1)" && value == "De")
+        {
+            return "黛";
+        }
+
+        if (componentName == "Deborah2 (2)" && value == "h")
+        {
+            return "拉";
+        }
+
+        if (componentName == "Deborah3" && value == "Debo")
+        {
+            return "黛博";
+        }
+
+        if (componentName == "Deborah3 (1)" && value == "rah")
+        {
+            return "拉";
+        }
+
+        if (componentName == "JoeText2" && value == "Jo")
+        {
+            return "乔";
+        }
+
+        if (componentName == "JoeText2_e" && value == "e")
+        {
+            return string.Empty;
+        }
+
+        if (componentName == "JoeText3" && value == "J oe")
+        {
+            return "乔";
+        }
+
+        return ReplacePlannerNames(value);
+    }
+
+    private static string ReplacePlannerNames(string value)
+    {
+        return value
+            .Replace("Ashley", "阿什莉")
+            .Replace("Deborah", "黛博拉")
+            .Replace("Jaden", "杰登")
+            .Replace("Joe", "乔")
+            .Replace("Vera", "薇拉");
+    }
+
+    private static string GetHierarchyPath(TextMeshProUGUI textComponent)
+    {
+        string path = textComponent.name;
+        Transform current = textComponent.transform.parent;
+        while (current != null)
+        {
+            path = current.name + "/" + path;
+            current = current.parent;
+        }
+
+        return path;
+    }
+
     private static void TranslateText(TextMeshProUGUI textComponent)
     {
         if (textComponent == null)

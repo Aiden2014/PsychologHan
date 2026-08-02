@@ -1,4 +1,5 @@
 from pathlib import Path
+import csv
 import unittest
 
 
@@ -42,6 +43,24 @@ class Task4UiHookTests(unittest.TestCase):
         game_patches = (PROJECT / "GamePatches.cs").read_text(encoding="utf-8-sig")
 
         self.assertIn("UiPatches.TranslateScreen(__instance.detailsSection);", game_patches)
+
+    def test_weekly_planner_refresh_scans_notes_and_handwritten_components(self):
+        game_patches = (PROJECT / "GamePatches.cs").read_text(encoding="utf-8-sig")
+        ui_patches = (PROJECT / "UiPatches.cs").read_text(encoding="utf-8-sig")
+
+        self.assertIn("UiPatches.TranslateClientWeeklyPlanner(__instance.notesSection);", game_patches)
+        self.assertIn("NotesHandwritten/", ui_patches)
+        self.assertIn("AshleyText2", ui_patches)
+
+    def test_weekly_planner_morning_translation_is_not_ambiguous(self):
+        translations = PROJECT / "resources" / "work" / "approved-translations" / "ui.csv"
+        values = set()
+        with translations.open(encoding="utf-8-sig", newline="") as handle:
+            for row in csv.reader(handle):
+                if len(row) == 3 and row[1] == "Morning":
+                    values.add(row[2])
+
+        self.assertEqual(values, {"上午"})
 
     def test_client_details_debug_instrumentation_is_removed_after_validation(self):
         game_patches = (PROJECT / "GamePatches.cs").read_text(encoding="utf-8-sig")

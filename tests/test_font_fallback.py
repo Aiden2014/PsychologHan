@@ -23,8 +23,10 @@ class FontFallbackContractTests(unittest.TestCase):
         self.assertIn('Path.Combine(pluginDirectory, FontDirectoryName, FontFileName)', manager)
         self.assertIn("南西油墨宋.ttf", manager)
         self.assertIn("朝華打字機.ttf", manager)
+        self.assertIn("JasonHandwriting1-Regular.ttf", manager)
         self.assertIn("faceInfo.familyName", manager)
         self.assertIn("Typewriter_standard", manager)
+        self.assertIn("GochiHand-Regular", manager)
         self.assertIn("textComponent.font =", manager)
         self.assertIn("originalFontByComponent", manager)
         self.assertIn("originalFontByComponent.Clear()", manager)
@@ -44,8 +46,10 @@ class FontFallbackContractTests(unittest.TestCase):
             {
                 "Adler": "fonts/南西油墨宋.ttf",
                 "Typewriter_standard": "fonts/朝華打字機.ttf",
+                "GochiHand-Regular": "fonts/JasonHandwriting1-Regular.ttf",
             },
         )
+        self.assertIn("resources/fonts/JasonHandwriting1-Regular.ttf", fonts["mapping_source_fonts"])
         self.assertIn("CreateFontAsset", fonts["runtime_api_evidence"]["tmp_create_font_asset"])
 
     def test_global_fallback_uses_the_adler_mapped_font(self):

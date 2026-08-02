@@ -87,11 +87,13 @@
     "plugin_relative_path": "fonts/南西油墨宋.ttf",
     "mappings": {
       "Adler": "fonts/南西油墨宋.ttf",
-      "Typewriter_standard": "fonts/朝華打字機.ttf"
+      "Typewriter_standard": "fonts/朝華打字機.ttf",
+      "GochiHand-Regular": "fonts/JasonHandwriting1-Regular.ttf"
     },
     "mapping_source_fonts": [
       "resources/fonts/南西油墨宋.ttf",
-      "resources/fonts/朝華打字機.ttf"
+      "resources/fonts/朝華打字機.ttf",
+      "resources/fonts/JasonHandwriting1-Regular.ttf"
     ],
     "runtime_api_evidence": {
       "unity_font_constructor": "UnityEngine.Font(string name) loads a font from a file path",

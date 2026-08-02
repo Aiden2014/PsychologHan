@@ -16,6 +16,8 @@ internal sealed class FontFallbackManager
     private const string AdlerFamilyName = "Adler";
     private const string TypewriterStandardAssetName = "Typewriter_standard";
     private const string TypewriterMappedFontFileName = "朝華打字機.ttf";
+    private const string GochiHandAssetName = "GochiHand-Regular";
+    private const string GochiHandMappedFontFileName = "JasonHandwriting1-Regular.ttf";
 
     private readonly ManualLogSource logger;
     private readonly Dictionary<string, Font> mappedSourceFonts = new Dictionary<string, Font>(StringComparer.Ordinal);
@@ -64,11 +66,12 @@ internal sealed class FontFallbackManager
             mappedFontAssets[AdlerFamilyName] = fontAsset;
             logger.LogInfo("Installed TMP font mapping Adler -> " + fontPath + " (shared with the global fallback).");
             TryInstallMappedFont(pluginDirectory, TypewriterStandardAssetName, TypewriterMappedFontFileName, "朝華打字機");
+            TryInstallMappedFont(pluginDirectory, GochiHandAssetName, GochiHandMappedFontFileName, "JasonHandwriting1");
 
             registered = true;
             logger.LogInfo(
                 "Installed the configured Chinese TMP fallback font from " + fontPath +
-                ". Font mappings: Adler/global fallback -> 南西油墨宋, Typewriter_standard -> 朝華打字機.");
+                ". Font mappings: Adler/global fallback -> 南西油墨宋, Typewriter_standard -> 朝華打字機, GochiHand-Regular -> JasonHandwriting1.");
             return true;
         }
         catch (Exception exception)
@@ -180,6 +183,12 @@ internal sealed class FontFallbackManager
             originalFont.name.StartsWith(TypewriterStandardAssetName, StringComparison.OrdinalIgnoreCase))
         {
             return TypewriterStandardAssetName;
+        }
+
+        if (!string.IsNullOrEmpty(originalFont.name) &&
+            originalFont.name.StartsWith(GochiHandAssetName, StringComparison.OrdinalIgnoreCase))
+        {
+            return GochiHandAssetName;
         }
 
         if (string.Equals(originalFont.faceInfo.familyName, AdlerFamilyName, StringComparison.OrdinalIgnoreCase))

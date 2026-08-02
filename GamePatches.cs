@@ -61,6 +61,7 @@ internal static class GamePatches
             }
 
             UiPatches.TranslateScreen(__instance.inGame);
+            UiPatches.TranslateClientWeeklyPlanner(__instance.notesSection);
 
             string suffix;
             if (!TryGetClientSuffix(__instance.clientCurrentlyChosen, out suffix))

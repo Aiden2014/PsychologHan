@@ -1,0 +1,42 @@
+<Project>
+  <!--
+    Copy this file to Directory.Build.props for local builds/deployment.
+    Directory.Build.props is intentionally git-ignored because paths are machine-local.
+
+    Runtime contract:
+    - Build PsychologHan.dll.
+    - Deploy the DLL under BepInEx/plugins/PsychologHan/ (or another plugin-local folder).
+    - Copy approved CSVs from ignored resources/work/approved-translations/ into
+      the sibling plugin-local localization/ directory.
+    - The plugin never reads resources/work at runtime and preserves original text
+      when the plugin-local localization directory or a CSV row is absent/malformed.
+  -->
+
+  <PropertyGroup>
+    <PsychologHanGamePath>D:\SteamLibrary\steamapps\common\Psycholog</PsychologHanGamePath>
+    <PsychologHanLocalizationSource>$(MSBuildProjectDirectory)\resources\work\approved-translations</PsychologHanLocalizationSource>
+    <PsychologHanPluginDeployDir>$(PsychologHanGamePath)\BepInEx\plugins\PsychologHan</PsychologHanPluginDeployDir>
+    <DefaultItemExcludes>$(DefaultItemExcludes);$(MSBuildProjectDirectory)\resources\**;$(MSBuildProjectDirectory)\.skill-build\**</DefaultItemExcludes>
+
+    <!-- Set to true only when you intentionally want build output copied into the local game install. -->
+    <PsychologHanDeployToGame>false</PsychologHanDeployToGame>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(PsychologHanLocalizationSource)\*.csv"
+          Link="localization\%(Filename)%(Extension)"
+          Condition="Exists('$(PsychologHanLocalizationSource)')"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup Condition="Exists('$(PsychologHanLocalizationSource)')">
+    <PsychologHanLocalizationFiles Include="$(PsychologHanLocalizationSource)\*.csv" />
+  </ItemGroup>
+
+  <Target Name="DeployPsychologHanPlugin" AfterTargets="Build" Condition="'$(PsychologHanDeployToGame)' == 'true'">
+    <MakeDir Directories="$(PsychologHanPluginDeployDir)" />
+    <MakeDir Directories="$(PsychologHanPluginDeployDir)\localization" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(PsychologHanPluginDeployDir)" />
+    <Copy SourceFiles="@(PsychologHanLocalizationFiles)" DestinationFolder="$(PsychologHanPluginDeployDir)\localization" SkipUnchangedFiles="true" />
+  </Target>
+</Project>

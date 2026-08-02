@@ -106,6 +106,19 @@ def _find_plugin_dll(project_root: Path, assembly_name: str) -> Path | None:
     return any_candidates[0] if any_candidates else None
 
 
+def _resolve_dist_dir(project_root: Path, dist_arg: Path) -> tuple[Path | None, str | None]:
+    candidate = dist_arg if dist_arg.is_absolute() else project_root / dist_arg
+    dist_dir = candidate.resolve()
+    expected_dist = (project_root / "dist").resolve()
+    if dist_dir != expected_dist:
+        return (
+            None,
+            "dist must resolve to project_root/dist; "
+            f"got {dist_dir.as_posix()} (expected {expected_dist.as_posix()})",
+        )
+    return dist_dir, None
+
+
 def _validate_categories(
     *,
     translations_dir: Path,
@@ -317,7 +330,12 @@ def main(argv: list[str] | None = None) -> int:
     project_root = args.project_root.resolve()
     translations_dir = args.translations.resolve()
     profile_path = args.profile.resolve()
-    dist_dir = args.dist.resolve() if args.dist else None
+    dist_dir: Path | None = None
+    if args.dist is not None:
+        dist_dir, dist_error = _resolve_dist_dir(project_root, args.dist)
+        if dist_error is not None:
+            print(dist_error)
+            return 1
 
     errors, details = _collect_validation(
         project_root=project_root,

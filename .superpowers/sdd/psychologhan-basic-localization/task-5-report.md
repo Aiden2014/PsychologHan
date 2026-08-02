@@ -2,91 +2,120 @@
 
 ## Status
 
-Implemented `scripts/validate_localization.py` and `tests/test_validate_localization.py`, validated the real approved translation workspace, produced the ignored `dist/` package after a successful Release build, and removed the temporary ignored `Directory.Build.props` used only for build verification.
+Task 5 fix round completed on 2026-08-02.
 
-## Changed files
+This round addressed the independent review findings:
+
+- hardened `scripts/validate_localization.py --dist` so the resolved target must be exactly `project_root/dist`;
+- rejected project-external dist targets and `project_root` itself before any package directory deletion can happen;
+- refreshed the ignored `dist/` package from the current Release build produced after the typed Harmony Task 4 refactor;
+- verified the packaged DLL hash and manifest hash match `bin/Release/netstandard2.1/PsychologHan.dll`.
+
+No extractor scripts, source/extracted CSVs, approved translation CSVs, or Steam game directory files were modified.
+
+## Changed tracked files
 
 - `scripts/validate_localization.py`
 - `tests/test_validate_localization.py`
 - `.superpowers/sdd/psychologhan-basic-localization/task-5-report.md`
 
-No extractor/source CSVs, files under `resources/work/approved-translations/`, files under `resources/extracted/`, Steam game directory files, or unrelated tracked source files were modified.
+Ignored build/package outputs refreshed but not committed:
 
-## What `validate_localization.py` does
+- `bin/Release/netstandard2.1/PsychologHan.dll`
+- `dist/BepInEx/plugins/PsychologHan/`
 
-Required CLI:
+## Validator/package behavior after fix
+
+Required CLI remains:
 
 ```powershell
 python scripts/validate_localization.py --project-root . --translations resources/work/approved-translations --profile localization/project-profile.json --dist dist
 ```
 
-Implemented checks:
+`--dist` handling now resolves relative paths against `project_root` and only accepts the exact resolved path `project_root/dist`. Any other target returns exit code 1 before `_create_dist_package(...)` can remove the existing plugin package directory.
 
-- Parses `localization/project-profile.json`.
-- Parses `localization/translation-scope.json`.
-- Parses `resources/work/translation-version.json`.
-- Runs `scripts.translation_workspace.validate_import(...)` against `resources/work/entries.jsonl` and the approved translations directory.
-- Requires approved categories in `translation-scope.json` to match `translation-version.json`.
-- Allows fallback categories `dialogue` and `choice` to be absent.
-- Verifies approved category files exist and match approved row counts from `translation-version.json`.
-- Verifies CSV readability with UTF-8 / UTF-8 BOM handling.
-- Reports malformed rows, duplicate keys, original-text drift, empty translations, newline-count drift, and protected-token drift via `translation_workspace.validate_import`.
-- Inspects build output for `bin/Release/**/PsychologHan.dll` first, then other `bin/**/PsychologHan.dll` outputs if needed.
-- When `--dist` is supplied and validation succeeds, creates only:
-  - `dist/BepInEx/plugins/PsychologHan/PsychologHan.dll`
-  - `dist/BepInEx/plugins/PsychologHan/localization/*.csv` for approved categories only
-  - `dist/BepInEx/plugins/PsychologHan/package-manifest.json`
+Accepted package output remains:
 
-The validator never copies game DLLs, the game executable, or writes into the Steam install.
+```text
+dist/BepInEx/plugins/PsychologHan/PsychologHan.dll
+dist/BepInEx/plugins/PsychologHan/package-manifest.json
+dist/BepInEx/plugins/PsychologHan/localization/character_name.csv
+dist/BepInEx/plugins/PsychologHan/localization/client_info.csv
+dist/BepInEx/plugins/PsychologHan/localization/ending.csv
+dist/BepInEx/plugins/PsychologHan/localization/item.csv
+dist/BepInEx/plugins/PsychologHan/localization/ui.csv
+```
 
-## Tests added
+No dialogue or choice CSVs are packaged because they remain fallback categories rather than approved translated categories.
 
-`tests/test_validate_localization.py` covers:
+## Tests updated
 
-- successful validation + package creation;
-- missing/invalid translation failures;
-- dist-package allowlist enforcement;
-- real CLI execution path (`python scripts/validate_localization.py ...`) from the repo root.
+`tests/test_validate_localization.py` now additionally covers:
 
-## TDD / debug notes
+- project-external `--dist` is rejected and an existing external package directory is not deleted;
+- `--dist` equal to the project root is rejected;
+- package manifest plugin SHA-256 matches the packaged DLL bytes.
 
-### Red-green cycle 1: validator behavior
+## TDD notes for this fix round
 
-Started with a missing module failure because `scripts/validate_localization.py` did not exist yet.
+New safety-boundary tests were added before changing production code.
 
 Command:
 
 ```powershell
-python -m unittest tests.test_validate_localization.ValidateLocalizationTests.test_main_validates_workspace_and_builds_dist_package -v
+python -m unittest tests.test_validate_localization.ValidateLocalizationTests.test_main_rejects_dist_outside_project_without_deleting_existing_package tests.test_validate_localization.ValidateLocalizationTests.test_main_rejects_project_root_as_dist -v
 ```
 
-Initial result:
+Initial result before the validator fix:
 
 ```text
-ModuleNotFoundError: No module named 'scripts.validate_localization'
+FAILED (failures=2)
+AssertionError: 0 != 1
 ```
 
-Then implemented the validator and got the focused tests green.
-
-### Red-green cycle 2: real CLI entrypoint
-
-The imported module path worked, but the required CLI form failed because `python scripts/validate_localization.py` did not have the repo root on `sys.path`.
-
-Command:
-
-```powershell
-python -m unittest tests.test_validate_localization.ValidateLocalizationTests.test_cli_script_execution_works_from_repo_root -v
-```
-
-Initial result:
+After adding `_resolve_dist_dir(...)` and checking it from `main(...)`, the same focused tests passed:
 
 ```text
-ModuleNotFoundError: No module named 'scripts'
+Ran 2 tests in 0.049s
+
+OK
 ```
 
-Fix: add the repo root to `sys.path` when the script is executed as a file entrypoint. Re-ran the targeted test and the full Python suite successfully.
+The full validator test file also passed:
+
+```text
+Ran 6 tests in 0.308s
+
+OK
+```
 
 ## Verification commands and outputs
+
+### Release build against the real target Managed DLLs
+
+Sandboxed command:
+
+```powershell
+dotnet build PsychologHan.csproj -c Release -v minimal
+```
+
+Sandbox result:
+
+```text
+error MSB4184: Access to the path 'C:\Users\LiuZhuoHeng\AppData\Local\Microsoft SDKs' is denied.
+```
+
+Escalated retry of the same build command:
+
+```text
+PsychologHan -> D:\projects\PsychologHan\bin\Release\netstandard2.1\PsychologHan.dll
+
+已成功生成。
+    0 个警告
+    0 个错误
+```
+
+The existing ignored `Directory.Build.props` was present for local machine paths and has deployment disabled.
 
 ### Full Python test suite
 
@@ -99,78 +128,26 @@ python -m unittest discover -s tests -v
 Result:
 
 ```text
-Ran 30 tests in 1.704s
+Ran 36 tests in 2.087s
 
 OK
 ```
 
-### Release build: sandbox limitation
-
-First sandboxed attempt:
-
-```powershell
-dotnet build -c Release
-```
-
-Result:
-
-```text
-error MSB4184: Access to the path 'C:\Users\LiuZhuoHeng\AppData\Local\Microsoft SDKs' is denied.
-```
-
-This was a sandbox limitation, not a project-code failure.
-
-### Release build: baseline escalated attempt without local props
+### Validator without package output
 
 Command:
 
 ```powershell
-dotnet build -c Release
+python scripts/validate_localization.py --project-root . --translations resources/work/approved-translations --profile localization/project-profile.json
 ```
 
 Result:
 
 ```text
-0 warnings, 418 errors
+validation ok
 ```
 
-Primary cause:
-
-- SDK default compile globs picked up `resources/Assembly-CSharp-decompiled/**/*.cs`, which pulled decompiled game sources into the plugin build and produced missing Unity UI/Timeline reference failures plus duplicate assembly attributes.
-
-### Release build: verified scoped build with temporary ignored local props
-
-Per the Task 5 brief, I created a temporary git-ignored `Directory.Build.props` only for build verification, using the documented local exclusion/deployment pattern from `Directory.Build.props.example`, and removed it before finishing.
-
-Command:
-
-```powershell
-dotnet build -c Release
-```
-
-Result:
-
-```text
-PsychologHan -> D:\projects\PsychologHan\bin\Release\netstandard2.1\PsychologHan.dll
-
-已成功生成。
-    0 个警告
-    0 个错误
-```
-
-Removal check after verification:
-
-```powershell
-Test-Path Directory.Build.props
-```
-
-Result:
-
-```text
-False
-```
-
-### Real workspace validation + dist generation
+### Validator with package output
 
 Command:
 
@@ -184,53 +161,45 @@ Result:
 validation ok; package created at D:/projects/PsychologHan/dist/BepInEx/plugins/PsychologHan
 ```
 
-## Produced dist package
+### Package hash verification
 
-Package contents:
+Observed hashes:
 
 ```text
-dist/BepInEx/plugins/PsychologHan/PsychologHan.dll
-dist/BepInEx/plugins/PsychologHan/package-manifest.json
-dist/BepInEx/plugins/PsychologHan/localization/character_name.csv
-dist/BepInEx/plugins/PsychologHan/localization/client_info.csv
-dist/BepInEx/plugins/PsychologHan/localization/ending.csv
-dist/BepInEx/plugins/PsychologHan/localization/item.csv
-dist/BepInEx/plugins/PsychologHan/localization/ui.csv
+bin/Release/netstandard2.1/PsychologHan.dll:
+a5833628adefe43bfcf098c5fce315cf465970deb2509a006cba67c728de41cc
+
+dist/BepInEx/plugins/PsychologHan/PsychologHan.dll:
+a5833628adefe43bfcf098c5fce315cf465970deb2509a006cba67c728de41cc
+
+dist/BepInEx/plugins/PsychologHan/package-manifest.json files.plugin.sha256:
+a5833628adefe43bfcf098c5fce315cf465970deb2509a006cba67c728de41cc
 ```
 
-No dialogue or choice CSVs were packaged because they are fallback categories and are not currently part of the approved translation set in `resources/work/translation-version.json`.
+`HashesMatch` result:
 
-## Package manifest snapshot
+```text
+True
+```
 
-`dist/BepInEx/plugins/PsychologHan/package-manifest.json` records:
+Package allowlist observed:
 
-- locale: `zh-CN`
-- plugin assembly: `PsychologHan`
-- plugin version: `1.0.0`
-- approved categories: `character_name`, `item`, `client_info`, `ending`, `ui`
-- fallback categories: `dialogue`, `choice`
-- translation-version metadata and hashes
-- SHA-256 + size for the packaged DLL and each approved CSV
-
-Observed packaged hashes:
-
-- `PsychologHan.dll`: `55c73ecbc29528403b8188bf5a459fc36af76b8e0715a5c724a4d6063f7f090b`
-- `localization/character_name.csv`: `f0117055bde203b3cdb1c5497990d2524a5f8d1ba5a75792d780a32d44986a4f`
-- `localization/client_info.csv`: `0fcafa683f13ae0cfd5f8dd4f6fc70610bfd0e9db48234b64df557ed23277903`
-- `localization/ending.csv`: `b41f55697860d42aa1af736c98d7bb58eb00fcbdbaf2419638537723e0c50f04`
-- `localization/item.csv`: `5e4bb66ca9f3511628f2054e74b38fd520561984b1f3d12be8b7df348cd366a7`
-- `localization/ui.csv`: `6cb519d01904c963a6153d53a70f8a19855b9d934f44aa93fcb9268de0c903ea`
-
-## Exact limitations encountered
-
-- Sandboxed MSBuild could not access `C:\Users\LiuZhuoHeng\AppData\Local\Microsoft SDKs`; Release build verification required an escalated retry.
-- The first escalated Release build still failed until a temporary ignored `Directory.Build.props` excluded local `resources/` and `.skill-build/` C# trees from SDK compile globs.
-- The escalated build performed restore checks against the configured NuGet feeds. In this environment they were reachable during the approved escalated build.
+```text
+localization/character_name.csv
+localization/client_info.csv
+localization/ending.csv
+localization/item.csv
+localization/ui.csv
+package-manifest.json
+PsychologHan.dll
+```
 
 ## Commit scope
 
-Only the following tracked Task 5 files should be committed:
+Commit only Task 5 tracked files:
 
 - `scripts/validate_localization.py`
 - `tests/test_validate_localization.py`
 - `.superpowers/sdd/psychologhan-basic-localization/task-5-report.md`
+
+Do not commit ignored `dist/`, `bin/`, `obj/`, `resources/`, `.skill-build/`, `.npm-cache/`, or local `Directory.Build.props`.

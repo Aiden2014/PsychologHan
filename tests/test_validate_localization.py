@@ -1,5 +1,6 @@
 import contextlib
 import csv
+import hashlib
 import io
 import json
 import subprocess
@@ -56,6 +57,72 @@ class ValidateLocalizationTests(unittest.TestCase):
             ["character_name", "ui"],
         )
         self.assertIn("plugin", manifest["files"])
+        self.assertEqual(
+            manifest["files"]["plugin"]["sha256"],
+            self._sha256(package_root / "PsychologHan.dll"),
+        )
+
+    def test_main_rejects_dist_outside_project_without_deleting_existing_package(self):
+        project = Path(self._tmp_dir()) / "project"
+        outside_dist = Path(self._tmp_dir()) / "external-dist"
+        self._write_fixture_project(
+            project,
+            approved_counts={"character_name": 1},
+            approved_rows={"character_name": [["hero", "Hero", "英雄"]]},
+            entries=[{"category": "character_name", "key": "hero", "original": "Hero"}],
+            include_plugin=True,
+        )
+        external_package = outside_dist / "BepInEx" / "plugins" / "PsychologHan"
+        external_package.mkdir(parents=True)
+        protected_file = external_package / "protected.txt"
+        protected_file.write_text("must not be deleted", encoding="utf-8")
+
+        stdout = io.StringIO()
+        with contextlib.redirect_stdout(stdout):
+            exit_code = main(
+                [
+                    "--project-root",
+                    str(project),
+                    "--translations",
+                    str(project / "resources" / "work" / "approved-translations"),
+                    "--profile",
+                    str(project / "localization" / "project-profile.json"),
+                    "--dist",
+                    str(outside_dist),
+                ]
+            )
+
+        self.assertEqual(exit_code, 1)
+        self.assertIn("dist must resolve to project_root/dist", stdout.getvalue())
+        self.assertTrue(protected_file.exists())
+
+    def test_main_rejects_project_root_as_dist(self):
+        project = Path(self._tmp_dir()) / "project"
+        self._write_fixture_project(
+            project,
+            approved_counts={"character_name": 1},
+            approved_rows={"character_name": [["hero", "Hero", "英雄"]]},
+            entries=[{"category": "character_name", "key": "hero", "original": "Hero"}],
+            include_plugin=True,
+        )
+
+        stdout = io.StringIO()
+        with contextlib.redirect_stdout(stdout):
+            exit_code = main(
+                [
+                    "--project-root",
+                    str(project),
+                    "--translations",
+                    str(project / "resources" / "work" / "approved-translations"),
+                    "--profile",
+                    str(project / "localization" / "project-profile.json"),
+                    "--dist",
+                    str(project),
+                ]
+            )
+
+        self.assertEqual(exit_code, 1)
+        self.assertIn("dist must resolve to project_root/dist", stdout.getvalue())
 
     def test_main_reports_missing_or_invalid_translations(self):
         project = Path(self._tmp_dir()) / "project"
@@ -244,6 +311,13 @@ class ValidateLocalizationTests(unittest.TestCase):
     def _write_json(self, path: Path, payload: dict[str, object]) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+    def _sha256(self, path: Path) -> str:
+        digest = hashlib.sha256()
+        with path.open("rb") as handle:
+            for chunk in iter(lambda: handle.read(65536), b""):
+                digest.update(chunk)
+        return digest.hexdigest()
 
     def _tmp_dir(self) -> str:
         path = tempfile.mkdtemp(prefix="psycholog-validate-localization-")

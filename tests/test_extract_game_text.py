@@ -114,6 +114,27 @@ class ExtractGameTextTests(unittest.TestCase):
         self.assertTrue(any("Vera" in row.text for row in data.client_info))
         self.assertTrue(any("Vera Mills" in row.text for row in data.ending))
 
+    def test_parse_game_manager_extracts_dynamic_client_info_assignments(self):
+        source = Path(self._tmp_dir()) / "GameManager.cs"
+        source.write_text(
+            '''
+        void Build() {
+            gS.trustCommentJaden = "At this point, me and Jaden go way back. His trust in me goes deep, but lately things have been tense, probably due to the stress of the exposure sessions.";
+        }
+        ''',
+            encoding="utf-8",
+        )
+
+        data = parse_game_manager(source)
+
+        self.assertIn(
+            (
+                "gS.trustCommentJaden|||3",
+                "At this point, me and Jaden go way back. His trust in me goes deep, but lately things have been tense, probably due to the stress of the exposure sessions.",
+            ),
+            [(row.key_suffix, row.text) for row in data.client_info],
+        )
+
     def test_resource_index_resolves_audio_source_to_audio_clip(self):
         root = Path(self._tmp_dir()) / "resources"
         (root / "AudioSource").mkdir(parents=True)

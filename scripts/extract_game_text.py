@@ -496,8 +496,13 @@ def _containing_call(call: Invocation, calls: list[Invocation]) -> Optional[Invo
     return min(parents, key=lambda item: item.end - item.start, default=None)
 
 
-def _scan_text_assignments(source: str) -> Iterable[tuple[int, str, str]]:
-    pattern = re.compile(r"(?P<target>[A-Za-z_][\w.\[\]]*)\.text\s*=\s*(?P<expression>[^;]+);")
+def _scan_text_assignments(
+    source: str,
+    target_pattern: str = r"[A-Za-z_][\w.\[\]]*\.text",
+) -> Iterable[tuple[int, str, str]]:
+    pattern = re.compile(
+        rf"(?P<target>{target_pattern})\s*=\s*(?P<expression>[^;]+);"
+    )
     for match in pattern.finditer(source):
         yield source.count("\n", 0, match.start()) + 1, match.group("target"), match.group("expression").strip()
 
@@ -643,6 +648,14 @@ def parse_game_manager(path: Path) -> GameData:
             data.choices.append(ChoiceRow(None, _integer(target), value, None, line_no, path.name))
         elif target != "meText" and target != "speakerText":
             data.ui.append(TextRow("ui", f"{target}|||{line_no}", value, line_no, path.name, detail))
+
+    for line_no, target, expression in _scan_text_assignments(
+        source,
+        r"gS\.(?:trustComment|treatmentComment)\w+",
+    ):
+        value, detail = literal_text(expression)
+        if value:
+            data.client_info.append(TextRow("client_info", f"{target}|||{line_no}", value, line_no, path.name, detail))
 
     state_client, state_ending = _parse_state_texts(path.with_name("GameState.cs"))
     data.client_info.extend(state_client)

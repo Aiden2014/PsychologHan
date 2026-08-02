@@ -44,3 +44,6 @@ __pycache__/
 
 # Local Git worktrees
 .worktrees/
+
+# Local Superpowers task artifacts
+.superpowers/

@@ -149,7 +149,7 @@ def _read_source_rows(path: Path) -> list[list[str]]:
 
 
 def _write_csv(path: Path, rows: list[list[str]]) -> None:
-    with path.open("w", encoding="utf-8", newline="") as handle:
+    with path.open("w", encoding="utf-8-sig", newline="") as handle:
         writer = csv.writer(handle)
         writer.writerows(rows)
 

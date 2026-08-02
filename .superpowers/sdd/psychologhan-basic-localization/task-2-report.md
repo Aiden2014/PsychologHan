@@ -2,7 +2,7 @@
 
 ## Status
 
-Completed.
+Completed. Review fix round 1 applied.
 
 Implemented a standard-library-only translation workspace adapter in `scripts/translation_workspace.py` and focused coverage in `tests/test_translation_workspace.py`, without modifying `scripts/extract_game_text.py`, the existing extraction CSVs, the Steam game directory, or unrelated user files.
 
@@ -116,12 +116,76 @@ Output:
 validation ok
 ```
 
+### Review fix round 1: red before BOM fix
+
+Command:
+
+```powershell
+python -m unittest tests.test_translation_workspace -v
+```
+
+Output:
+
+```text
+FAIL: test_export_entries_writes_review_csvs_with_utf8_bom
+AssertionError: b'dlg' != b'\xef\xbb\xbf'
+FAILED (failures=1)
+```
+
+### Review fix round 1: focused verification
+
+Command:
+
+```powershell
+python -m unittest tests.test_translation_workspace -v
+```
+
+Output:
+
+```text
+Ran 7 tests in 0.103s
+OK
+```
+
+### Review fix round 1: full verification
+
+Command:
+
+```powershell
+python -m unittest tests.test_extract_game_text tests.test_translation_workspace -v
+```
+
+Output:
+
+```text
+Ran 22 tests in 1.515s
+OK
+```
+
+### Review fix round 1: export and validate
+
+Commands:
+
+```powershell
+python scripts/translation_workspace.py export --project-root . --output-dir resources/work
+python scripts/translation_workspace.py validate --entries resources/work/entries.jsonl --translations resources/work/approved-translations
+```
+
+Output:
+
+```text
+{"character_name": 24, "choice": 1334, "client_info": 10, "dialogue": 2479, "ending": 16, "item": 10, "ui": 1533}
+validation ok
+```
+
 ## Concerns
 
 - Validation intentionally treats missing translation files and missing rows as valid so English fallback remains possible. That means an empty `approved-translations/` directory validates cleanly by design.
 - The real workspace validation run only exercised the fallback path because no approved translation CSVs were added in Task 2.
 - `source-manifest.sha256` is deterministic and currently covers the sorted CSV files under `resources/extracted/`.
+- Review CSV exports now use UTF-8 with BOM to match the workspace contract.
+- Repeated export is covered by test assertions for identical `entries.jsonl` and `source-manifest.sha256` content across runs.
 
 ## Commit
 
-3ea7ab1aa5255814551ab366ad114a297042c671
+Commit hashes for fix rounds are returned separately and are not embedded here, so the report stays accurate even if later amendments create a new commit ID.

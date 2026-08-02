@@ -57,6 +57,45 @@ class TranslationWorkspaceTests(unittest.TestCase):
         self.assertIn("dialogue.csv", manifest_text)
         self.assertIn("ui.csv", manifest_text)
 
+    def test_export_entries_writes_review_csvs_with_utf8_bom(self):
+        project = Path(self._tmp_dir()) / "project"
+        extracted = project / "resources" / "extracted"
+        extracted.mkdir(parents=True)
+        self._write_csv(
+            extracted / "dialogue.csv",
+            [["dlg-1", "Hello", ""]],
+        )
+
+        output = project / "resources" / "work"
+        export_entries(project, output)
+
+        self.assertEqual((output / "dialogue.csv").read_bytes()[:3], b"\xef\xbb\xbf")
+
+    def test_export_entries_is_deterministic_across_repeated_runs(self):
+        project = Path(self._tmp_dir()) / "project"
+        extracted = project / "resources" / "extracted"
+        extracted.mkdir(parents=True)
+        self._write_csv(
+            extracted / "dialogue.csv",
+            [["dlg-1", "Hello", ""], ["dlg-2", "World", ""]],
+        )
+        self._write_csv(
+            extracted / "ui.csv",
+            [["ui-1", "Quit", ""]],
+        )
+
+        output = project / "resources" / "work"
+        export_entries(project, output)
+        first_entries = (output / "entries.jsonl").read_text(encoding="utf-8")
+        first_manifest = (output / "source-manifest.sha256").read_text(encoding="utf-8")
+
+        export_entries(project, output)
+        second_entries = (output / "entries.jsonl").read_text(encoding="utf-8")
+        second_manifest = (output / "source-manifest.sha256").read_text(encoding="utf-8")
+
+        self.assertEqual(second_entries, first_entries)
+        self.assertEqual(second_manifest, first_manifest)
+
     def test_protected_tokens_covers_placeholders_tags_escapes_and_newlines(self):
         tokens = protected_tokens(
             "Use {EXPR_1} then {0} and {player_name} <color=#fff>go</color>\\nNext\nDone"

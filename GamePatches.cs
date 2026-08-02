@@ -47,6 +47,21 @@ internal static class GamePatches
         [HarmonyPostfix]
         private static void Postfix(global::GameManager __instance)
         {
+            if (__instance == null)
+            {
+                return;
+            }
+
+            if (string.Equals(__instance.currentlyDisplayedClientInfoType, "details", StringComparison.Ordinal))
+            {
+                if (__instance.detailsSection != null)
+                {
+                    UiPatches.TranslateScreen(__instance.detailsSection);
+                }
+            }
+
+            UiPatches.TranslateScreen(__instance.inGame);
+
             string suffix;
             if (!TryGetClientSuffix(__instance.clientCurrentlyChosen, out suffix))
             {

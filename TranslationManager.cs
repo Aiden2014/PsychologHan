@@ -30,6 +30,12 @@ public sealed class TranslationManager
     private readonly Dictionary<string, HashSet<string>> ambiguousOriginalsByCategory =
         new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
 
+    private readonly Dictionary<string, Dictionary<string, string>> normalizedOriginalsByCategory =
+        new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
+
+    private readonly Dictionary<string, HashSet<string>> ambiguousNormalizedOriginalsByCategory =
+        new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+
     private readonly MissingTextTracker diagnostics;
 
     private TranslationManager(MissingTextTracker diagnostics)
@@ -244,12 +250,28 @@ public sealed class TranslationManager
         }
 
         Dictionary<string, string> originals;
-        if (!originalsByCategory.TryGetValue(category, out originals))
+        if (originalsByCategory.TryGetValue(category, out originals) && originals.TryGetValue(original, out translated))
+        {
+            return true;
+        }
+
+        string normalizedOriginal = NormalizeNewlines(original);
+        if (string.Equals(normalizedOriginal, original, StringComparison.Ordinal))
         {
             return false;
         }
 
-        return originals.TryGetValue(original, out translated);
+        HashSet<string> ambiguousNormalizedOriginals;
+        if (ambiguousNormalizedOriginalsByCategory.TryGetValue(category, out ambiguousNormalizedOriginals) &&
+            ambiguousNormalizedOriginals.Contains(normalizedOriginal))
+        {
+            diagnostics.RecordMiss(category, "<ambiguous-normalized-original-fallback>", original);
+            return false;
+        }
+
+        Dictionary<string, string> normalizedOriginals;
+        return normalizedOriginalsByCategory.TryGetValue(category, out normalizedOriginals) &&
+            normalizedOriginals.TryGetValue(normalizedOriginal, out translated);
     }
 
     private void LoadCsv(string path, string category)
@@ -334,6 +356,7 @@ public sealed class TranslationManager
         translations.Add(key, entry);
         AddRuntimeAlias(category, entry);
         AddOriginalFallback(category, original, translation, path, rowNumber);
+        AddNormalizedOriginalFallback(category, original, translation, path, rowNumber);
         return true;
     }
 
@@ -432,6 +455,66 @@ public sealed class TranslationManager
         }
 
         return ambiguousOriginals;
+    }
+
+    private void AddNormalizedOriginalFallback(string category, string original, string translation, string path, int rowNumber)
+    {
+        string normalizedOriginal = NormalizeNewlines(original);
+        if (string.Equals(normalizedOriginal, original, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        HashSet<string> ambiguousOriginals = GetAmbiguousNormalizedOriginals(category);
+        if (ambiguousOriginals.Contains(normalizedOriginal))
+        {
+            return;
+        }
+
+        Dictionary<string, string> originals = GetNormalizedOriginalFallbacks(category);
+        string existing;
+        if (originals.TryGetValue(normalizedOriginal, out existing))
+        {
+            if (!string.Equals(existing, translation, StringComparison.Ordinal))
+            {
+                originals.Remove(normalizedOriginal);
+                ambiguousOriginals.Add(normalizedOriginal);
+                diagnostics.RecordMalformedRow(path, rowNumber, "Normalized original text has multiple translations; normalized original fallback disabled for this text.");
+            }
+
+            return;
+        }
+
+        originals.Add(normalizedOriginal, translation);
+    }
+
+    private Dictionary<string, string> GetNormalizedOriginalFallbacks(string category)
+    {
+        Dictionary<string, string> originals;
+        if (!normalizedOriginalsByCategory.TryGetValue(category, out originals))
+        {
+            originals = new Dictionary<string, string>(StringComparer.Ordinal);
+            normalizedOriginalsByCategory.Add(category, originals);
+        }
+
+        return originals;
+    }
+
+    private HashSet<string> GetAmbiguousNormalizedOriginals(string category)
+    {
+        HashSet<string> ambiguousOriginals;
+        if (!ambiguousNormalizedOriginalsByCategory.TryGetValue(category, out ambiguousOriginals))
+        {
+            ambiguousOriginals = new HashSet<string>(StringComparer.Ordinal);
+            ambiguousNormalizedOriginalsByCategory.Add(category, ambiguousOriginals);
+        }
+
+        return ambiguousOriginals;
+    }
+
+    private static string NormalizeNewlines(string value)
+    {
+        return value.Replace("\r\n", "\n").Replace("\r", "\n");
     }
 
     private static string StripBom(string value)

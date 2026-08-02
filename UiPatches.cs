@@ -131,6 +131,7 @@ internal static class UiPatches
         // alongside the button's own Text (TMP) child. Scan the verified menu
         // root so both representations are translated, including inactive UI.
         TranslateScreen(gameManager.mainMenuScreen);
+        TranslateScreen(gameManager.inGame);
         TranslateText(gameManager.continueButtonText);
         TranslateText(gameManager.newGameButtonText);
         TranslateText(gameManager.loadButtonText);
@@ -148,7 +149,7 @@ internal static class UiPatches
         TranslateScreen(button.gameObject);
     }
 
-    private static void TranslateScreen(GameObject screen)
+    internal static void TranslateScreen(GameObject screen)
     {
         if (screen == null)
         {
@@ -164,21 +165,28 @@ internal static class UiPatches
 
     private static void TranslateText(TextMeshProUGUI textComponent)
     {
-        if (textComponent == null || Plugin.Translations == null)
+        if (textComponent == null)
         {
             return;
         }
 
         string original = textComponent.text;
+
+        if (Plugin.Translations == null)
+        {
+            return;
+        }
+
         if (Plugin.Fonts != null)
         {
             Plugin.Fonts.TryApplyMapping(textComponent);
         }
 
-        string translated;
-        if (string.IsNullOrEmpty(original) ||
-            !Plugin.Translations.TryTranslateByOriginal(UiCategory, original, out translated) ||
-            string.Equals(original, translated, System.StringComparison.Ordinal))
+        string translated = null;
+        bool matched = !string.IsNullOrEmpty(original) &&
+            Plugin.Translations.TryTranslateByOriginal(UiCategory, original, out translated);
+
+        if (!matched || string.Equals(original, translated, System.StringComparison.Ordinal))
         {
             return;
         }

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "game": {
     "name": "Psycholog",
-    "build": "supported Windows x64 build from the existing game install",
+    "build": "Psycholog.exe Windows x64 build (Unity 2021.3.7f1, Mono)",
     "unity_version": "2021.3.7f1",
     "scripting_backend": "Mono",
     "architecture": "x64",
@@ -57,8 +57,18 @@
       "ui": "ui",
       "image": "images"
     },
-    "export_command": "python scripts/export_paratranz.py --profile localization/project-profile.json --entries resources/work/entries.jsonl --output resources/work/paratranz",
-    "import_command": "python scripts/import_paratranz.py --profile localization/project-profile.json --input resources/work/paratranz-returned --output resources/work/approved-translations.json"
+    "export_plan": {
+      "status": "planned",
+      "implemented": false,
+      "command": "python scripts/export_paratranz.py --profile localization/project-profile.json --entries resources/work/entries.jsonl --output resources/work/paratranz",
+      "note": "No export script is tracked in this repo yet."
+    },
+    "import_plan": {
+      "status": "planned",
+      "implemented": false,
+      "command": "python scripts/import_paratranz.py --profile localization/project-profile.json --input resources/work/paratranz-returned --output resources/work/approved-translations.json",
+      "note": "No import script is tracked in this repo yet."
+    }
   },
   "runtime": {
     "bepinex_version": "BepInEx 5 stable Mono x64",
@@ -111,4 +121,3 @@
     }
   }
 }
-

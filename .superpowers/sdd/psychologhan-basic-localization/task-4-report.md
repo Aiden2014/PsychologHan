@@ -171,3 +171,156 @@ No new repo test files were added because the Task 4 file list was explicit and 
 - Normal local builds need `Directory.Build.props.example` copied to `Directory.Build.props` (or equivalent MSBuild exclusions) when ignored `resources/` and `.skill-build/` folders exist in the checkout.
 - Current approved runtime translations include `character_name`, `item`, `client_info`, `ending`, and `ui`; there are no approved `dialogue.csv` or `choice.csv` files under `resources/work/approved-translations/` yet, so dialogue/choice patches will safely preserve original text until plugin-local approved files are deployed.
 - UI integration remains an explicit extension seam pending a verified stable refresh hook.
+
+## Review fix round 1
+
+### Status
+
+Implemented runtime-aware dialogue/choice alias lookup. Exact key lookup still wins first. If an exact key does not match, `TranslationManager.TryTranslateRuntimeKey` now compares only the first two `|||` segments within the same category, requires the runtime original to equal the candidate original, and accepts only one matching candidate. Zero matches preserve the original through the normal miss path; multiple matches preserve the original and record a deduplicated ambiguous-alias diagnostic.
+
+`GamePatches` now uses the runtime-aware lookup for:
+
+- `AddMePrefix`
+- `AddSpeakerPrefix`
+- `AddOptPrefix`
+
+The UI extension-seam log is now unconditional: it is emitted even when `ui.csv` is absent or malformed, and explicitly states that missing/malformed UI resources preserve original UI text.
+
+### Additional changed file
+
+- `tests/test_task4_runtime_aliases.py`
+
+### Focused red/green test
+
+Initial red run after adding the focused test:
+
+```powershell
+python -m unittest tests.test_task4_runtime_aliases
+```
+
+Output:
+
+```text
+FAIL: test_csharp_uses_runtime_alias_lookup_for_dialogue_and_choice_prefixes
+AssertionError: 'TryTranslateRuntimeKey' not found in '...TranslationManager.cs...'
+
+Ran 4 tests in 0.002s
+FAILED (failures=1)
+```
+
+Green run after implementation:
+
+```powershell
+python -m unittest tests.test_task4_runtime_aliases
+```
+
+Output:
+
+```text
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.001s
+
+OK
+```
+
+The focused test covers:
+
+- Extracted dialogue key example `14100|||ME|||2190` matching runtime key `14100|||ME|||14100` when the original matches.
+- Extracted choice key example `14104|||14104|||2200` matching runtime key `14104|||14104|||14104` when the original matches.
+- Ambiguous first-two-segment alias candidates preserving the original.
+- Static integration checks that the C# runtime alias methods exist and are used by dialogue/choice patches.
+
+### Scoped plugin build
+
+For verification only, I temporarily created a git-ignored `Directory.Build.props` with the documented `DefaultItemExcludes`, ran the build, then removed the temporary file.
+
+Command:
+
+```powershell
+dotnet build D:\projects\PsychologHan\PsychologHan.csproj --no-restore -v:minimal
+```
+
+Output:
+
+```text
+PsychologHan -> D:\projects\PsychologHan\bin\Debug\netstandard2.1\PsychologHan.dll
+
+已成功生成。
+    0 个警告
+    0 个错误
+
+已用时间 00:00:01.58
+```
+
+### Full Python tests
+
+Command:
+
+```powershell
+python -m unittest tests.test_extract_game_text tests.test_translation_workspace tests.test_task4_runtime_aliases
+```
+
+Output:
+
+```text
+..........................
+----------------------------------------------------------------------
+Ran 26 tests in 1.488s
+
+OK
+```
+
+### Static checks
+
+Command:
+
+```powershell
+rg -n "TryTranslateRuntimeKey|FirstTwoSegmentPrefix|RecordAmbiguousAlias|TranslateRuntimeKeyWithOptionalOriginalFallback|TranslateRuntimeKeyOrOriginal|UI localization extension seam" TranslationManager.cs GamePatches.cs MissingTextTracker.cs Plugin.cs
+```
+
+Output:
+
+```text
+GamePatches.cs:80:        text = TranslateRuntimeKeyWithOptionalOriginalFallback(DialogueCategory, dialogueKey, text, ItemCategory);
+GamePatches.cs:87:        text = TranslateRuntimeKeyWithOptionalOriginalFallback(DialogueCategory, dialogueKey, text, ItemCategory);
+GamePatches.cs:98:        text = TranslateRuntimeKeyOrOriginal(ChoiceCategory, choiceKey, text);
+GamePatches.cs:145:    private static string TranslateRuntimeKeyOrOriginal(string category, string runtimeKey, string original)
+GamePatches.cs:176:    private static string TranslateRuntimeKeyWithOptionalOriginalFallback(string category, string key, string original, string fallbackCategory)
+GamePatches.cs:184:        if (Plugin.Translations.TryTranslateRuntimeKey(category, key, original, out translated))
+TranslationManager.cs:107:        if (TryTranslateRuntimeKey(category, runtimeKey, original, out translated))
+TranslationManager.cs:159:    public bool TryTranslateRuntimeKey(string category, string runtimeKey, string original, out string translated)
+TranslationManager.cs:175:        string aliasPrefix = FirstTwoSegmentPrefix(runtimeKey);
+TranslationManager.cs:212:            diagnostics.RecordAmbiguousAlias(category, runtimeKey, original, matchedEntryCount);
+TranslationManager.cs:342:        string aliasPrefix = FirstTwoSegmentPrefix(entry.Key);
+TranslationManager.cs:447:    private static string FirstTwoSegmentPrefix(string key)
+MissingTextTracker.cs:38:    public void RecordAmbiguousAlias(string category, string runtimeKey, string original, int candidateCount)
+Plugin.cs:41:        Logger.LogInfo("UI localization extension seam: Task 4 loads ui.csv when present, but applies no UI patch because no stable non-global UI refresh hook is verified in the current references. Missing or malformed ui.csv preserves original UI text.");
+```
+
+Command:
+
+```powershell
+rg -n "HarmonyPatch\(|TMP_Text|TextMeshPro|\.text\s*=|Update\(|Resources\.Load|resources/work|SteamLibrary|BepInEx\\plugins" Plugin.cs TranslationManager.cs GamePatches.cs MissingTextTracker.cs Directory.Build.props.example
+```
+
+Output:
+
+```text
+Directory.Build.props.example:9:    - Copy approved CSVs from ignored resources/work/approved-translations/ into
+Directory.Build.props.example:11:    - The plugin never reads resources/work at runtime and preserves original text
+Directory.Build.props.example:16:    <PsychologHanGamePath>D:\SteamLibrary\steamapps\common\Psycholog</PsychologHanGamePath>
+Directory.Build.props.example:18:    <PsychologHanPluginDeployDir>$(PsychologHanGamePath)\BepInEx\plugins\PsychologHan</PsychologHanPluginDeployDir>
+```
+
+Temporary local props removal check:
+
+```powershell
+Test-Path D:\projects\PsychologHan\Directory.Build.props
+```
+
+Output:
+
+```text
+False
+```

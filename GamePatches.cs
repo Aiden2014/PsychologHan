@@ -77,14 +77,14 @@ internal static class GamePatches
     private static void AddMePrefix(int id, ref string text)
     {
         string dialogueKey = DialogueKey(id, "ME");
-        text = TranslateWithOptionalOriginalFallback(DialogueCategory, dialogueKey, text, ItemCategory);
+        text = TranslateRuntimeKeyWithOptionalOriginalFallback(DialogueCategory, dialogueKey, text, ItemCategory);
     }
 
     private static void AddSpeakerPrefix(int id, ref string speakerName, ref string text)
     {
         string originalSpeakerName = speakerName;
         string dialogueKey = DialogueKey(id, originalSpeakerName);
-        text = TranslateWithOptionalOriginalFallback(DialogueCategory, dialogueKey, text, ItemCategory);
+        text = TranslateRuntimeKeyWithOptionalOriginalFallback(DialogueCategory, dialogueKey, text, ItemCategory);
 
         if (!string.Equals(originalSpeakerName, "(ME)", StringComparison.Ordinal))
         {
@@ -95,7 +95,7 @@ internal static class GamePatches
     private static void AddOptPrefix(int fromId, long id, ref string text)
     {
         string choiceKey = ChoiceKey(fromId, id);
-        text = TranslateDirectOrOriginal(ChoiceCategory, choiceKey, text);
+        text = TranslateRuntimeKeyOrOriginal(ChoiceCategory, choiceKey, text);
     }
 
     private static void UpdateClientsSectionPostfix(object __instance)
@@ -142,6 +142,16 @@ internal static class GamePatches
         return Plugin.Translations.TranslateOrOriginal(category, key, original);
     }
 
+    private static string TranslateRuntimeKeyOrOriginal(string category, string runtimeKey, string original)
+    {
+        if (Plugin.Translations == null)
+        {
+            return original;
+        }
+
+        return Plugin.Translations.TranslateRuntimeOrOriginal(category, runtimeKey, original);
+    }
+
     private static string TranslateWithCategoryOriginalFallback(string category, string key, string original)
     {
         if (Plugin.Translations == null)
@@ -163,7 +173,7 @@ internal static class GamePatches
         return Plugin.Translations.TranslateOrOriginal(category, key, original);
     }
 
-    private static string TranslateWithOptionalOriginalFallback(string category, string key, string original, string fallbackCategory)
+    private static string TranslateRuntimeKeyWithOptionalOriginalFallback(string category, string key, string original, string fallbackCategory)
     {
         if (Plugin.Translations == null)
         {
@@ -171,7 +181,7 @@ internal static class GamePatches
         }
 
         string translated;
-        if (Plugin.Translations.TryTranslate(category, key, original, out translated))
+        if (Plugin.Translations.TryTranslateRuntimeKey(category, key, original, out translated))
         {
             return translated;
         }
@@ -181,7 +191,7 @@ internal static class GamePatches
             return translated;
         }
 
-        return Plugin.Translations.TranslateOrOriginal(category, key, original);
+        return Plugin.Translations.TranslateRuntimeOrOriginal(category, key, original);
     }
 
     private static void TranslateTextComponentField(object instance, string fieldName, string category, string key)

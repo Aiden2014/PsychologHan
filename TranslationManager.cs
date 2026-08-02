@@ -21,6 +21,9 @@ public sealed class TranslationManager
     private readonly Dictionary<string, Dictionary<string, TranslationEntry>> translationsByCategory =
         new Dictionary<string, Dictionary<string, TranslationEntry>>(StringComparer.Ordinal);
 
+    private readonly Dictionary<string, Dictionary<string, List<TranslationEntry>>> runtimeAliasesByCategory =
+        new Dictionary<string, Dictionary<string, List<TranslationEntry>>>(StringComparer.Ordinal);
+
     private readonly Dictionary<string, Dictionary<string, string>> originalsByCategory =
         new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
 
@@ -98,6 +101,18 @@ public sealed class TranslationManager
         return original;
     }
 
+    public string TranslateRuntimeOrOriginal(string category, string runtimeKey, string original)
+    {
+        string translated;
+        if (TryTranslateRuntimeKey(category, runtimeKey, original, out translated))
+        {
+            return translated;
+        }
+
+        diagnostics.RecordMiss(category, runtimeKey, original);
+        return original;
+    }
+
     public bool TryTranslate(string key, string original, out string translated)
     {
         translated = null;
@@ -125,14 +140,8 @@ public sealed class TranslationManager
             return false;
         }
 
-        Dictionary<string, TranslationEntry> translations;
-        if (!translationsByCategory.TryGetValue(category, out translations))
-        {
-            return false;
-        }
-
         TranslationEntry entry;
-        if (!translations.TryGetValue(key, out entry))
+        if (!TryGetExactEntry(category, key, out entry))
         {
             return false;
         }
@@ -145,6 +154,77 @@ public sealed class TranslationManager
 
         translated = entry.Translation;
         return true;
+    }
+
+    public bool TryTranslateRuntimeKey(string category, string runtimeKey, string original, out string translated)
+    {
+        translated = null;
+        if (string.IsNullOrEmpty(category) || string.IsNullOrEmpty(runtimeKey))
+        {
+            return false;
+        }
+
+        TranslationEntry exactEntry;
+        if (TryGetExactEntry(category, runtimeKey, out exactEntry) &&
+            string.Equals(exactEntry.Original, original, StringComparison.Ordinal))
+        {
+            translated = exactEntry.Translation;
+            return true;
+        }
+
+        string aliasPrefix = FirstTwoSegmentPrefix(runtimeKey);
+        if (aliasPrefix == null)
+        {
+            return false;
+        }
+
+        Dictionary<string, List<TranslationEntry>> aliases;
+        if (!runtimeAliasesByCategory.TryGetValue(category, out aliases))
+        {
+            return false;
+        }
+
+        List<TranslationEntry> candidates;
+        if (!aliases.TryGetValue(aliasPrefix, out candidates))
+        {
+            return false;
+        }
+
+        TranslationEntry matchedEntry = null;
+        int matchedEntryCount = 0;
+        foreach (TranslationEntry candidate in candidates)
+        {
+            if (string.Equals(candidate.Original, original, StringComparison.Ordinal))
+            {
+                matchedEntry = candidate;
+                matchedEntryCount++;
+            }
+        }
+
+        if (matchedEntryCount == 1)
+        {
+            translated = matchedEntry.Translation;
+            return true;
+        }
+
+        if (matchedEntryCount > 1)
+        {
+            diagnostics.RecordAmbiguousAlias(category, runtimeKey, original, matchedEntryCount);
+        }
+
+        return false;
+    }
+
+    private bool TryGetExactEntry(string category, string key, out TranslationEntry entry)
+    {
+        entry = null;
+        Dictionary<string, TranslationEntry> translations;
+        if (!translationsByCategory.TryGetValue(category, out translations))
+        {
+            return false;
+        }
+
+        return translations.TryGetValue(key, out entry);
     }
 
     public bool TryTranslateByOriginal(string category, string original, out string translated)
@@ -250,9 +330,42 @@ public sealed class TranslationManager
             return false;
         }
 
-        translations.Add(key, new TranslationEntry(original, translation));
+        TranslationEntry entry = new TranslationEntry(key, original, translation);
+        translations.Add(key, entry);
+        AddRuntimeAlias(category, entry);
         AddOriginalFallback(category, original, translation, path, rowNumber);
         return true;
+    }
+
+    private void AddRuntimeAlias(string category, TranslationEntry entry)
+    {
+        string aliasPrefix = FirstTwoSegmentPrefix(entry.Key);
+        if (aliasPrefix == null)
+        {
+            return;
+        }
+
+        Dictionary<string, List<TranslationEntry>> aliases = GetRuntimeAliases(category);
+        List<TranslationEntry> candidates;
+        if (!aliases.TryGetValue(aliasPrefix, out candidates))
+        {
+            candidates = new List<TranslationEntry>();
+            aliases.Add(aliasPrefix, candidates);
+        }
+
+        candidates.Add(entry);
+    }
+
+    private Dictionary<string, List<TranslationEntry>> GetRuntimeAliases(string category)
+    {
+        Dictionary<string, List<TranslationEntry>> aliases;
+        if (!runtimeAliasesByCategory.TryGetValue(category, out aliases))
+        {
+            aliases = new Dictionary<string, List<TranslationEntry>>(StringComparer.Ordinal);
+            runtimeAliasesByCategory.Add(category, aliases);
+        }
+
+        return aliases;
     }
 
     private Dictionary<string, TranslationEntry> GetTranslations(string category)
@@ -331,6 +444,28 @@ public sealed class TranslationManager
         return value;
     }
 
+    private static string FirstTwoSegmentPrefix(string key)
+    {
+        if (string.IsNullOrEmpty(key))
+        {
+            return null;
+        }
+
+        int firstSeparator = key.IndexOf("|||", StringComparison.Ordinal);
+        if (firstSeparator < 0)
+        {
+            return null;
+        }
+
+        int secondSeparator = key.IndexOf("|||", firstSeparator + 3, StringComparison.Ordinal);
+        if (secondSeparator < 0)
+        {
+            return null;
+        }
+
+        return key.Substring(0, secondSeparator);
+    }
+
     private static List<List<string>> ParseCsv(string content)
     {
         List<List<string>> rows = new List<List<string>>();
@@ -405,11 +540,14 @@ public sealed class TranslationManager
 
     private sealed class TranslationEntry
     {
-        public TranslationEntry(string original, string translation)
+        public TranslationEntry(string key, string original, string translation)
         {
+            Key = key;
             Original = original;
             Translation = translation;
         }
+
+        public string Key { get; }
 
         public string Original { get; }
 

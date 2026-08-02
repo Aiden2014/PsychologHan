@@ -35,6 +35,13 @@ public sealed class MissingTextTracker
             "Malformed localization row " + path + ":" + rowNumber + " - " + reason + " Preserving original at runtime.");
     }
 
+    public void RecordAmbiguousAlias(string category, string runtimeKey, string original, int candidateCount)
+    {
+        RecordDevelopmentDiagnostic(
+            "ambiguous-alias|" + category + "|" + runtimeKey + "|" + original + "|" + candidateCount,
+            "Ambiguous runtime localization alias [" + category + "] key='" + runtimeKey + "' original='" + Abbreviate(original) + "' matched " + candidateCount + " candidates. Preserving original.");
+    }
+
     public void RecordResourceIssue(string key, string message)
     {
         RecordDevelopmentDiagnostic("resource|" + key + "|" + message, message);

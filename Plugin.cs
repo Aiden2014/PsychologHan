@@ -38,10 +38,7 @@ public class Plugin : BaseUnityPlugin
         GamePatches.Apply(harmony);
 
         Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} loaded. Localization directory: {localizationDirectory}. Loaded {Translations.EntryCount} translations from {Translations.FileCount} file(s).");
-        if (Translations.HasCategory("ui"))
-        {
-            Logger.LogInfo("ui.csv was loaded, but Task 4 leaves UI integration as an extension seam because no stable non-global UI refresh hook is verified in the current references.");
-        }
+        Logger.LogInfo("UI localization extension seam: Task 4 loads ui.csv when present, but applies no UI patch because no stable non-global UI refresh hook is verified in the current references. Missing or malformed ui.csv preserves original UI text.");
     }
 
     private void OnDestroy()

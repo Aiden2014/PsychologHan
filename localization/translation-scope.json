@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "locale": "zh-CN",
+  "approved_categories": [
+    "character_name",
+    "item",
+    "client_info",
+    "ending",
+    "ui"
+  ],
+  "fallback_categories": [
+    "dialogue",
+    "choice"
+  ],
+  "partial_fallback_categories": {
+    "ui": "Only reviewed common menu and settings labels are approved in Task 3; all other UI rows remain English by runtime fallback."
+  },
+  "non_translation_context_categories": [
+    "asset_index",
+    "flow_context",
+    "unresolved_refs"
+  ],
+  "approved_character_display_names": {
+    "ASHLEY": "阿什莉",
+    "BOSS": "老板",
+    "BOY": "男孩",
+    "CLERK": "店员",
+    "DEBORAH": "黛博拉",
+    "DET. JACKSON": "杰克逊警探",
+    "DR. BENNETT": "贝内特医生",
+    "EMILY": "艾米莉",
+    "GIRL": "女孩",
+    "JADEN": "杰登",
+    "JENNIFER": "珍妮弗",
+    "JOE": "乔",
+    "JOSH": "乔什",
+    "ME": "我",
+    "MIKE": "迈克",
+    "NURSE": "护士",
+    "PASSENGER": "乘客",
+    "PEDESTRIAN": "行人",
+    "RAYMOND": "雷蒙德",
+    "SGT. TANAKA": "田中警佐",
+    "SHANNON": "香农",
+    "STRANGER": "陌生人",
+    "SUSPECT": "嫌疑人",
+    "VERA": "薇拉"
+  },
+  "generated_translation_rows_location": "Generated translation rows remain under ignored resources/work/approved-translations/ and are intentionally not tracked."
+}

@@ -1,0 +1,29 @@
+term,preferred_translation,notes
+Psycholog,Psycholog,Game title kept as a fixed title
+session,会谈,Clinical context
+client,来访者,Preferred term for therapy subjects
+treatment,治疗,Clinical context
+trust,信任,Common therapy vocabulary
+fear,恐惧,Used for phobias and anxiety text
+story,剧情,General UI and guide text
+ending,结局,Story completion labels
+menu,菜单,Main menu UI
+new game,新游戏,UI label
+load game,载入游戏,UI label
+continue,继续,UI label
+settings,设置,UI label
+hallway,走廊,Location label
+apartment,公寓,Location label
+office,办公室,Location label
+mall,商场,Location label
+park,公园,Location label
+Ashley,Ashley,Proper name
+Deborah,Deborah,Proper name
+Jaden,Jaden,Proper name
+Joe,Joe,Proper name
+Vera,Vera,Proper name
+Mike,Mike,Proper name
+Dr. Bennett,Dr. Bennett,Proper name and honorific
+Det. Jackson,Det. Jackson,Proper name and honorific
+Sgt. Tanaka,Sgt. Tanaka,Proper name and honorific
+

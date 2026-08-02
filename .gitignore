@@ -3,6 +3,12 @@
 [Rr]elease/
 x64/
 x86/
+[Dd]ist/
+dist/
+artifacts/
+reports/
+bin/
+obj/
 [Bb]in/
 [Oo]bj/
 

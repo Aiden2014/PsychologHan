@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "game": {
+    "name": "Psycholog",
+    "build": "supported Windows x64 build from the existing game install",
+    "unity_version": "2021.3.7f1",
+    "scripting_backend": "Mono",
+    "architecture": "x64",
+    "textmeshpro_version": "3.0"
+  },
+  "sources": {
+    "managed": "resources/Assembly-CSharp-decompiled",
+    "exported_resource_types": [
+      "resources/AnimationClip",
+      "resources/Animator",
+      "resources/AnimatorController",
+      "resources/AudioClip",
+      "resources/AudioSource",
+      "resources/Font",
+      "resources/GameObject",
+      "resources/MonoBehaviour",
+      "resources/RectTransform",
+      "resources/Sprite",
+      "resources/Texture2D",
+      "resources/Transform"
+    ],
+    "work_entries": "resources/work/entries.jsonl",
+    "hashes": {
+      "algorithm": "sha256",
+      "manifest": "resources/work/source-manifest.sha256"
+    },
+    "adapter": {
+      "command": "python scripts/extract_game_text.py",
+      "version": "verified against the current extraction outputs"
+    }
+  },
+  "paratranz": {
+    "encoding": "utf-8",
+    "columns": ["key", "original", "translation"],
+    "approved_categories": [
+      "dialogue",
+      "choice",
+      "item",
+      "character_name",
+      "client_info",
+      "ending",
+      "ui",
+      "image"
+    ],
+    "module_mapping": {
+      "dialogue": "story-dialogue",
+      "choice": "choices",
+      "item": "items",
+      "character_name": "system",
+      "client_info": "system",
+      "ending": "story-dialogue",
+      "ui": "ui",
+      "image": "images"
+    },
+    "export_command": "python scripts/export_paratranz.py --profile localization/project-profile.json --entries resources/work/entries.jsonl --output resources/work/paratranz",
+    "import_command": "python scripts/import_paratranz.py --profile localization/project-profile.json --input resources/work/paratranz-returned --output resources/work/approved-translations.json"
+  },
+  "runtime": {
+    "bepinex_version": "BepInEx 5 stable Mono x64",
+    "patch_entry_points": [
+      "verify a native localization or data seam first",
+      "otherwise verify a stable controller or display seam"
+    ],
+    "AuditMode": "Disabled",
+    "adapter_entry": "Plugin.ConfigureGameAdapters",
+    "fallback": "preserve original text and assets"
+  },
+  "fonts": {
+    "strategy": "unity-bundle",
+    "source_font": "resources/fonts/licensed-cjk.ttf",
+    "character_file": "resources/work/font-characters.txt",
+    "bundle_name": "localized-font",
+    "bundle_output": "artifacts/tmp-font"
+  },
+  "images": {
+    "strategy": "human-confirmed targeted replacement",
+    "static_index": "resources/work/assetstudio-image-index.jsonl",
+    "development_hotkey": "configure per game; no universal default",
+    "correlation_fields": [
+      "resource_name_and_type",
+      "dimensions",
+      "path_id",
+      "sprite_rect",
+      "pixel_hash"
+    ],
+    "replacement_requires_human_correlation": true
+  },
+  "qa": {
+    "automated_checks": [
+      "project validation",
+      "adapter tests",
+      "Paratranz import validation",
+      "plugin build and package inspection"
+    ],
+    "required_manual_routes": [
+      "menus and settings",
+      "save and load",
+      "critical story and choice branches",
+      "failure routes and endings",
+      "plugin-disabled original behavior"
+    ],
+    "release_gate": {
+      "maximum_p0_findings": 0,
+      "maximum_p1_findings": 0,
+      "human_sign_off_required": true
+    }
+  }
+}
+

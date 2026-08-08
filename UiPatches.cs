@@ -59,6 +59,14 @@ internal static class UiPatches
             {
                 "Canvas/InGame/MainGameScreen/CursorResponseLayer/Stage/LayerForZooming/Imagery/Cutscenes/GameResult/ReturnToTitleButton/Text (TMP)",
                 "level1|||34132|||TextMeshProUGUI|||TextMeshProUGUI"
+            },
+            {
+                "Canvas/InGame/MainGameScreen/CursorResponseLayer/Stage/LayerForZooming/Imagery/Cutscenes/NextDay1415/ToDay",
+                "level1|||31494|||TextMeshProUGUI|||TextMeshProUGUI"
+            },
+            {
+                "Canvas/InGame/MainGameScreen/CursorResponseLayer/Stage/LayerForZooming/Imagery/Cutscenes/NextDay1518/FromDay",
+                "level1|||32867|||TextMeshProUGUI|||TextMeshProUGUI"
             }
         };
 

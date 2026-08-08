@@ -45,6 +45,26 @@ class Task4UiHookTests(unittest.TestCase):
         )
         self.assertIn("A reviewed locator is authoritative", patches)
 
+    def test_next_day_headers_use_context_specific_stable_key_locators(self):
+        patches = (PROJECT / "UiPatches.cs").read_text(encoding="utf-8-sig")
+        cutscene_root = (
+            "Canvas/InGame/MainGameScreen/CursorResponseLayer/Stage/LayerForZooming/"
+            "Imagery/Cutscenes/"
+        )
+        expected = {
+            cutscene_root + "NextDay1415/ToDay": "31494",
+            cutscene_root + "NextDay1518/FromDay": "32867",
+        }
+
+        for path, path_id in expected.items():
+            key = f"level1|||{path_id}|||TextMeshProUGUI|||TextMeshProUGUI"
+            self.assertIn(
+                f'"{path}",\n                "{key}"',
+                patches,
+            )
+
+        self.assertEqual(set(expected.values()), {"31494", "32867"})
+
     def test_intersection_buttons_use_context_specific_stable_key_locators(self):
         patches = (PROJECT / "UiPatches.cs").read_text(encoding="utf-8-sig")
 

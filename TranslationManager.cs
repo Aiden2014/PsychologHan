@@ -152,7 +152,7 @@ public sealed class TranslationManager
             return false;
         }
 
-        if (!string.Equals(entry.Original, original, StringComparison.Ordinal))
+        if (!OriginalsMatch(entry.Original, original))
         {
             diagnostics.RecordMiss(category, key, original);
             return false;
@@ -172,7 +172,7 @@ public sealed class TranslationManager
 
         TranslationEntry exactEntry;
         if (TryGetExactEntry(category, runtimeKey, out exactEntry) &&
-            string.Equals(exactEntry.Original, original, StringComparison.Ordinal))
+            OriginalsMatch(exactEntry.Original, original))
         {
             translated = exactEntry.Translation;
             return true;
@@ -200,7 +200,7 @@ public sealed class TranslationManager
         int matchedEntryCount = 0;
         foreach (TranslationEntry candidate in candidates)
         {
-            if (string.Equals(candidate.Original, original, StringComparison.Ordinal))
+            if (OriginalsMatch(candidate.Original, original))
             {
                 matchedEntry = candidate;
                 matchedEntryCount++;
@@ -221,6 +221,51 @@ public sealed class TranslationManager
         return false;
     }
 
+    public bool TryTranslateDynamicTemplate(
+        string category,
+        string key,
+        string original,
+        string expression,
+        string originalValue,
+        string translatedValue,
+        out string translated)
+    {
+        translated = null;
+        if (string.IsNullOrEmpty(category) || string.IsNullOrEmpty(key) ||
+            string.IsNullOrEmpty(original) || string.IsNullOrEmpty(expression) ||
+            originalValue == null || translatedValue == null)
+        {
+            return false;
+        }
+
+        TranslationEntry entry;
+        if (!TryGetExactEntry(category, key, out entry))
+        {
+            return false;
+        }
+
+        if (OriginalsMatch(entry.Original, original))
+        {
+            translated = entry.Translation;
+            return true;
+        }
+
+        string renderedOriginal = RenderDynamicTemplate(entry.Original, expression, originalValue);
+        if (renderedOriginal == null || !OriginalsMatch(renderedOriginal, original))
+        {
+            return false;
+        }
+
+        string renderedTranslation = RenderDynamicTemplate(entry.Translation, expression, translatedValue);
+        if (renderedTranslation == null)
+        {
+            return false;
+        }
+
+        translated = renderedTranslation;
+        return true;
+    }
+
     private bool TryGetExactEntry(string category, string key, out TranslationEntry entry)
     {
         entry = null;
@@ -233,11 +278,68 @@ public sealed class TranslationManager
         return translations.TryGetValue(key, out entry);
     }
 
+    private static string RenderDynamicTemplate(string template, string expression, string replacement)
+    {
+        if (string.IsNullOrEmpty(template) || string.IsNullOrEmpty(expression) || replacement == null)
+        {
+            return null;
+        }
+
+        int expressionIndex = template.IndexOf(expression, StringComparison.Ordinal);
+        if (expressionIndex >= 0)
+        {
+            int plusBefore = template.LastIndexOf('+', expressionIndex);
+            int plusAfter = template.IndexOf('+', expressionIndex + expression.Length);
+            if (plusBefore < 0 || plusAfter < 0)
+            {
+                return null;
+            }
+
+            string prefix = template.Substring(0, plusBefore).TrimEnd();
+            if (prefix.EndsWith("\"", StringComparison.Ordinal))
+            {
+                prefix = prefix.Substring(0, prefix.Length - 1);
+            }
+
+            string suffix = template.Substring(plusAfter + 1).TrimStart();
+            if (suffix.StartsWith("\"", StringComparison.Ordinal))
+            {
+                suffix = suffix.Substring(1);
+            }
+
+            return prefix + replacement + suffix;
+        }
+
+        int placeholderStart = template.IndexOf("{EXPR_", StringComparison.Ordinal);
+        if (placeholderStart < 0)
+        {
+            return null;
+        }
+
+        int placeholderEnd = template.IndexOf('}', placeholderStart + "{EXPR_".Length);
+        if (placeholderEnd < 0)
+        {
+            return null;
+        }
+
+        return template.Substring(0, placeholderStart) + replacement +
+            template.Substring(placeholderEnd + 1);
+    }
+
     public bool TryTranslateByOriginal(string category, string original, out string translated)
     {
         translated = null;
         if (string.IsNullOrEmpty(category) || string.IsNullOrEmpty(original))
         {
+            return false;
+        }
+
+        string normalizedOriginal = NormalizeNewlines(original);
+        HashSet<string> ambiguousNormalizedOriginals;
+        if (ambiguousNormalizedOriginalsByCategory.TryGetValue(category, out ambiguousNormalizedOriginals) &&
+            ambiguousNormalizedOriginals.Contains(normalizedOriginal))
+        {
+            diagnostics.RecordMiss(category, "<ambiguous-normalized-original-fallback>", original);
             return false;
         }
 
@@ -253,20 +355,6 @@ public sealed class TranslationManager
         if (originalsByCategory.TryGetValue(category, out originals) && originals.TryGetValue(original, out translated))
         {
             return true;
-        }
-
-        string normalizedOriginal = NormalizeNewlines(original);
-        if (string.Equals(normalizedOriginal, original, StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        HashSet<string> ambiguousNormalizedOriginals;
-        if (ambiguousNormalizedOriginalsByCategory.TryGetValue(category, out ambiguousNormalizedOriginals) &&
-            ambiguousNormalizedOriginals.Contains(normalizedOriginal))
-        {
-            diagnostics.RecordMiss(category, "<ambiguous-normalized-original-fallback>", original);
-            return false;
         }
 
         Dictionary<string, string> normalizedOriginals;
@@ -459,11 +547,12 @@ public sealed class TranslationManager
 
     private void AddNormalizedOriginalFallback(string category, string original, string translation, string path, int rowNumber)
     {
-        string normalizedOriginal = NormalizeNewlines(original);
-        if (string.Equals(normalizedOriginal, original, StringComparison.Ordinal))
+        if (string.IsNullOrEmpty(original))
         {
             return;
         }
+
+        string normalizedOriginal = NormalizeNewlines(original);
 
         HashSet<string> ambiguousOriginals = GetAmbiguousNormalizedOriginals(category);
         if (ambiguousOriginals.Contains(normalizedOriginal))
@@ -510,6 +599,21 @@ public sealed class TranslationManager
         }
 
         return ambiguousOriginals;
+    }
+
+    private static bool OriginalsMatch(string expected, string actual)
+    {
+        if (string.Equals(expected, actual, StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        if (expected == null || actual == null)
+        {
+            return false;
+        }
+
+        return string.Equals(NormalizeNewlines(expected), NormalizeNewlines(actual), StringComparison.Ordinal);
     }
 
     private static string NormalizeNewlines(string value)

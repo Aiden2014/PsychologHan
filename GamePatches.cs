@@ -12,6 +12,9 @@ internal static class GamePatches
     private const string ItemCategory = "item";
     private const string ClientInfoCategory = "client_info";
     private const string EndingCategory = "ending";
+    private const int DynamicHomeworkNodeId = 15700;
+    private const string DynamicHomeworkItemKey = "15700|||5290";
+    private const string DynamicHomeworkExpression = "((gS.homeworkFloor == 3) ? \"third\" : \"fifth\")";
 
     [HarmonyPatch(typeof(global::GameManager), nameof(global::GameManager.addMe), new Type[] { typeof(int), typeof(string), typeof(int), typeof(Action) })]
     private static class AddMePatch
@@ -32,12 +35,31 @@ internal static class GamePatches
         {
             string originalSpeakerName = speakerName;
             string dialogueKey = DialogueKey(id, originalSpeakerName);
-            text = TranslateRuntimeKeyWithOptionalOriginalFallback(DialogueCategory, dialogueKey, text, ItemCategory);
+            if (!IsDynamicHomeworkPlaceholder(id, text))
+            {
+                text = TranslateRuntimeKeyWithOptionalOriginalFallback(DialogueCategory, dialogueKey, text, ItemCategory);
+            }
 
             if (!string.Equals(originalSpeakerName, "(ME)", StringComparison.Ordinal))
             {
                 speakerName = TranslateDirectOrOriginal(CharacterNameCategory, originalSpeakerName, originalSpeakerName);
             }
+        }
+    }
+
+    private static bool IsDynamicHomeworkPlaceholder(int nodeId, string text)
+    {
+        return nodeId == DynamicHomeworkNodeId &&
+            string.Equals(text, "[DYNAMICALLY]", StringComparison.Ordinal);
+    }
+
+    [HarmonyPatch(typeof(global::GameManager), nameof(global::GameManager.updateSituationView))]
+    private static class DynamicSitItemPatch
+    {
+        [HarmonyPrefix]
+        private static void Prefix(global::GameManager __instance)
+        {
+            TranslateDynamicHomeworkText(__instance);
         }
     }
 
@@ -144,6 +166,38 @@ internal static class GamePatches
         }
 
         return Plugin.Translations.TranslateRuntimeOrOriginal(category, key, original);
+    }
+
+    private static void TranslateDynamicHomeworkText(global::GameManager gameManager)
+    {
+        if (gameManager == null || Plugin.Translations == null || gameManager.gS == null ||
+            gameManager.sitItems == null || gameManager.gS.currentSitItem != DynamicHomeworkNodeId)
+        {
+            return;
+        }
+
+        global::SitItem sitItem;
+        if (!gameManager.sitItems.TryGetValue(DynamicHomeworkNodeId, out sitItem) ||
+            sitItem == null || !string.Equals(sitItem.sitType, "speaker", StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        string originalFloor = gameManager.gS.homeworkFloor == 3 ? "third" : "fifth";
+        string translatedFloor = gameManager.gS.homeworkFloor == 3 ? "第三" : "第五";
+        string translated;
+        if (Plugin.Translations.TryTranslateDynamicTemplate(
+                ItemCategory,
+                DynamicHomeworkItemKey,
+                sitItem.text,
+                DynamicHomeworkExpression,
+                originalFloor,
+                translatedFloor,
+                out translated) &&
+            !string.Equals(sitItem.text, translated, StringComparison.Ordinal))
+        {
+            sitItem.text = translated;
+        }
     }
 
     private static void TranslateTextComponent(TextMeshProUGUI textComponent, string category, string key)

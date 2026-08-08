@@ -1,7 +1,10 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using HarmonyLib;
 using TMPro;
+using UnityEngine;
 
 namespace PsychologHan;
 
@@ -19,6 +22,210 @@ internal static class GamePatches
     private const string DynamicJoshSpeaker = "JOSH";
     private const int DynamicDeborahNodeId = 2820;
     private const string DynamicDeborahPlaceholder = "[DECIDE DYNAMICALLY]";
+    private const float ChineseDialogueSpeedMultiplier = 1.25f;
+    private static readonly Dictionary<global::GameManager, ChineseDialogueSession> activeChineseDialogues =
+        new Dictionary<global::GameManager, ChineseDialogueSession>();
+
+    private sealed class ChineseDialogueSession
+    {
+        public ChineseDialogueSession(TextMeshProUGUI textObject, string textLine)
+        {
+            TextObject = textObject;
+            TextLine = textLine;
+        }
+
+        public TextMeshProUGUI TextObject { get; }
+
+        public string TextLine { get; }
+
+        public Coroutine Coroutine { get; set; }
+    }
+
+    [HarmonyPatch(
+        typeof(global::GameManager),
+        nameof(global::GameManager.slowPrint),
+        new Type[] { typeof(TextMeshProUGUI), typeof(string), typeof(float), typeof(float) })]
+    private static class ChineseDialogueTypingPatch
+    {
+        [HarmonyPrefix]
+        private static bool Prefix(
+            global::GameManager __instance,
+            TextMeshProUGUI textObject,
+            string textLine,
+            float lettersPerSecond,
+            float delay)
+        {
+            if (!ShouldUseChineseTyping(__instance, textObject, textLine) || lettersPerSecond <= 0f)
+            {
+                return true;
+            }
+
+            CancelActiveChineseDialogue(__instance);
+            float charactersPerSecond = lettersPerSecond * ChineseDialogueSpeedMultiplier;
+            ChineseDialogueSession session = new ChineseDialogueSession(textObject, textLine);
+            activeChineseDialogues[__instance] = session;
+            session.Coroutine = __instance.StartCoroutine(PrintChineseDialogue(
+                __instance,
+                session,
+                charactersPerSecond,
+                delay));
+            return false;
+        }
+    }
+
+    [HarmonyPatch(typeof(global::HurryUp), nameof(global::HurryUp.OnClick))]
+    private static class HurryUpPatch
+    {
+        [HarmonyPrefix]
+        private static bool Prefix(global::HurryUp __instance)
+        {
+            if (__instance == null || __instance.gM == null)
+            {
+                return true;
+            }
+
+            return !CompleteActiveChineseDialogue(__instance.gM);
+        }
+    }
+
+    private static bool ShouldUseChineseTyping(
+        global::GameManager gameManager,
+        TextMeshProUGUI textObject,
+        string textLine)
+    {
+        return gameManager != null &&
+            textObject != null &&
+            (textObject == gameManager.meText || textObject == gameManager.speakerText) &&
+            ContainsChineseCharacter(textLine);
+    }
+
+    private static bool ContainsChineseCharacter(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            return false;
+        }
+
+        for (int index = 0; index < text.Length; index++)
+        {
+            char character = text[index];
+            if ((character >= '\u3400' && character <= '\u4DBF') ||
+                (character >= '\u4E00' && character <= '\u9FFF') ||
+                (character >= '\uF900' && character <= '\uFAFF'))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static IEnumerator PrintChineseDialogue(
+        global::GameManager gameManager,
+        ChineseDialogueSession session,
+        float charactersPerSecond,
+        float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        float timeBetweenCharacters = 1f / charactersPerSecond;
+        if (gameManager.preventInteractionDuringPrintText != null)
+        {
+            gameManager.preventInteractionDuringPrintText.SetActive(value: true);
+        }
+
+        if (gameManager.pulsingMarker != null)
+        {
+            gameManager.pulsingMarker.SetActive(value: false);
+        }
+
+        for (int index = 0; index <= session.TextLine.Length; index++)
+        {
+            session.TextObject.text = session.TextLine.Substring(0, index);
+            if (gameManager.hurryUp)
+            {
+                timeBetweenCharacters = 0.001f;
+            }
+
+            yield return new WaitForSeconds(timeBetweenCharacters);
+        }
+
+        FinishChineseDialogue(gameManager, session);
+    }
+
+    private static bool CompleteActiveChineseDialogue(global::GameManager gameManager)
+    {
+        ChineseDialogueSession session;
+        if (!activeChineseDialogues.TryGetValue(gameManager, out session) || session == null)
+        {
+            return false;
+        }
+
+        if (session.Coroutine != null)
+        {
+            gameManager.StopCoroutine(session.Coroutine);
+        }
+
+        session.TextObject.text = session.TextLine;
+        FinishChineseDialogue(gameManager, session);
+        return true;
+    }
+
+    private static void CancelActiveChineseDialogue(global::GameManager gameManager)
+    {
+        if (gameManager == null)
+        {
+            return;
+        }
+
+        ChineseDialogueSession session;
+        if (!activeChineseDialogues.TryGetValue(gameManager, out session) || session == null)
+        {
+            return;
+        }
+
+        if (session.Coroutine != null)
+        {
+            gameManager.StopCoroutine(session.Coroutine);
+        }
+
+        activeChineseDialogues.Remove(gameManager);
+        gameManager.hurryUp = false;
+        if (gameManager.preventInteractionDuringPrintText != null)
+        {
+            gameManager.preventInteractionDuringPrintText.SetActive(value: false);
+        }
+    }
+
+    private static void FinishChineseDialogue(
+        global::GameManager gameManager,
+        ChineseDialogueSession session)
+    {
+        ChineseDialogueSession activeSession;
+        if (activeChineseDialogues.TryGetValue(gameManager, out activeSession) &&
+            object.ReferenceEquals(activeSession, session))
+        {
+            activeChineseDialogues.Remove(gameManager);
+        }
+
+        gameManager.hurryUp = false;
+        if (gameManager.gS != null && gameManager.sitItems != null)
+        {
+            global::SitItem currentSitItem;
+            if (gameManager.sitItems.TryGetValue(gameManager.gS.currentSitItem, out currentSitItem) &&
+                currentSitItem != null &&
+                (currentSitItem.sitType == "me" || currentSitItem.sitType == "speaker") &&
+                gameManager.pulsingMarker != null)
+            {
+                gameManager.pulsingMarker.SetActive(value: true);
+            }
+        }
+
+        if (gameManager.preventInteractionDuringPrintText != null)
+        {
+            gameManager.preventInteractionDuringPrintText.SetActive(value: false);
+        }
+    }
 
     [HarmonyPatch(typeof(global::GameManager), nameof(global::GameManager.addMe), new Type[] { typeof(int), typeof(string), typeof(int), typeof(Action) })]
     private static class AddMePatch
@@ -65,6 +272,7 @@ internal static class GamePatches
         [HarmonyPrefix]
         private static void Prefix(global::GameManager __instance)
         {
+            CancelActiveChineseDialogue(__instance);
             TranslateDynamicHomeworkText(__instance);
             TranslateDynamicJoshText(__instance);
             TranslateDynamicDeborahText(__instance);

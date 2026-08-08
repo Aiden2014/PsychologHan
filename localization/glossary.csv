@@ -17,17 +17,19 @@ apartment,公寓,Location label
 office,办公室,Location label
 mall,商场,Location label
 park,公园,Location label
+Doc,医生,How clients and colleagues address the protagonist; keep uniform
 Ashley,阿什莉,Proper name
 Deborah,黛博拉,Proper name
-Jaden,杰登,Proper name
-Joe,乔,Proper name
+Jaden,杰登,Proper name (not 杰顿)
+Joe,乔,Proper name (not 约瑟夫)
 Vera,薇拉,Proper name
 Mike,迈克,Proper name
+Raymond,雷蒙德,Proper name (not 雷蒙)
 Dr. Bennett,贝内特医生,Proper name and honorific
-Det. Jackson,杰克逊警探,Proper name and honorific
-Sgt. Tanaka,田中警佐,Proper name and honorific
+Det. Jackson,杰克逊侦探,Proper name and honorific
+Sgt. Tanaka,田中警官,Proper name and honorific
 Mandy,曼迪,Proper name mentioned in dialogue
-Emily,艾米莉,Proper name
+Emily,艾米莉,Proper name (not 艾米丽)
 Em,艾米,Nickname for Emily
 Jennifer,珍妮弗,Proper name
 Wilson,威尔逊,Proper name mentioned in dialogue
@@ -37,5 +39,25 @@ Mark,马克,Proper name mentioned in dialogue
 Hannah,汉娜,Proper name mentioned in dialogue
 Frank,弗兰克,Proper name mentioned in dialogue
 Thompson,汤普森,Family name
+Edgerton,埃杰顿,Family name (not 埃哲顿)
+Smith,史密斯,Family name for Deborah
+Taylor,泰勒,Family name for Ashley
+Mills,米尔斯,Family name for Vera
 Benny's,本尼餐馆,Restaurant name
 Longhorn Street,长角街,Street name
+Washington Street,华盛顿街,Street name
+Monroe Street,门罗街,Street name
+Carpenter Road,卡彭特路,Street name
+Maple Road,枫树路,Street name
+Cedar Avenue,雪松大道,Avenue name
+Cedar Heights,雪松高地,Neighborhood for Jaden
+Riverside Suburbs,河畔郊区,Neighborhood for Jaden
+Riverside,河畔,Short form of Riverside Suburbs
+Bohemian Quarter,波希米亚区,Neighborhood
+Brookfield High,布鲁克菲尔德高中,School for Ashley
+St. George's,圣乔治医院,Hospital for Jaden
+JW Building,JW大楼,Building where Jaden's session takes place
+CBT,认知行为疗法,Treatment acronym
+DSM,精神障碍诊断与统计手册,Diagnostic manual acronym
+Halloween,万圣节,Holiday
+Steam,Steam,Platform name kept as-is

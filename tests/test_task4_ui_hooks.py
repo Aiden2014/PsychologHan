@@ -95,6 +95,29 @@ class Task4UiHookTests(unittest.TestCase):
         self.assertEqual(row[1], "SUSPECT")
         self.assertEqual(row[2], "嫌疑人")
 
+    def test_exit_to_main_menu_buttons_use_context_specific_stable_keys(self):
+        patches = (PROJECT / "UiPatches.cs").read_text(encoding="utf-8-sig")
+        translations = PROJECT / "resources" / "work" / "approved-translations" / "ui.csv"
+
+        expected = {
+            "DifficultySetting/ReturnToTitleButton": ("31612", "退出至主菜单"),
+            "GameResult/ReturnToTitleButton": ("34132", "退出到主菜单"),
+        }
+        for path, (path_id, translation) in expected.items():
+            self.assertIn(path + "/Text (TMP)", patches)
+            self.assertIn(
+                f"level1|||{path_id}|||TextMeshProUGUI|||TextMeshProUGUI",
+                patches,
+            )
+
+            with translations.open(encoding="utf-8-sig", newline="") as handle:
+                row = next(
+                    row for row in csv.reader(handle)
+                    if row and row[0] == f"level1|||{path_id}|||TextMeshProUGUI|||TextMeshProUGUI"
+                )
+            self.assertEqual(row[1], "EXIT TO MAIN MENU")
+            self.assertEqual(row[2], translation)
+
     def test_ui_hook_is_not_a_global_tmp_setter(self):
         patches = (PROJECT / "UiPatches.cs").read_text(encoding="utf-8-sig")
 

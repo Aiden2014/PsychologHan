@@ -51,6 +51,14 @@ internal static class UiPatches
             {
                 "Canvas/InGame/MainGameScreen/CursorResponseLayer/Stage/LayerForZooming/AllPacButtons/Killer/SuspectSittingInSofa/Text (TMP)",
                 "level1|||33772|||TextMeshProUGUI|||TextMeshProUGUI"
+            },
+            {
+                "Canvas/InGame/MainGameScreen/CursorResponseLayer/Stage/LayerForZooming/Imagery/Cutscenes/DifficultySetting/ReturnToTitleButton/Text (TMP)",
+                "level1|||31612|||TextMeshProUGUI|||TextMeshProUGUI"
+            },
+            {
+                "Canvas/InGame/MainGameScreen/CursorResponseLayer/Stage/LayerForZooming/Imagery/Cutscenes/GameResult/ReturnToTitleButton/Text (TMP)",
+                "level1|||34132|||TextMeshProUGUI|||TextMeshProUGUI"
             }
         };
 

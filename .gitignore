@@ -47,3 +47,9 @@ __pycache__/
 
 # Local Superpowers task artifacts
 .superpowers/
+
+# skill build
+.skill-build
+
+# npm cache
+.npm-cache

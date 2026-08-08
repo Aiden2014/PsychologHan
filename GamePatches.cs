@@ -17,6 +17,8 @@ internal static class GamePatches
     private const string DynamicHomeworkExpression = "((gS.homeworkFloor == 3) ? \"third\" : \"fifth\")";
     private const int DynamicJoshNodeId = 19340;
     private const string DynamicJoshSpeaker = "JOSH";
+    private const int DynamicDeborahNodeId = 2820;
+    private const string DynamicDeborahPlaceholder = "[DECIDE DYNAMICALLY]";
 
     [HarmonyPatch(typeof(global::GameManager), nameof(global::GameManager.addMe), new Type[] { typeof(int), typeof(string), typeof(int), typeof(Action) })]
     private static class AddMePatch
@@ -37,7 +39,7 @@ internal static class GamePatches
         {
             string originalSpeakerName = speakerName;
             string dialogueKey = DialogueKey(id, originalSpeakerName);
-            if (!IsDynamicHomeworkPlaceholder(id, text))
+            if (!IsDynamicPlaceholder(id, text))
             {
                 text = TranslateRuntimeKeyWithOptionalOriginalFallback(DialogueCategory, dialogueKey, text, ItemCategory);
             }
@@ -49,10 +51,12 @@ internal static class GamePatches
         }
     }
 
-    private static bool IsDynamicHomeworkPlaceholder(int nodeId, string text)
+    private static bool IsDynamicPlaceholder(int nodeId, string text)
     {
-        return nodeId == DynamicHomeworkNodeId &&
-            string.Equals(text, "[DYNAMICALLY]", StringComparison.Ordinal);
+        return (nodeId == DynamicHomeworkNodeId &&
+                string.Equals(text, "[DYNAMICALLY]", StringComparison.Ordinal)) ||
+            (nodeId == DynamicDeborahNodeId &&
+                string.Equals(text, DynamicDeborahPlaceholder, StringComparison.Ordinal));
     }
 
     [HarmonyPatch(typeof(global::GameManager), nameof(global::GameManager.updateSituationView))]
@@ -63,6 +67,7 @@ internal static class GamePatches
         {
             TranslateDynamicHomeworkText(__instance);
             TranslateDynamicJoshText(__instance);
+            TranslateDynamicDeborahText(__instance);
         }
     }
 
@@ -221,6 +226,29 @@ internal static class GamePatches
         string translated;
         string runtimeKey = DialogueKey(DynamicJoshNodeId, DynamicJoshSpeaker);
         if (Plugin.Translations.TryTranslateRuntimeKey(DialogueCategory, runtimeKey, sitItem.text, out translated) &&
+            !string.Equals(sitItem.text, translated, StringComparison.Ordinal))
+        {
+            sitItem.text = translated;
+        }
+    }
+
+    private static void TranslateDynamicDeborahText(global::GameManager gameManager)
+    {
+        if (gameManager == null || Plugin.Translations == null || gameManager.gS == null ||
+            gameManager.sitItems == null || gameManager.gS.currentSitItem != DynamicDeborahNodeId)
+        {
+            return;
+        }
+
+        global::SitItem sitItem;
+        if (!gameManager.sitItems.TryGetValue(DynamicDeborahNodeId, out sitItem) ||
+            sitItem == null || !string.Equals(sitItem.sitType, "speaker", StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        string translated;
+        if (Plugin.Translations.TryTranslateByOriginal(ItemCategory, sitItem.text, out translated) &&
             !string.Equals(sitItem.text, translated, StringComparison.Ordinal))
         {
             sitItem.text = translated;

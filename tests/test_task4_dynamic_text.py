@@ -72,7 +72,7 @@ class Task4DynamicTextTests(unittest.TestCase):
         self.assertIn("DynamicHomeworkItemKey", patches)
         self.assertIn("TryTranslateDynamicTemplate", patches)
         self.assertIn("homeworkFloor == 3", patches)
-        self.assertIn("IsDynamicHomeworkPlaceholder", patches)
+        self.assertIn("IsDynamicPlaceholder", patches)
         self.assertIn("public bool TryTranslateDynamicTemplate", manager)
         self.assertNotIn("TMP_Text.text", patches)
 
@@ -88,6 +88,24 @@ class Task4DynamicTextTests(unittest.TestCase):
         self.assertIn('private const string DynamicJoshSpeaker = "JOSH";', patches)
         self.assertIn("TranslateDynamicJoshText(__instance);", patches)
         self.assertIn("TryTranslateRuntimeKey(DialogueCategory, runtimeKey, sitItem.text", patches)
+
+    def test_dynamic_deborah_items_are_retranslated_after_the_game_callback(self):
+        path = PROJECT / "resources" / "work" / "approved-translations" / "item.csv"
+        with path.open(encoding="utf-8-sig", newline="") as handle:
+            rows = {
+                row[0]: row
+                for row in csv.reader(handle)
+                if row and row[0].startswith("2820|||")
+            }
+
+        patches = (PROJECT / "GamePatches.cs").read_text(encoding="utf-8-sig")
+
+        self.assertEqual(set(rows), {"2820|||3241", "2820|||3245", "2820|||3249", "2820|||3253"})
+        self.assertTrue(all(row[2] for row in rows.values()))
+        self.assertIn("DynamicDeborahNodeId", patches)
+        self.assertIn('private const string DynamicDeborahPlaceholder = "[DECIDE DYNAMICALLY]";', patches)
+        self.assertIn("TranslateDynamicDeborahText(__instance);", patches)
+        self.assertIn("TryTranslateByOriginal(ItemCategory, sitItem.text", patches)
 
 
 if __name__ == "__main__":

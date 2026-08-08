@@ -433,7 +433,8 @@ internal static class GamePatches
 
         string translated;
         string runtimeKey = DialogueKey(DynamicJoshNodeId, DynamicJoshSpeaker);
-        if (Plugin.Translations.TryTranslateRuntimeKey(DialogueCategory, runtimeKey, sitItem.text, out translated) &&
+        if ((Plugin.Translations.TryTranslateByOriginal(ItemCategory, sitItem.text, out translated) ||
+             Plugin.Translations.TryTranslateRuntimeKey(DialogueCategory, runtimeKey, sitItem.text, out translated)) &&
             !string.Equals(sitItem.text, translated, StringComparison.Ordinal))
         {
             sitItem.text = translated;

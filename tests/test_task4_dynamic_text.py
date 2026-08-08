@@ -89,6 +89,25 @@ class Task4DynamicTextTests(unittest.TestCase):
         self.assertIn("TranslateDynamicJoshText(__instance);", patches)
         self.assertIn("TryTranslateRuntimeKey(DialogueCategory, runtimeKey, sitItem.text", patches)
 
+    def test_dynamic_josh_callback_variants_use_item_rows_after_the_text_is_replaced(self):
+        path = PROJECT / "resources" / "work" / "approved-translations" / "item.csv"
+        with path.open(encoding="utf-8-sig", newline="") as handle:
+            rows = {
+                row[0]: row
+                for row in csv.reader(handle)
+                if row and row[0] in {"19340|||8643", "19340|||8647", "19340|||8651"}
+            }
+
+        self.assertEqual(set(rows), {"19340|||8643", "19340|||8647", "19340|||8651"})
+        self.assertTrue(all(row[2] for row in rows.values()))
+
+        patches = (PROJECT / "GamePatches.cs").read_text(encoding="utf-8-sig")
+        start = patches.index("private static void TranslateDynamicJoshText")
+        end = patches.index("private static void TranslateDynamicDeborahText", start)
+        josh_method = patches[start:end]
+
+        self.assertIn("TryTranslateByOriginal(ItemCategory, sitItem.text, out translated)", josh_method)
+
     def test_dynamic_deborah_items_are_retranslated_after_the_game_callback(self):
         path = PROJECT / "resources" / "work" / "approved-translations" / "item.csv"
         with path.open(encoding="utf-8-sig", newline="") as handle:

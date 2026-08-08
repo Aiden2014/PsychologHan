@@ -26,6 +26,25 @@ class Task4UiHookTests(unittest.TestCase):
 
         self.assertIn("TranslateScreen(gameManager.inGame);", patches)
 
+    def test_verified_duplicate_ui_originals_use_stable_key_locators(self):
+        patches = (PROJECT / "UiPatches.cs").read_text(encoding="utf-8-sig")
+
+        self.assertIn("ApprovedUiKeysByHierarchyPath", patches)
+        self.assertIn("TryTranslate(UiCategory, approvedKey, original", patches)
+        self.assertIn(
+            "Continue1/Text (TMP)\",\n                \"level1|||32831|||TextMeshProUGUI|||TextMeshProUGUI",
+            patches,
+        )
+        self.assertIn(
+            "Continue2/Text (TMP)\",\n                \"level1|||31950|||TextMeshProUGUI|||TextMeshProUGUI",
+            patches,
+        )
+        self.assertIn(
+            "Continue3/Text (TMP)\",\n                \"level1|||31499|||TextMeshProUGUI|||TextMeshProUGUI",
+            patches,
+        )
+        self.assertIn("A reviewed locator is authoritative", patches)
+
     def test_ui_hook_is_not_a_global_tmp_setter(self):
         patches = (PROJECT / "UiPatches.cs").read_text(encoding="utf-8-sig")
 
@@ -51,6 +70,8 @@ class Task4UiHookTests(unittest.TestCase):
         self.assertIn("UiPatches.TranslateClientWeeklyPlanner(__instance.notesSection);", game_patches)
         self.assertIn("NotesHandwritten/", ui_patches)
         self.assertIn("AshleyText2", ui_patches)
+        self.assertIn("new Color(0f, 0f, 0f, textComponent.color.a)", ui_patches)
+        self.assertIn("<size=80%>", ui_patches)
 
     def test_weekly_planner_morning_translation_is_not_ambiguous(self):
         translations = PROJECT / "resources" / "work" / "approved-translations" / "ui.csv"
@@ -80,4 +101,11 @@ class Task4UiHookTests(unittest.TestCase):
         manager = (PROJECT / "TranslationManager.cs").read_text(encoding="utf-8-sig")
 
         self.assertIn("NormalizeNewlines", manager)
+        self.assertIn("if (!OriginalsMatch(entry.Original, original))", manager)
+        self.assertIn("OriginalsMatch(candidate.Original, original)", manager)
         self.assertIn("normalizedOriginalsByCategory", manager)
+        fallback = manager[manager.index("public bool TryTranslateByOriginal"):manager.index("private void LoadCsv")]
+        self.assertLess(
+            fallback.index("ambiguousNormalizedOriginals.Contains(normalizedOriginal)"),
+            fallback.index("originals.TryGetValue(original"),
+        )

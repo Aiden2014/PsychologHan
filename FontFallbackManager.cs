@@ -18,6 +18,7 @@ internal sealed class FontFallbackManager
     private const string TypewriterMappedFontFileName = "朝華打字機.ttf";
     private const string GochiHandAssetName = "GochiHand-Regular";
     private const string GochiHandMappedFontFileName = "JasonHandwriting1-Regular.ttf";
+    private const int GochiHandSamplingPointSize = 78;
 
     private readonly ManualLogSource logger;
     private readonly Dictionary<string, Font> mappedSourceFonts = new Dictionary<string, Font>(StringComparer.Ordinal);
@@ -45,7 +46,7 @@ internal sealed class FontFallbackManager
         {
             if (fontAsset == null)
             {
-                fontAsset = CreateFontAsset(fontPath, "PsychologHan 南西油墨宋", out sourceFont);
+                fontAsset = CreateFontAsset(fontPath, "PsychologHan 南西油墨宋", 90, out sourceFont);
                 if (fontAsset == null)
                 {
                     return false;
@@ -65,8 +66,8 @@ internal sealed class FontFallbackManager
 
             mappedFontAssets[AdlerFamilyName] = fontAsset;
             logger.LogInfo("Installed TMP font mapping Adler -> " + fontPath + " (shared with the global fallback).");
-            TryInstallMappedFont(pluginDirectory, TypewriterStandardAssetName, TypewriterMappedFontFileName, "朝華打字機");
-            TryInstallMappedFont(pluginDirectory, GochiHandAssetName, GochiHandMappedFontFileName, "JasonHandwriting1");
+            TryInstallMappedFont(pluginDirectory, TypewriterStandardAssetName, TypewriterMappedFontFileName, "朝華打字機", 90);
+            TryInstallMappedFont(pluginDirectory, GochiHandAssetName, GochiHandMappedFontFileName, "JasonHandwriting1", GochiHandSamplingPointSize);
 
             registered = true;
             logger.LogInfo(
@@ -117,7 +118,7 @@ internal sealed class FontFallbackManager
         return changed;
     }
 
-    private void TryInstallMappedFont(string pluginDirectory, string mappingKey, string fileName, string displayName)
+    private void TryInstallMappedFont(string pluginDirectory, string mappingKey, string fileName, string displayName, int samplingPointSize)
     {
         if (mappedFontAssets.ContainsKey(mappingKey))
         {
@@ -132,7 +133,7 @@ internal sealed class FontFallbackManager
         }
 
         Font mappedSourceFont;
-        TMP_FontAsset mappedFontAsset = CreateFontAsset(path, "PsychologHan " + displayName, out mappedSourceFont);
+        TMP_FontAsset mappedFontAsset = CreateFontAsset(path, "PsychologHan " + displayName, samplingPointSize, out mappedSourceFont);
         if (mappedFontAsset == null)
         {
             logger.LogWarning("Could not create mapped TMP font " + displayName + "; the original font will be preserved for " + mappingKey + ".");
@@ -144,7 +145,7 @@ internal sealed class FontFallbackManager
         logger.LogInfo("Installed TMP font mapping " + mappingKey + " -> " + path + ".");
     }
 
-    private static TMP_FontAsset CreateFontAsset(string fontPath, string assetName, out Font createdFont)
+    private static TMP_FontAsset CreateFontAsset(string fontPath, string assetName, int samplingPointSize, out Font createdFont)
     {
         createdFont = new Font(fontPath);
         if (createdFont == null)
@@ -154,7 +155,7 @@ internal sealed class FontFallbackManager
 
         TMP_FontAsset createdAsset = TMP_FontAsset.CreateFontAsset(
             createdFont,
-            90,
+            samplingPointSize,
             9,
             GlyphRenderMode.SDFAA,
             2048,

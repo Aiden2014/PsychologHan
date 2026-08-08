@@ -24,6 +24,7 @@ class FontFallbackContractTests(unittest.TestCase):
         self.assertIn("南西油墨宋.ttf", manager)
         self.assertIn("朝華打字機.ttf", manager)
         self.assertIn("JasonHandwriting1-Regular.ttf", manager)
+        self.assertIn("GochiHandSamplingPointSize = 78", manager)
         self.assertIn("faceInfo.familyName", manager)
         self.assertIn("Typewriter_standard", manager)
         self.assertIn("GochiHand-Regular", manager)

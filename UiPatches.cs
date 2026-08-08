@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
@@ -9,6 +11,28 @@ namespace PsychologHan;
 internal static class UiPatches
 {
     private const string UiCategory = "ui";
+    private const string HandwrittenSizeTag = "<size=80%>";
+
+    // These locators are reviewed against the level1 AssetStudio export and the
+    // runtime SceneScan hierarchy. The runtime object does not expose Unity's
+    // serialized PathID, so the approved hierarchy path supplies the stable-key
+    // bridge for duplicate UI originals.
+    private static readonly Dictionary<string, string> ApprovedUiKeysByHierarchyPath =
+        new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            {
+                "Canvas/InGame/MainGameScreen/CursorResponseLayer/Stage/LayerForZooming/AllPacButtons/Ashley/Continue1/Text (TMP)",
+                "level1|||32831|||TextMeshProUGUI|||TextMeshProUGUI"
+            },
+            {
+                "Canvas/InGame/MainGameScreen/CursorResponseLayer/Stage/LayerForZooming/AllPacButtons/Ashley/Continue2/Text (TMP)",
+                "level1|||31950|||TextMeshProUGUI|||TextMeshProUGUI"
+            },
+            {
+                "Canvas/InGame/MainGameScreen/CursorResponseLayer/Stage/LayerForZooming/AllPacButtons/Ashley/Continue3/Text (TMP)",
+                "level1|||31499|||TextMeshProUGUI|||TextMeshProUGUI"
+            }
+        };
 
     [HarmonyPatch(typeof(global::GameManager), "Start")]
     private static class GameManagerStartPatch
@@ -196,6 +220,24 @@ internal static class UiPatches
         {
             Plugin.Fonts.TryApplyMapping(textComponent);
         }
+
+        if (textComponent.font != null && !string.IsNullOrEmpty(textComponent.font.name) &&
+            textComponent.font.name.StartsWith("PsychologHan JasonHandwriting1", System.StringComparison.OrdinalIgnoreCase))
+        {
+            textComponent.color = new Color(0f, 0f, 0f, textComponent.color.a);
+            ApplyHandwrittenSize(textComponent);
+        }
+    }
+
+    private static void ApplyHandwrittenSize(TextMeshProUGUI textComponent)
+    {
+        if (string.IsNullOrEmpty(textComponent.text) ||
+            textComponent.text.IndexOf("<size=", System.StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            return;
+        }
+
+        textComponent.text = HandwrittenSizeTag + textComponent.text + "</size>";
     }
 
     private static string ReplacePlannerNameFragments(string componentName, string value)
@@ -222,17 +264,17 @@ internal static class UiPatches
 
         if (componentName == "Deborah2" && value == "bora")
         {
-            return "博";
+            return "";
         }
 
         if (componentName == "Deborah2 (1)" && value == "De")
         {
-            return "黛";
+            return "";
         }
 
         if (componentName == "Deborah2 (2)" && value == "h")
         {
-            return "拉";
+            return "黛博拉";
         }
 
         if (componentName == "Deborah3" && value == "Debo")
@@ -245,9 +287,9 @@ internal static class UiPatches
             return "拉";
         }
 
-        if (componentName == "JoeText2" && value == "Jo")
+        if (componentName == "JoeText2" && value != null && value.EndsWith("Jo", System.StringComparison.Ordinal))
         {
-            return "乔";
+            return value.Substring(0, value.Length - 2) + "乔";
         }
 
         if (componentName == "JoeText2_e" && value == "e")
@@ -303,6 +345,21 @@ internal static class UiPatches
         if (Plugin.Fonts != null)
         {
             Plugin.Fonts.TryApplyMapping(textComponent);
+        }
+
+        string approvedKey;
+        if (ApprovedUiKeysByHierarchyPath.TryGetValue(GetHierarchyPath(textComponent), out approvedKey))
+        {
+            string keyTranslated;
+            if (Plugin.Translations.TryTranslate(UiCategory, approvedKey, original, out keyTranslated) &&
+                !string.Equals(original, keyTranslated, System.StringComparison.Ordinal))
+            {
+                textComponent.text = keyTranslated;
+            }
+
+            // A reviewed locator is authoritative. Do not fall back to another
+            // translation for the same original when the key's source changed.
+            return;
         }
 
         string translated = null;

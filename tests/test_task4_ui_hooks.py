@@ -45,6 +45,24 @@ class Task4UiHookTests(unittest.TestCase):
         )
         self.assertIn("A reviewed locator is authoritative", patches)
 
+    def test_intersection_buttons_use_context_specific_stable_key_locators(self):
+        patches = (PROJECT / "UiPatches.cs").read_text(encoding="utf-8-sig")
+
+        expected_locators = {
+            "AToHub": "33304",
+            "BToHub": "34192",
+            "CToHub": "35034",
+        }
+        for button_name, path_id in expected_locators.items():
+            self.assertIn(
+                f"DeborahCarpenterRoad/{button_name}/Text (TMP)",
+                patches,
+            )
+            self.assertIn(
+                f"level1|||{path_id}|||TextMeshProUGUI|||TextMeshProUGUI",
+                patches,
+            )
+
     def test_ui_hook_is_not_a_global_tmp_setter(self):
         patches = (PROJECT / "UiPatches.cs").read_text(encoding="utf-8-sig")
 

@@ -31,6 +31,18 @@ internal static class UiPatches
             {
                 "Canvas/InGame/MainGameScreen/CursorResponseLayer/Stage/LayerForZooming/AllPacButtons/Ashley/Continue3/Text (TMP)",
                 "level1|||31499|||TextMeshProUGUI|||TextMeshProUGUI"
+            },
+            {
+                "Canvas/InGame/MainGameScreen/CursorResponseLayer/Stage/LayerForZooming/AllPacButtons/DeborahCarpenterRoad/AToHub/Text (TMP)",
+                "level1|||33304|||TextMeshProUGUI|||TextMeshProUGUI"
+            },
+            {
+                "Canvas/InGame/MainGameScreen/CursorResponseLayer/Stage/LayerForZooming/AllPacButtons/DeborahCarpenterRoad/BToHub/Text (TMP)",
+                "level1|||34192|||TextMeshProUGUI|||TextMeshProUGUI"
+            },
+            {
+                "Canvas/InGame/MainGameScreen/CursorResponseLayer/Stage/LayerForZooming/AllPacButtons/DeborahCarpenterRoad/CToHub/Text (TMP)",
+                "level1|||35034|||TextMeshProUGUI|||TextMeshProUGUI"
             }
         };
 

@@ -15,6 +15,8 @@ internal static class GamePatches
     private const int DynamicHomeworkNodeId = 15700;
     private const string DynamicHomeworkItemKey = "15700|||5290";
     private const string DynamicHomeworkExpression = "((gS.homeworkFloor == 3) ? \"third\" : \"fifth\")";
+    private const int DynamicJoshNodeId = 19340;
+    private const string DynamicJoshSpeaker = "JOSH";
 
     [HarmonyPatch(typeof(global::GameManager), nameof(global::GameManager.addMe), new Type[] { typeof(int), typeof(string), typeof(int), typeof(Action) })]
     private static class AddMePatch
@@ -60,6 +62,7 @@ internal static class GamePatches
         private static void Prefix(global::GameManager __instance)
         {
             TranslateDynamicHomeworkText(__instance);
+            TranslateDynamicJoshText(__instance);
         }
     }
 
@@ -194,6 +197,30 @@ internal static class GamePatches
                 originalFloor,
                 translatedFloor,
                 out translated) &&
+            !string.Equals(sitItem.text, translated, StringComparison.Ordinal))
+        {
+            sitItem.text = translated;
+        }
+    }
+
+    private static void TranslateDynamicJoshText(global::GameManager gameManager)
+    {
+        if (gameManager == null || Plugin.Translations == null || gameManager.gS == null ||
+            gameManager.sitItems == null || gameManager.gS.currentSitItem != DynamicJoshNodeId)
+        {
+            return;
+        }
+
+        global::SitItem sitItem;
+        if (!gameManager.sitItems.TryGetValue(DynamicJoshNodeId, out sitItem) ||
+            sitItem == null || !string.Equals(sitItem.sitType, "speaker", StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        string translated;
+        string runtimeKey = DialogueKey(DynamicJoshNodeId, DynamicJoshSpeaker);
+        if (Plugin.Translations.TryTranslateRuntimeKey(DialogueCategory, runtimeKey, sitItem.text, out translated) &&
             !string.Equals(sitItem.text, translated, StringComparison.Ordinal))
         {
             sitItem.text = translated;

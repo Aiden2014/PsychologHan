@@ -43,6 +43,14 @@ internal static class UiPatches
             {
                 "Canvas/InGame/MainGameScreen/CursorResponseLayer/Stage/LayerForZooming/AllPacButtons/DeborahCarpenterRoad/CToHub/Text (TMP)",
                 "level1|||35034|||TextMeshProUGUI|||TextMeshProUGUI"
+            },
+            {
+                "Canvas/InGame/MainGameScreen/CursorResponseLayer/Stage/LayerForZooming/AllPacButtons/Killer/HideoutFacade/Text (TMP)",
+                "level1|||33364|||TextMeshProUGUI|||TextMeshProUGUI"
+            },
+            {
+                "Canvas/InGame/MainGameScreen/CursorResponseLayer/Stage/LayerForZooming/AllPacButtons/Killer/SuspectSittingInSofa/Text (TMP)",
+                "level1|||33772|||TextMeshProUGUI|||TextMeshProUGUI"
             }
         };
 

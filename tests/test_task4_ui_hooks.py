@@ -63,6 +63,38 @@ class Task4UiHookTests(unittest.TestCase):
                 patches,
             )
 
+    def test_hideout_facade_uses_the_multiline_ui_key(self):
+        patches = (PROJECT / "UiPatches.cs").read_text(encoding="utf-8-sig")
+
+        self.assertIn(
+            "Killer/HideoutFacade/Text (TMP)",
+            patches,
+        )
+        self.assertIn(
+            "level1|||33364|||TextMeshProUGUI|||TextMeshProUGUI",
+            patches,
+        )
+
+        translations = PROJECT / "resources" / "work" / "approved-translations" / "ui.csv"
+        with translations.open(encoding="utf-8-sig", newline="") as handle:
+            row = next(row for row in csv.reader(handle) if row and row[0] == "level1|||33364|||TextMeshProUGUI|||TextMeshProUGUI")
+
+        self.assertEqual(row[1], "SUSPECT'S \nHIDEOUT")
+        self.assertEqual(row[2], "嫌疑人的\n藏身处")
+
+    def test_suspect_sofa_label_uses_a_chinese_translation_and_stable_key(self):
+        patches = (PROJECT / "UiPatches.cs").read_text(encoding="utf-8-sig")
+        translations = PROJECT / "resources" / "work" / "approved-translations" / "ui.csv"
+
+        self.assertIn("Killer/SuspectSittingInSofa/Text (TMP)", patches)
+        self.assertIn("level1|||33772|||TextMeshProUGUI|||TextMeshProUGUI", patches)
+
+        with translations.open(encoding="utf-8-sig", newline="") as handle:
+            row = next(row for row in csv.reader(handle) if row and row[0] == "level1|||33772|||TextMeshProUGUI|||TextMeshProUGUI")
+
+        self.assertEqual(row[1], "SUSPECT")
+        self.assertEqual(row[2], "嫌疑人")
+
     def test_ui_hook_is_not_a_global_tmp_setter(self):
         patches = (PROJECT / "UiPatches.cs").read_text(encoding="utf-8-sig")
 

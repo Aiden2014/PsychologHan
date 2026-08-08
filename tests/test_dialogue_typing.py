@@ -89,6 +89,17 @@ class DialogueTypingTests(unittest.TestCase):
         self.assertIn('"m_TargetAssemblyTypeName": "HurryUp, Assembly-CSharp"', button)
         self.assertIn('"m_MethodName": "OnClick"', button)
 
+    def test_skip_click_cannot_advance_to_the_next_option_in_the_same_frame(self):
+        patches = (PROJECT / "GamePatches.cs").read_text(encoding="utf-8-sig")
+
+        self.assertIn(
+            '[HarmonyPatch(typeof(global::OptionItem), nameof(global::OptionItem.toDoWhenClicked))]',
+            patches,
+        )
+        self.assertIn("skipInputConsumedAtFrame", patches)
+        self.assertIn("Time.frameCount", patches)
+        self.assertIn("ConsumeSkipInputGuard", patches)
+
 
 if __name__ == "__main__":
     unittest.main()

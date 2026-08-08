@@ -25,6 +25,8 @@ internal static class GamePatches
     private const float ChineseDialogueSpeedMultiplier = 1.25f;
     private static readonly Dictionary<global::GameManager, ChineseDialogueSession> activeChineseDialogues =
         new Dictionary<global::GameManager, ChineseDialogueSession>();
+    private static readonly Dictionary<global::GameManager, int> skipInputConsumedAtFrame =
+        new Dictionary<global::GameManager, int>();
 
     private sealed class ChineseDialogueSession
     {
@@ -82,6 +84,31 @@ internal static class GamePatches
             if (__instance == null || __instance.gM == null)
             {
                 return true;
+            }
+
+            if (ConsumeSkipInputGuard(__instance.gM))
+            {
+                return false;
+            }
+
+            return !CompleteActiveChineseDialogue(__instance.gM);
+        }
+    }
+
+    [HarmonyPatch(typeof(global::OptionItem), nameof(global::OptionItem.toDoWhenClicked))]
+    private static class OptionItemClickPatch
+    {
+        [HarmonyPrefix]
+        private static bool Prefix(global::OptionItem __instance)
+        {
+            if (__instance == null || __instance.gM == null)
+            {
+                return true;
+            }
+
+            if (ConsumeSkipInputGuard(__instance.gM))
+            {
+                return false;
             }
 
             return !CompleteActiveChineseDialogue(__instance.gM);
@@ -167,7 +194,25 @@ internal static class GamePatches
         }
 
         session.TextObject.text = session.TextLine;
+        skipInputConsumedAtFrame[gameManager] = Time.frameCount;
         FinishChineseDialogue(gameManager, session);
+        return true;
+    }
+
+    private static bool ConsumeSkipInputGuard(global::GameManager gameManager)
+    {
+        int consumedFrame;
+        if (!skipInputConsumedAtFrame.TryGetValue(gameManager, out consumedFrame))
+        {
+            return false;
+        }
+
+        if (consumedFrame != Time.frameCount)
+        {
+            skipInputConsumedAtFrame.Remove(gameManager);
+            return false;
+        }
+
         return true;
     }
 

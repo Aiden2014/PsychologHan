@@ -64,6 +64,23 @@ class FontFallbackContractTests(unittest.TestCase):
 
         self.assertIn("textComponent.fontSharedMaterial = mappedFontAsset.material;", manager)
 
+    def test_typewriter_uses_the_original_font_for_ascii_digits(self):
+        manager = (PROJECT / "FontFallbackManager.cs").read_text(encoding="utf-8-sig")
+
+        self.assertIn("ITextPreprocessor", manager)
+        self.assertIn("textComponent.textPreprocessor", manager)
+        self.assertIn("MaterialReferenceManager.AddFontAsset(originalFont);", manager)
+        self.assertIn('processedText.Append("<font=\\\"");', manager)
+        self.assertIn("character >= '0' && character <= '9'", manager)
+        self.assertIn("originalTextPreprocessorByComponent.Clear()", manager)
+
+    def test_client_control_subtrees_keep_the_original_game_font(self):
+        manager = (PROJECT / "FontFallbackManager.cs").read_text(encoding="utf-8-sig")
+
+        self.assertIn("IsOriginalGameFontScope", manager)
+        self.assertIn("GetComponent<global::MainMenuButton>()", manager)
+        self.assertIn("GetComponent<global::CloseClientSectionButton>()", manager)
+
 
 if __name__ == "__main__":
     unittest.main()

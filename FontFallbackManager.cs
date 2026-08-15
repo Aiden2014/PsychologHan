@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using BepInEx.Logging;
 using TMPro;
 using UnityEngine;
@@ -25,6 +26,7 @@ internal sealed class FontFallbackManager
     private readonly Dictionary<string, TMP_FontAsset> mappedFontAssets = new Dictionary<string, TMP_FontAsset>(StringComparer.Ordinal);
     private readonly Dictionary<TMP_Text, TMP_FontAsset> originalFontByComponent = new Dictionary<TMP_Text, TMP_FontAsset>();
     private readonly Dictionary<TMP_Text, Material> originalMaterialByComponent = new Dictionary<TMP_Text, Material>();
+    private readonly Dictionary<TMP_Text, ITextPreprocessor> originalTextPreprocessorByComponent = new Dictionary<TMP_Text, ITextPreprocessor>();
     private Font sourceFont;
     private TMP_FontAsset fontAsset;
     private bool registered;
@@ -89,7 +91,23 @@ internal sealed class FontFallbackManager
             return false;
         }
 
-        string mappingKey = GetMappingKey(textComponent.font);
+        if (IsOriginalGameFontScope(textComponent))
+        {
+            return false;
+        }
+
+        TMP_FontAsset originalFont = textComponent.font;
+        string mappingKey = GetMappingKey(originalFont);
+        if (mappingKey == null)
+        {
+            TMP_FontAsset rememberedOriginalFont;
+            if (originalFontByComponent.TryGetValue(textComponent, out rememberedOriginalFont))
+            {
+                originalFont = rememberedOriginalFont;
+                mappingKey = GetMappingKey(originalFont);
+            }
+        }
+
         TMP_FontAsset mappedFontAsset;
         if (mappingKey == null || !mappedFontAssets.TryGetValue(mappingKey, out mappedFontAsset) || mappedFontAsset == null)
         {
@@ -100,6 +118,12 @@ internal sealed class FontFallbackManager
         {
             originalFontByComponent.Add(textComponent, textComponent.font);
             originalMaterialByComponent.Add(textComponent, textComponent.fontSharedMaterial);
+            originalTextPreprocessorByComponent.Add(textComponent, textComponent.textPreprocessor);
+        }
+
+        if (mappingKey == TypewriterStandardAssetName)
+        {
+            InstallTypewriterDigitFont(textComponent, originalFont);
         }
 
         bool changed = false;
@@ -116,6 +140,114 @@ internal sealed class FontFallbackManager
         }
 
         return changed;
+    }
+
+    private static bool IsOriginalGameFontScope(TMP_Text textComponent)
+    {
+        Transform current = textComponent.transform;
+        while (current != null)
+        {
+            if (current.GetComponent<global::MainMenuButton>() != null ||
+                current.GetComponent<global::CloseClientSectionButton>() != null)
+            {
+                return true;
+            }
+
+            current = current.parent;
+        }
+
+        return false;
+    }
+
+    private void InstallTypewriterDigitFont(TMP_Text textComponent, TMP_FontAsset originalFont)
+    {
+        if (textComponent == null || originalFont == null || !textComponent.richText || string.IsNullOrEmpty(originalFont.name))
+        {
+            return;
+        }
+
+        // TMP resolves the <font="..."> tag through the material reference
+        // cache. The original asset is already a game-owned asset; registering
+        // it here makes the explicit digit spans work even after the component
+        // switches to the mapped Typewriter asset.
+        MaterialReferenceManager.AddFontAsset(originalFont);
+        if (originalFont.name.IndexOf('"') >= 0 || originalFont.name.IndexOf('<') >= 0 || originalFont.name.IndexOf('>') >= 0)
+        {
+            return;
+        }
+
+        ITextPreprocessor originalPreprocessor;
+        if (!originalTextPreprocessorByComponent.TryGetValue(textComponent, out originalPreprocessor))
+        {
+            return;
+        }
+
+        if (!(textComponent.textPreprocessor is TypewriterDigitFontPreprocessor))
+        {
+            textComponent.textPreprocessor = new TypewriterDigitFontPreprocessor(originalFont.name, originalPreprocessor);
+        }
+    }
+
+    private sealed class TypewriterDigitFontPreprocessor : ITextPreprocessor
+    {
+        private readonly string originalFontAssetName;
+        private readonly ITextPreprocessor innerPreprocessor;
+
+        internal TypewriterDigitFontPreprocessor(string originalFontAssetName, ITextPreprocessor innerPreprocessor)
+        {
+            this.originalFontAssetName = originalFontAssetName;
+            this.innerPreprocessor = innerPreprocessor;
+        }
+
+        public string PreprocessText(string text)
+        {
+            if (innerPreprocessor != null)
+            {
+                text = innerPreprocessor.PreprocessText(text);
+            }
+
+            if (string.IsNullOrEmpty(text))
+            {
+                return text;
+            }
+
+            StringBuilder processedText = null;
+            bool insideMarkup = false;
+            for (int index = 0; index < text.Length; index++)
+            {
+                char character = text[index];
+                if (character == '<')
+                {
+                    insideMarkup = true;
+                }
+
+                if (!insideMarkup && character >= '0' && character <= '9')
+                {
+                    if (processedText == null)
+                    {
+                        processedText = new StringBuilder(text.Length + 32);
+                        processedText.Append(text, 0, index);
+                    }
+
+                    processedText.Append("<font=\"");
+                    processedText.Append(originalFontAssetName);
+                    processedText.Append("\">");
+                    processedText.Append(character);
+                    processedText.Append("</font>");
+                }
+                else if (processedText != null)
+                {
+                    processedText.Append(character);
+                }
+
+                if (character == '>')
+                {
+                    insideMarkup = false;
+                }
+            }
+
+            return processedText == null ? text : processedText.ToString();
+        }
     }
 
     private void TryInstallMappedFont(string pluginDirectory, string mappingKey, string fileName, string displayName, int samplingPointSize)
@@ -260,6 +392,17 @@ internal sealed class FontFallbackManager
         }
 
         originalMaterialByComponent.Clear();
+
+        foreach (KeyValuePair<TMP_Text, ITextPreprocessor> originalPreprocessor in originalTextPreprocessorByComponent)
+        {
+            TMP_Text textComponent = originalPreprocessor.Key;
+            if (textComponent != null && textComponent.textPreprocessor is TypewriterDigitFontPreprocessor)
+            {
+                textComponent.textPreprocessor = originalPreprocessor.Value;
+            }
+        }
+
+        originalTextPreprocessorByComponent.Clear();
 
         foreach (TMP_FontAsset mappedFontAsset in mappedFontAssets.Values)
         {

@@ -67,6 +67,14 @@ internal static class UiPatches
             {
                 "Canvas/InGame/MainGameScreen/CursorResponseLayer/Stage/LayerForZooming/Imagery/Cutscenes/NextDay1518/FromDay",
                 "level1|||32867|||TextMeshProUGUI|||TextMeshProUGUI"
+            },
+            {
+                "Canvas/InGame/ClientsSection/WeeklyPlannerSection/WeeklyPlannerSection/WeeklyPlannerStage/WeeklyPlanner/NotesHandwritten/JoeText1",
+                "level1|||31168|||TextMeshProUGUI|||TextMeshProUGUI"
+            },
+            {
+                "Canvas/InGame/MainGameScreen/CursorResponseLayer/Stage/LayerForZooming/Imagery/Cutscenes/HubForDevelopment/WeeklyPlanner/NotesHandwritten/JoeText1",
+                "level1|||31476|||TextMeshProUGUI|||TextMeshProUGUI"
             }
         };
 

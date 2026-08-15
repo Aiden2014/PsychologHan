@@ -45,6 +45,30 @@ class Task4UiHookTests(unittest.TestCase):
         )
         self.assertIn("A reviewed locator is authoritative", patches)
 
+    def test_joe_intro_session_labels_use_stable_key_locators(self):
+        patches = (PROJECT / "UiPatches.cs").read_text(encoding="utf-8-sig")
+        translations = PROJECT / "resources" / "work" / "approved-translations" / "ui.csv"
+
+        expected = {
+            "Canvas/InGame/ClientsSection/WeeklyPlannerSection/WeeklyPlannerSection/WeeklyPlannerStage/WeeklyPlanner/NotesHandwritten/JoeText1": "31168",
+            "Canvas/InGame/MainGameScreen/CursorResponseLayer/Stage/LayerForZooming/Imagery/Cutscenes/HubForDevelopment/WeeklyPlanner/NotesHandwritten/JoeText1": "31476",
+        }
+        for path, path_id in expected.items():
+            key = f"level1|||{path_id}|||TextMeshProUGUI|||TextMeshProUGUI"
+            self.assertIn(path, patches)
+            self.assertIn(key, patches)
+
+        with translations.open(encoding="utf-8-sig", newline="") as handle:
+            rows = {row[0]: row for row in csv.reader(handle) if row and row[0] in {
+                "level1|||31168|||TextMeshProUGUI|||TextMeshProUGUI",
+                "level1|||31476|||TextMeshProUGUI|||TextMeshProUGUI",
+            }}
+
+        self.assertEqual(len(rows), 2)
+        for row in rows.values():
+            self.assertEqual(row[1].replace("\r\n", "\n"), "      Joe\nintro session")
+            self.assertEqual(row[2].replace("\r\n", "\n"), "      乔\n初次会谈")
+
     def test_next_day_headers_use_context_specific_stable_key_locators(self):
         patches = (PROJECT / "UiPatches.cs").read_text(encoding="utf-8-sig")
         cutscene_root = (

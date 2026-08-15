@@ -8,6 +8,8 @@ from scripts.extract_game_text import (
     FlowEvent,
     ResourceIndex,
     decode_csharp_string,
+    extract_progress_bar_heading_rows,
+    extract_session_title_rows,
     parse_game_manager,
     run_extraction,
     _enrich_flow_events,
@@ -315,6 +317,65 @@ class ExtractGameTextTests(unittest.TestCase):
                 self.assertTrue(all("=" not in row[0] for row in file_rows))
         self.assertEqual(stats.ui_count, 1)
         self.assertEqual(stats.character_name_count, 1)
+
+    def test_extracts_client_session_title_serialized_fields_with_owner_keys(self):
+        resources = Path(self._tmp_dir()) / "resources"
+        (resources / "MonoBehaviour").mkdir(parents=True)
+        (resources / "MonoBehaviour" / "ClientSessionTitle-level1-37906.json").write_text(
+            '{"dateTextStr":"March 11", "weekdayTextStr":"Monday morning", '
+            '"clientNameTextStr":"VERA", "sessionNumberTextStr":"(fourth session)"}',
+            encoding="utf-8",
+        )
+
+        rows = extract_session_title_rows(ResourceIndex.from_root(resources))
+
+        self.assertEqual(
+            [(row.key, row.original) for row in rows],
+            [
+                ("level1|||37906|||ClientSessionTitle|||dateTextStr", "March 11"),
+                ("level1|||37906|||ClientSessionTitle|||weekdayTextStr", "Monday morning"),
+                ("level1|||37906|||ClientSessionTitle|||clientNameTextStr", "VERA"),
+                ("level1|||37906|||ClientSessionTitle|||sessionNumberTextStr", "(fourth session)"),
+            ],
+        )
+
+    def test_empty_client_session_title_fields_are_not_translation_rows(self):
+        resources = Path(self._tmp_dir()) / "resources"
+        (resources / "MonoBehaviour").mkdir(parents=True)
+        (resources / "MonoBehaviour" / "ClientSessionTitle-level1-38950.json").write_text(
+            '{"dateTextStr":"", "weekdayTextStr":"", '
+            '"clientNameTextStr":"MEETING IN THE PARK", '
+            '"sessionNumberTextStr":"(one month later)"}',
+            encoding="utf-8",
+        )
+
+        rows = extract_session_title_rows(ResourceIndex.from_root(resources))
+
+        self.assertEqual(
+            [row.original for row in rows],
+            ["MEETING IN THE PARK", "(one month later)"],
+        )
+
+    def test_extracts_runtime_progress_bar_headings_from_game_manager(self):
+        source = Path(self._tmp_dir()) / "GameManager.cs"
+        source.write_text(
+            "public void changeProgressionMetric(ref int metric, int delta, string title) {}\n"
+            "void show() {\n"
+            "    changeProgressionMetric(ref gS.trustVera, 10, \"TRUST\");\n"
+            "    changeProgressionMetric(ref gS.treatmentVera, 10, \"TREATMENT\");\n"
+            "}",
+            encoding="utf-8",
+        )
+
+        rows = extract_progress_bar_heading_rows(source)
+
+        self.assertEqual(
+            [(row.key, row.original) for row in rows],
+            [
+                ("GameManager.cs|||changeProgressionMetric|||heading|||TRUST", "TRUST"),
+                ("GameManager.cs|||changeProgressionMetric|||heading|||TREATMENT", "TREATMENT"),
+            ],
+        )
 
     def test_cli_accepts_explicit_project_root_and_output(self):
         project = Path(self._tmp_dir()) / "project"

@@ -58,11 +58,11 @@ public class Plugin : BaseUnityPlugin
         }
 
         harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
-        Logger.LogInfo("PsychologHan localization guard: supports GameManager.addMe(int,string,int,Action), addSpeaker(int,string,string,int,Action,string), slowPrint(TextMeshProUGUI,string,float,float), updateClientsSection(), updateSituationView(), and DeathRunes.setRunes(). Dynamic item text uses category-scoped original matching after SitItem callbacks; Chinese dialogue uses targeted character-by-character typing; English and other text preserve the original renderer. Choice text is translated after OptionItem identity fields are initialized. Missing signatures are skipped safely.");
+        Logger.LogInfo("PsychologHan localization guard: supports GameManager.addMe(int,string,int,Action), addSpeaker(int,string,string,int,Action,string), slowPrint(TextMeshProUGUI,string,float,float), animateUIBar(float,float,string,float), updateClientsSection(), updateSituationView(), and DeathRunes.setRunes(). Dynamic item text uses category-scoped original matching after SitItem callbacks; Chinese dialogue uses targeted character-by-character typing; English and other text preserve the original renderer. Choice text is translated after OptionItem identity fields are initialized. Missing signatures are skipped safely.");
         harmony.PatchAll();
 
         Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} loaded. Localization directory: {localizationDirectory}. Loaded {Translations.EntryCount} translations from {Translations.FileCount} file(s).");
-        Logger.LogInfo("UI localization hooks enabled for GameManager main-menu refresh and the verified SettingsButton/LoadGameButton screen controllers. Other UI preserves original text when no approved ui.csv match exists.");
+        Logger.LogInfo("UI localization hooks enabled for GameManager main-menu refresh, verified SettingsButton/LoadGameButton screen controllers, and ClientSessionTitle.playCutscene. Other UI preserves original text when no approved ui.csv match exists.");
         Logger.LogInfo("Scene text scan diagnostic is bound to " + scanCurrentSceneHotkey.Value + ". Press it in-game to print active-scene TMP components.");
     }
 

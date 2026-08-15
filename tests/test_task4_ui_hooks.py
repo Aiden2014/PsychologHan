@@ -26,6 +26,43 @@ class Task4UiHookTests(unittest.TestCase):
 
         self.assertIn("TranslateScreen(gameManager.inGame);", patches)
 
+    def test_session_title_hook_translates_serialized_title_fields(self):
+        patches = (PROJECT / "UiPatches.cs").read_text(encoding="utf-8-sig")
+
+        self.assertIn(
+            '[HarmonyPatch(typeof(global::ClientSessionTitle), nameof(global::ClientSessionTitle.playCutscene))]',
+            patches,
+        )
+        self.assertIn("SessionTitleOwnerPathIds", patches)
+        self.assertIn('{ "VeraSession1Title", "37906" }', patches)
+        self.assertIn('"level1|||" + ownerPathId + "|||ClientSessionTitle|||" + fieldName', patches)
+        self.assertIn("TryTranslate(UiCategory, key, original", patches)
+        self.assertIn("__instance.sessionNumberTextStr = __state.SessionNumberText;", patches)
+
+    def test_progress_bar_heading_hook_translates_runtime_titles(self):
+        patches = (PROJECT / "UiPatches.cs").read_text(encoding="utf-8-sig")
+        translations = PROJECT / "resources" / "work" / "approved-translations" / "ui.csv"
+
+        self.assertIn(
+            '[HarmonyPatch(typeof(global::GameManager), nameof(global::GameManager.animateUIBar))]',
+            patches,
+        )
+        self.assertIn("ProgressBarHeadingKeyPrefix", patches)
+        self.assertIn("TryTranslateProgressBarHeading(heading, out translated)", patches)
+
+        with translations.open(encoding="utf-8-sig", newline="") as handle:
+            rows = {
+                row[0]: row
+                for row in csv.reader(handle)
+                if row and row[0] in {
+                    "GameManager.cs|||changeProgressionMetric|||heading|||TRUST",
+                    "GameManager.cs|||changeProgressionMetric|||heading|||TREATMENT",
+                }
+            }
+
+        self.assertEqual(rows["GameManager.cs|||changeProgressionMetric|||heading|||TRUST"][2], "信任")
+        self.assertEqual(rows["GameManager.cs|||changeProgressionMetric|||heading|||TREATMENT"][2], "治疗")
+
     def test_verified_duplicate_ui_originals_use_stable_key_locators(self):
         patches = (PROJECT / "UiPatches.cs").read_text(encoding="utf-8-sig")
 

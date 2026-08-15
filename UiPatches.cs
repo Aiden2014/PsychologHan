@@ -13,6 +13,8 @@ internal static class UiPatches
 {
     private const string UiCategory = "ui";
     private const string HandwrittenSizeTag = "<size=80%>";
+    private const string ProgressBarHeadingKeyPrefix =
+        "GameManager.cs|||changeProgressionMetric|||heading|||";
 
     // These locators are reviewed against the level1 AssetStudio export and the
     // runtime SceneScan hierarchy. The runtime object does not expose Unity's
@@ -54,6 +56,10 @@ internal static class UiPatches
                 "level1|||33772|||TextMeshProUGUI|||TextMeshProUGUI"
             },
             {
+                "Canvas/InGame/MainGameScreen/CursorResponseLayer/Stage/LayerForZooming/AllPacButtons/Vera/ApartmentDoor/Text (TMP)",
+                "level1|||33651|||TextMeshProUGUI|||TextMeshProUGUI"
+            },
+            {
                 "Canvas/InGame/MainGameScreen/CursorResponseLayer/Stage/LayerForZooming/Imagery/Cutscenes/DifficultySetting/ReturnToTitleButton/Text (TMP)",
                 "level1|||31612|||TextMeshProUGUI|||TextMeshProUGUI"
             },
@@ -78,6 +84,40 @@ internal static class UiPatches
                 "level1|||31476|||TextMeshProUGUI|||TextMeshProUGUI"
             }
         };
+
+    // ClientSessionTitle stores the visible strings on its controller rather
+    // than on the four TMP components. Unity does not expose serialized
+    // PathIDs at runtime, so the fixed level1 build uses the verified
+    // controller GameObject name -> ClientSessionTitle PathID bridge.
+    private static readonly Dictionary<string, string> SessionTitleOwnerPathIds =
+        new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            { "VeraSession1Title", "37906" },
+            { "VeraSession2Title", "40259" },
+            { "VeraSession3Title", "40491" },
+            { "JoeSession1Title", "38658" },
+            { "JoeSession2Title", "36746" },
+            { "JoeSession3Title", "35957" },
+            { "JadenSession1Title", "40991" },
+            { "JadenHospitalTitle", "38053" },
+            { "DeborahSession1Title", "38180" },
+            { "DeborahSession2Title", "38312" },
+            { "DeborahSession3Title", "36680" },
+            { "AshleySession1Title", "39259" },
+            { "AshleySession2Title", "39533" },
+            { "AshleySession3Title", "38214" },
+            { "RaymondSessionTitle", "40150" },
+            { "ParkEndingTitle", "38950" },
+            { "BennysEndingTitle", "41154" }
+        };
+
+    private sealed class SessionTitleTranslationState
+    {
+        internal string DateText;
+        internal string WeekdayText;
+        internal string ClientNameText;
+        internal string SessionNumberText;
+    }
 
     [HarmonyPatch(typeof(global::GameManager), "Start")]
     private static class GameManagerStartPatch
@@ -134,6 +174,77 @@ internal static class UiPatches
             ApplyFontMappings(__instance.meText);
             ApplyFontMappings(__instance.speakerText);
             ApplyFontMappings(__instance.storyScreen);
+        }
+    }
+
+    [HarmonyPatch(typeof(global::GameManager), nameof(global::GameManager.animateUIBar))]
+    private static class AnimateUiBarPatch
+    {
+        [HarmonyPrefix]
+        private static void Prefix(global::GameManager __instance, ref string heading)
+        {
+            string translated;
+            if (TryTranslateProgressBarHeading(heading, out translated))
+            {
+                heading = translated;
+            }
+
+            if (__instance != null)
+            {
+                ApplyFontMappings(__instance.uIBarTitle);
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(global::ClientSessionTitle), nameof(global::ClientSessionTitle.playCutscene))]
+    private static class ClientSessionTitlePlayCutscenePatch
+    {
+        [HarmonyPrefix]
+        private static void Prefix(
+            global::ClientSessionTitle __instance,
+            out SessionTitleTranslationState __state)
+        {
+            __state = null;
+            if (__instance == null)
+            {
+                return;
+            }
+
+            __state = new SessionTitleTranslationState
+            {
+                DateText = __instance.dateTextStr,
+                WeekdayText = __instance.weekdayTextStr,
+                ClientNameText = __instance.clientNameTextStr,
+                SessionNumberText = __instance.sessionNumberTextStr
+            };
+
+            if (Plugin.Translations == null)
+            {
+                return;
+            }
+
+            __instance.dateTextStr = TranslateSessionTitleValue(__instance, "dateTextStr", __instance.dateTextStr);
+            __instance.weekdayTextStr = TranslateSessionTitleValue(__instance, "weekdayTextStr", __instance.weekdayTextStr);
+            __instance.clientNameTextStr = TranslateSessionTitleValue(__instance, "clientNameTextStr", __instance.clientNameTextStr);
+            __instance.sessionNumberTextStr = TranslateSessionTitleValue(__instance, "sessionNumberTextStr", __instance.sessionNumberTextStr);
+
+            ApplySessionTitleFontMappings(__instance);
+        }
+
+        [HarmonyPostfix]
+        private static void Postfix(
+            global::ClientSessionTitle __instance,
+            SessionTitleTranslationState __state)
+        {
+            if (__instance == null || __state == null)
+            {
+                return;
+            }
+
+            __instance.dateTextStr = __state.DateText;
+            __instance.weekdayTextStr = __state.WeekdayText;
+            __instance.clientNameTextStr = __state.ClientNameText;
+            __instance.sessionNumberTextStr = __state.SessionNumberText;
         }
     }
 
@@ -417,6 +528,80 @@ internal static class UiPatches
         }
 
         textComponent.text = translated;
+    }
+
+    private static string TranslateSessionTitleValue(
+        global::ClientSessionTitle title,
+        string fieldName,
+        string original)
+    {
+        if (string.IsNullOrEmpty(original) || Plugin.Translations == null)
+        {
+            return original;
+        }
+
+        string key = SessionTitleKey(title, fieldName);
+        string translated;
+        if (!string.IsNullOrEmpty(key) &&
+            Plugin.Translations.TryTranslate(UiCategory, key, original, out translated))
+        {
+            return translated;
+        }
+
+        // Keep older or newly discovered title instances functional when a
+        // build-specific owner key has not been approved yet.
+        if (Plugin.Translations.TryTranslateByOriginal(UiCategory, original, out translated))
+        {
+            return translated;
+        }
+
+        return original;
+    }
+
+    private static bool TryTranslateProgressBarHeading(string original, out string translated)
+    {
+        translated = original;
+        if (string.IsNullOrEmpty(original) || Plugin.Translations == null)
+        {
+            return false;
+        }
+
+        string key = ProgressBarHeadingKeyPrefix + original;
+        if (Plugin.Translations.TryTranslate(UiCategory, key, original, out translated))
+        {
+            return true;
+        }
+
+        return Plugin.Translations.TryTranslateByOriginal(UiCategory, original, out translated);
+    }
+
+    private static string SessionTitleKey(global::ClientSessionTitle title, string fieldName)
+    {
+        if (title == null || title.gameObject == null || string.IsNullOrEmpty(fieldName))
+        {
+            return null;
+        }
+
+        string ownerPathId;
+        if (!SessionTitleOwnerPathIds.TryGetValue(title.gameObject.name, out ownerPathId))
+        {
+            return null;
+        }
+
+        return "level1|||" + ownerPathId + "|||ClientSessionTitle|||" + fieldName;
+    }
+
+    private static void ApplySessionTitleFontMappings(global::ClientSessionTitle title)
+    {
+        if (title == null || Plugin.Fonts == null)
+        {
+            return;
+        }
+
+        Plugin.Fonts.TryApplyMapping(title.dateText);
+        Plugin.Fonts.TryApplyMapping(title.weekdayText);
+        Plugin.Fonts.TryApplyMapping(title.clientNameText);
+        Plugin.Fonts.TryApplyMapping(title.sessionNumberText);
     }
 
     private static bool TryTranslateApprovedUiText(

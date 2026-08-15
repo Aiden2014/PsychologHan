@@ -31,6 +31,12 @@ OPTION_WRAPPERS = {"warm", "joking", "analytical", "stern", "silent"}
 USER_TEXT_FIELDS = {
     "trustComment", "treatmentComment", "rune", "journalText", "messageText",
 }
+SESSION_TITLE_TEXT_FIELDS = (
+    "dateTextStr",
+    "weekdayTextStr",
+    "clientNameTextStr",
+    "sessionNumberTextStr",
+)
 
 
 @dataclass(frozen=True)
@@ -832,6 +838,56 @@ def extract_ui_rows(index: ResourceIndex) -> list[CsvRow]:
     return _unique_rows(rows)
 
 
+def extract_session_title_rows(index: ResourceIndex) -> list[CsvRow]:
+    """Extract the strings that ClientSessionTitle writes into its TMP fields.
+
+    The serialized TMP components under SessionTitleScreen contain only a
+    template/default ``m_text`` value.  The visible title text is stored on
+    the ClientSessionTitle MonoBehaviour and passed to letterByLetterPrint at
+    runtime, so these fields need their own owner-and-field keys.
+    """
+    rows: list[CsvRow] = []
+    for obj in index.objects:
+        if obj.type_name != "ClientSessionTitle":
+            continue
+        for field_name in SESSION_TITLE_TEXT_FIELDS:
+            value = obj.data.get(field_name)
+            if not isinstance(value, str) or not value.strip():
+                continue
+            rows.append(CsvRow(
+                _row_key("ui", obj.source, f"{obj.source}|||{obj.path_id}|||{obj.type_name}|||{field_name}"),
+                value,
+            ))
+    return _unique_rows(rows)
+
+
+def extract_progress_bar_heading_rows(path: Path) -> list[CsvRow]:
+    """Extract headings passed into GameManager's runtime progress bar.
+
+    The Heading TMP component is serialized with a default label, but
+    ``changeProgressionMetric`` supplies ``TRUST`` or ``TREATMENT`` to
+    ``animateUIBar`` when the bar is shown.  Those runtime-only literals are
+    therefore not present in the TextMeshProUGUI export.
+    """
+    if not path.exists():
+        return []
+
+    source = path.read_text(encoding="utf-8", errors="replace")
+    rows: list[CsvRow] = []
+    for call in scan_invocations(source, {"changeProgressionMetric"}):
+        if _looks_like_declaration(source, call):
+            continue
+        args = split_top_level_args(call.arguments)
+        if len(args) < 3:
+            continue
+        heading, _detail = literal_text(args[2])
+        if not heading or not heading.strip():
+            continue
+        key = f"{path.name}|||changeProgressionMetric|||heading|||{heading}"
+        rows.append(CsvRow(_row_key("ui", path.name, key), heading))
+    return _unique_rows(rows)
+
+
 def _asset_rows(index: ResourceIndex) -> list[CsvRow]:
     relevant = {"GameObject", "AudioSource", "AudioClip", "Sprite", "Texture2D", "Animator", "AnimatorController", "AnimationClip", "Transform", "RectTransform"}
     rows: list[CsvRow] = []
@@ -901,9 +957,16 @@ def run_extraction(project_root: Path, output_dir: Path) -> ExtractionStats:
         data = parse_game_manager(game_manager)
     index = ResourceIndex.from_root(resources)
     ui_json_rows = extract_ui_rows(index)
+    session_title_rows = extract_session_title_rows(index)
+    progress_bar_heading_rows = extract_progress_bar_heading_rows(game_manager)
     _enrich_flow_events(data, index, _parse_audio_aliases(game_manager))
     rows = _data_rows(data)
-    rows["ui"] = _unique_rows([*rows["ui"], *ui_json_rows])
+    rows["ui"] = _unique_rows([
+        *rows["ui"],
+        *ui_json_rows,
+        *session_title_rows,
+        *progress_bar_heading_rows,
+    ])
     rows["asset_index"] = _asset_rows(index)
     rows["unresolved_refs"] = [
         CsvRow(_row_key("unresolved_refs", "", str(number)), value)

@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Globalization;
+using System.Text;
 
 namespace PsychologHan;
 
@@ -395,7 +396,7 @@ internal static class UiPatches
         if (ApprovedUiKeysByHierarchyPath.TryGetValue(GetHierarchyPath(textComponent), out approvedKey))
         {
             string keyTranslated;
-            if (Plugin.Translations.TryTranslate(UiCategory, approvedKey, original, out keyTranslated) &&
+            if (TryTranslateApprovedUiText(UiCategory, approvedKey, original, out keyTranslated) &&
                 !string.Equals(original, keyTranslated, System.StringComparison.Ordinal))
             {
                 textComponent.text = keyTranslated;
@@ -416,6 +417,73 @@ internal static class UiPatches
         }
 
         textComponent.text = translated;
+    }
+
+    private static bool TryTranslateApprovedUiText(
+        string category,
+        string approvedKey,
+        string original,
+        out string translated)
+    {
+        if (Plugin.Translations.TryTranslate(category, approvedKey, original, out translated))
+        {
+            return true;
+        }
+
+        // Unity occasionally keeps layout padding immediately before a line
+        // break even when the exported CSV source omits it. Stable locators
+        // still identify the exact UI object, so this formatting-only variant
+        // is safe without weakening ordinary original-text matching.
+        string trimmedOriginal = TrimLineBreakPadding(original);
+        if (string.Equals(trimmedOriginal, original, System.StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return Plugin.Translations.TryTranslate(category, approvedKey, trimmedOriginal, out translated);
+    }
+
+    private static string TrimLineBreakPadding(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return value;
+        }
+
+        StringBuilder trimmed = null;
+        for (int index = 0; index < value.Length; index++)
+        {
+            char character = value[index];
+            if (character == ' ' || character == '\t')
+            {
+                int lineBreak = index;
+                while (lineBreak < value.Length &&
+                    (value[lineBreak] == ' ' || value[lineBreak] == '\t'))
+                {
+                    lineBreak++;
+                }
+
+                if (lineBreak < value.Length &&
+                    (value[lineBreak] == '\r' || value[lineBreak] == '\n'))
+                {
+                    if (trimmed == null)
+                    {
+                        trimmed = new StringBuilder(value.Length);
+                        trimmed.Append(value, 0, index);
+                    }
+
+                    index = lineBreak - 1;
+                    continue;
+                }
+            }
+
+            if (trimmed != null)
+            {
+                trimmed.Append(character);
+            }
+        }
+
+        return trimmed == null ? value : trimmed.ToString();
     }
 
     private static void ApplyFontMappings(GameObject screen)

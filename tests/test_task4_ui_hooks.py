@@ -30,7 +30,7 @@ class Task4UiHookTests(unittest.TestCase):
         patches = (PROJECT / "UiPatches.cs").read_text(encoding="utf-8-sig")
 
         self.assertIn("ApprovedUiKeysByHierarchyPath", patches)
-        self.assertIn("TryTranslate(UiCategory, approvedKey, original", patches)
+        self.assertIn("TryTranslateApprovedUiText(UiCategory, approvedKey, original", patches)
         self.assertIn(
             "Continue1/Text (TMP)\",\n                \"level1|||32831|||TextMeshProUGUI|||TextMeshProUGUI",
             patches,
@@ -68,6 +68,21 @@ class Task4UiHookTests(unittest.TestCase):
         for row in rows.values():
             self.assertEqual(row[1].replace("\r\n", "\n"), "      Joe\nintro session")
             self.assertEqual(row[2].replace("\r\n", "\n"), "      乔\n初次会谈")
+
+    def test_stable_ui_keys_tolerate_unity_line_padding(self):
+        patches = (PROJECT / "UiPatches.cs").read_text(encoding="utf-8-sig")
+        runtime_text = '      Joe \nintro session'
+        translations = PROJECT / "resources" / "work" / "approved-translations" / "ui.csv"
+
+        with translations.open(encoding="utf-8-sig", newline="") as handle:
+            row = next(
+                row for row in csv.reader(handle)
+                if row and row[0] == "level1|||31168|||TextMeshProUGUI|||TextMeshProUGUI"
+            )
+
+        self.assertNotEqual(runtime_text, row[1].replace("\r\n", "\n"))
+        self.assertIn("TryTranslateApprovedUiText(UiCategory, approvedKey, original", patches)
+        self.assertIn("TrimLineBreakPadding", patches)
 
     def test_next_day_headers_use_context_specific_stable_key_locators(self):
         patches = (PROJECT / "UiPatches.cs").read_text(encoding="utf-8-sig")

@@ -95,8 +95,8 @@ Cover personality, values, coping patterns, and decision tendencies. Do not infe
 
 - Target register and rhythm: 油滑、轻松、带自嘲的同事口吻; 谈操控时保留说教感
 - Pronouns, honorifics, and forms of address: 自称"我"; 对主角称"你"
-- Preferred wording and allowed variants: "本尼餐馆"固定; 约会技巧术语可口语化
-- Forbidden wording: 不要把他写得严肃或深沉
+- Preferred wording and allowed variants: “本尼餐馆”固定；约会技巧术语可口语化；意外巧合可说“说来也巧”
+- Forbidden wording: 不要把他写得严肃或深沉；不把 `believe it or not` 固定译成“信不信由你”
 - Traits that must remain visible: 油滑、自恋、说教、表面的职业道德
 - Features that may be naturalized: 约会文化可本土化
 - Line-length and layout constraints: 长段说教保留
@@ -109,16 +109,23 @@ Use only human-reviewed translations.
 |---|---|---|---|---|
 | 14380 7909 | 午休 | No, for God's sake, no! And you call yourself a psychologist? Manipulation is always key. Always. | 天哪，千万别！就你这还心理学家？操控永远是王道，永远都是。 | 推崇操控 |
 | 11332 6607 | 午休 | Correction: I KNOW she is flirting with me. | 更正:我知道她在跟我调情。 | 自我中心 |
-| 19340 8639 | 调查 | Isn't it weird, though? Two of your clients have been killed. In a few days. | 不过，你就没觉得不对劲？你两个客户，前后没几天都出事了。 | 反常冷静 |
+| 19340 8639 | 调查 | Isn't it weird, though? Two of your clients have been killed. In a few days. | 不过，你就没觉得不对劲？你两个来访者，前后没几天都出事了。 | 反常冷静 |
+| 19295 8593 | 警局后 | I never thought I'd be sitting in front of a cop, being interrogated about my colleagues... and about myself. | 我做梦也没想到，自己会坐在警察对面，被盘问同事的事……还有我自己的事。 | 油嘴滑舌下的真实感慨，“做梦也没想到”“坐在警察对面”是口语 |
+| 19296-19297 8602-8603 | 警局后 | I think we both need to strengthen ourselves... ... with a burger. Let's go. | 我看咱俩都该好好补补…… ……用一个汉堡。走吧。 | “补补……用一个汉堡”让玩笑落点在汉堡上，接“走吧”自然收场 |
+| 19359 8668 | 调查 | Yeah, I know what you mean. Think of it: you lost TWO of your FIVE clients. | 嗯，我懂。你一共才五个来访者，就已经有两个出事了。 | “lost”在救下分支指来访者出事，不是“死了” |
+| 19366 8678 | 调查 | Now you've lost TWO of those FIVE clients. | 现在五个里已经有两个出事了。 | 同上：不用“没了/死了”，避免救下分支误读为死亡 |
+| 19340 item 8643/8647/8651 | 调查(动态文本) | Isn't it weird, though? Two of your clients have been killed. / One killed, another injured. / Two attacked. | 不过，你就没觉得不对劲？你两个来访者，前后没几天就都死了。 / ……一死一伤。 / ……都遭到了袭击。 | 动态变体与 8639 基础句保持同一口吻 |
+| 15355 8175 | 偶遇雷蒙德 | Great! We both work at the same firm, believe it or not. | 挺好的！说来也巧，我们俩现在还在同一家公司上班。 | 轻松炫耀老同学仍是同事的巧合 |
 
 ## Counterexamples
 
 | Source key | Route/stage | Original | Rejected translation | Corrected translation | Why it is out of character |
 |---|---|---|---|---|---|
 | 14321 7853 | 午休 | I could eat a horse. I'm going to Benny's and I'm taking you with me. No discussion | 我能吃下一匹马。我现在要去本尼餐馆，而且要带你一起去。不接受讨论。 | 我饿得能吃下一头牛。走，一起去本尼餐馆，别废话。 | 原来的翻译太机翻了，没有表现出饿，而且需要口语化一些。 |
+| 15355 8175 | 偶遇雷蒙德 | Great! We both work at the same firm, believe it or not. | 真巧！信不信由你，我们俩在同一家事务所上班。 | 挺好的！说来也巧，我们俩现在还在同一家公司上班。 | `believe it or not` 在这里引出巧合，不是让雷蒙德选择相信与否；`firm` 也应沿用本作“公司”语境 |
 
 ## Human review
 
-- Reviewer:
-- Review date:
-- Unresolved decisions:
+- Reviewer: 用户（针对 `believe it or not` 直译的直接反馈）
+- Review date: 2026-08-10
+- Unresolved decisions: 无

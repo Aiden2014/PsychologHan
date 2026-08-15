@@ -80,7 +80,7 @@ Cover personality, values, coping patterns, and decision tendencies. Do not infe
 ## Language fingerprint
 
 - Typical sentence length and complexity: 中长句, 常滔滔不绝; 紧张时重复短句
-- Pauses, hesitation, repetition, correction, and emphasis: 高频"……""对吧?""你懂吗?"; 重复"这部电梯一直在上升"
+- Pauses, hesitation, repetition, correction, and emphasis: 高频“……”“对吧”；源文常用 `you know` 拉住听者，中文不固定译成问句；重复“这部电梯一直在上升”
 - Formality, politeness, slang, profanity, and euphemism: 对医生礼貌; 激动时粗口("去他的" 5362)
 - Recurring speech acts: 叙事(肥皂剧)、自我开解、请求帮助、自我怀疑
 - Changes by emotion, relationship, route, or story stage: 紧张时话痨加剧
@@ -91,16 +91,16 @@ Cover personality, values, coping patterns, and decision tendencies. Do not infe
 |---|---|---|---|
 | "这部电梯一直在上升" | 多次 | 恐惧的重复表述 | 5019, 5020, 5037, 5053 |
 | "对吧?" | 高频 | 寻求确认 | 5000-5006 |
-| "我保证会做完" | 多次 | 自我承诺 | 5480, 5580 |
+| “我保证这次一定去／会坚持到底” | 多次 | 对课后暴露练习的自我承诺 | 5480, 5488, 5580, 5588 |
 
 ## Chinese translation contract
 
 - Target register and rhythm: 年轻大学生口吻, 保留话痨、自嘲与自我怀疑; 不把他的恐惧轻描淡写
 - Pronouns, honorifics, and forms of address: 称医生为"医生"; 自称"我"
-- Preferred wording and allowed variants: "恐高症""暴露治疗""栏杆/楼顶"统一
-- Forbidden wording: 不要把他写得太成熟或淡定
+- Preferred wording and allowed variants: "恐高症""暴露治疗""栏杆/楼顶"统一；逞强或突破恐惧时允许“恐高算个屁”“信心爆棚”等年轻、带火气的口语；赞同医生可说“你一向看得准”，赌气服从则可说“反正你总是对的”
+- Forbidden wording: 不要把他写得太成熟或淡定；避免“万岁”“去他的恐惧”“我保证会做完”“一如既往”等脱离说话动作的逐词译法；不要给不同治疗结果里的重复英文套用同一句中文
 - Traits that must remain visible: 话痨、恐高、自责、韧性
-- Features that may be naturalized: 肥皂剧专有名词可简化
+- Features that may be naturalized: 肥皂剧专有名词可简化；英语谐音笑话必须按整组对话本土化，但剧情线索“直面恐惧”保持固定
 - Line-length and layout constraints: 长句保留, 但拆解过长对话
 
 ## Few-shot examples
@@ -111,7 +111,11 @@ Use only human-reviewed translations.
 |---|---|---|---|---|
 | 5019 4919 | 电梯 | I know. I won't bother you with Frank and mr Wilson. But it's just that this lift keeps going UP and UP. | 我知道。我就不拿弗兰克和威尔逊先生烦你了。但这部电梯一直在上、一直在上。 | 话痨与恐惧 |
 | 5321 5026 | 屋顶 | I'm trying. But my feet just can't seem to move. I'm rooted on the spot! | 我在努力。但我的脚好像就是动不了。我像被钉在原地一样! | 恐高 |
-| 5406 5089 | 屋顶 | I'm just so fucking disappointed right now. Sorry about the language. | 我现在真他妈失望。抱歉说脏话。 | 自责与自贬 |
+| 5406 5089 | 屋顶 | I'm just so fucking disappointed right now. Sorry about the language. | 我现在真他妈失望。抱歉，我说脏话了。 | 自责与自贬；爆粗后立刻为失态道歉 |
+| 5200 4978 | 抵达楼顶 | Okay, Doc. We got to the roof. Hurray. | 好了，医生。总算到楼顶了。可真棒。 | 电梯恐慌后的疲惫冷嘲，不是真的欢呼 |
+| 5362 5057 | 屋顶暴露成功 | I'm alive. To hell with the fear. | 我还活着。恐高算个屁。 | 用杰登惯有的粗口把恐惧压回去，短促、有爆发力 |
+| 5486/5491 5114/5121 | 课后练习分层 | Wow. Yeah, you're probably right. As always. / Yeah, I guess you're right. As always. | 哇……也是。你一向看得准。 / 嗯……大概还是你说得对。反正你总是对的。 | 同一句互动提示随升阶或降阶分支分别表现信服与赌气 |
+| 15814-15834 5362-5368 | 袭击后 | “Face that fear” / “Facial hair”? | “直面恐惧” / “植点胡须”？ | 以中文近音重建医生的冷笑话，并让杰登后续的胡子回应仍然成立 |
 
 ## Counterexamples
 
@@ -119,9 +123,13 @@ Use only human-reviewed translations.
 |---|---|---|---|---|---|
 | 5019 4919 | 电梯 | I know. I won't bother you with Frank and mr Wilson. But it's just that this lift keeps going UP and UP. | 我知道。我就不拿弗兰克和威尔逊先生烦你了。但这部电梯一直在上、一直在上。 | 我知道。我就不拿弗兰克和威尔逊先生烦你了。但这部电梯一直在往上、一直往上。 | 要体现出杰登恐惧时的重复感和焦虑感，"一直在上"可以改为"一直往上"更口语化 |
 | 5021 4921 | 电梯 | I can FEEL the building swaying in the wind. | 我能感觉到大楼在风中摇晃。 | 我能感觉到这楼在晃！风里！ | 恐高时说话应该是破碎的、急促的，不是完整的长句 |
+| 15814-15834 5362-5368 | 袭击后 | “Face that fear” / “Facial hair”? | “面部毛发”？ / 他说的肯定不是“脸部毛发”。 | “植点胡须”？ / 他说的肯定不是“植点胡须”。 | “面部毛发”只是字典释义，既听不出与“直面恐惧”的近音，也无法让中文玩家理解医生为什么突然开这个玩笑 |
+| 5200 4978 | 抵达楼顶 | Okay, Doc. We got to the roof. Hurray. | 好啊，医生。我们到楼顶了。万岁。 | 好了，医生。总算到楼顶了。可真棒。 | “万岁”把疲惫的反讽误写成字面欢呼，也不像杰登刚经历恐慌后的说话状态 |
+| 5362 5057 | 屋顶暴露成功 | I'm alive. To hell with the fear. | 我还活着。去他的恐惧。 | 我还活着。恐高算个屁。 | “去他的恐惧”仍保留英语搭配；杰登此刻是在用粗口庆祝自己压过了恐高 |
+| 5491 5121 | 降到三楼 | Yeah, I guess you're right. As always. | 是啊，你还是老样子——又说对了。 | 嗯……大概还是你说得对。反正你总是对的。 | 后一句明确说自己像被判了不及格；这里是赌气，不是含糊地夸医生“又说对了” |
 
 ## Human review
 
-- Reviewer:
-- Review date:
-- Unresolved decisions:
+- Reviewer: 用户（针对 `face that fear / facial hair` 谐音梗，以及楼顶训练中冷嘲、指令、粗口和分支语气直译的直接反馈）
+- Review date: 2026-08-15
+- Unresolved decisions: 无；“直面恐惧”作为雷蒙德座右铭保持不变

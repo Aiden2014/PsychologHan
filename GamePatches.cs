@@ -321,6 +321,7 @@ internal static class GamePatches
             TranslateDynamicHomeworkText(__instance);
             TranslateDynamicJoshText(__instance);
             TranslateDynamicDeborahText(__instance);
+            TranslateCurrentSitItemText(__instance);
         }
     }
 
@@ -501,6 +502,33 @@ internal static class GamePatches
             return;
         }
 
+        string translated;
+        if (Plugin.Translations.TryTranslateByOriginal(ItemCategory, sitItem.text, out translated) &&
+            !string.Equals(sitItem.text, translated, StringComparison.Ordinal))
+        {
+            sitItem.text = translated;
+        }
+    }
+
+    private static void TranslateCurrentSitItemText(global::GameManager gameManager)
+    {
+        if (gameManager == null || Plugin.Translations == null || gameManager.gS == null ||
+            gameManager.sitItems == null)
+        {
+            return;
+        }
+
+        global::SitItem sitItem;
+        if (!gameManager.sitItems.TryGetValue(gameManager.gS.currentSitItem, out sitItem) ||
+            sitItem == null ||
+            (sitItem.sitType != "me" && sitItem.sitType != "speaker") ||
+            string.IsNullOrEmpty(sitItem.text))
+        {
+            return;
+        }
+
+        // Some item text is assigned by a SitItem callback after addSpeaker/addMe ran.
+        // Match the reviewed item original instead of depending on the runtime node id.
         string translated;
         if (Plugin.Translations.TryTranslateByOriginal(ItemCategory, sitItem.text, out translated) &&
             !string.Equals(sitItem.text, translated, StringComparison.Ordinal))

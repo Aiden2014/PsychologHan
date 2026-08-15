@@ -44,15 +44,15 @@ class Task4DynamicTextTests(unittest.TestCase):
             'Presumably doing some "cognitive behavioral therapy" exercise.'
         )
         expected_translation = (
-            "是的，侦探。昨晚大约九点，汤普森先生在大学大楼 B2 区的第五层，站在一扇开着的窗边。"
-            "推测当时正在进行某种 \"认知行为疗法\" 练习。"
+            "是的，侦探。昨晚九点左右，汤普森先生站在大学大楼 B2 区第五层的一扇开着的窗边，"
+            "推测是在做某种\"认知行为疗法\"的练习。"
         )
 
         self.assertEqual(_render_dynamic_template(row[1], EXPRESSION, "fifth"), runtime_original)
         self.assertEqual(_render_dynamic_template(row[2], EXPRESSION, "第五"), expected_translation)
 
         self.assertIn("on the third floor", _render_dynamic_template(row[1], EXPRESSION, "third"))
-        self.assertIn("的第三层", _render_dynamic_template(row[2], EXPRESSION, "第三"))
+        self.assertIn("区第三层", _render_dynamic_template(row[2], EXPRESSION, "第三"))
 
     def test_dynamic_template_supports_the_current_extractor_placeholder(self):
         source = "A {EXPR_1} B"
@@ -125,6 +125,22 @@ class Task4DynamicTextTests(unittest.TestCase):
         self.assertIn('private const string DynamicDeborahPlaceholder = "[DECIDE DYNAMICALLY]";', patches)
         self.assertIn("TranslateDynamicDeborahText(__instance);", patches)
         self.assertIn("TryTranslateByOriginal(ItemCategory, sitItem.text", patches)
+
+    def test_callback_populated_items_use_category_scoped_original_matching(self):
+        path = PROJECT / "resources" / "work" / "approved-translations" / "item.csv"
+        with path.open(encoding="utf-8-sig", newline="") as handle:
+            row = next(row for row in csv.reader(handle) if row and row[0] == "1532|||11512")
+
+        patches = (PROJECT / "GamePatches.cs").read_text(encoding="utf-8-sig")
+
+        self.assertTrue(row[2])
+        self.assertIn("TranslateCurrentSitItemText(__instance);", patches)
+        start = patches.index("private static void TranslateCurrentSitItemText")
+        end = patches.index("private static void TranslateTextComponent", start)
+        generic_method = patches[start:end]
+        self.assertIn("TryTranslateByOriginal(ItemCategory, sitItem.text, out translated)", generic_method)
+        self.assertIn('sitItem.sitType != "me"', generic_method)
+        self.assertIn('sitItem.sitType != "speaker"', generic_method)
 
 
 if __name__ == "__main__":

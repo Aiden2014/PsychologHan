@@ -81,15 +81,15 @@ Cover personality, values, coping patterns, and decision tendencies. Do not infe
 
 | Word or phrase | Count | Context/function | Source keys |
 |---|---|---|---|
-| "是的, 侦探" | 高频 | 回应杰克逊 | 33072, 33074 |
+| “是，侦探” / 直接陈述事实 | 高频 | 简洁回应杰克逊，避免机械重复“是的” | 33072, 20284, 30115 |
 | "警官" | 高频 | 自称/被称 | 15671, 15673 |
 
 ## Chinese translation contract
 
 - Target register and rhythm: 规范、简洁、公事公办的警佐口吻
 - Pronouns, honorifics, and forms of address: 称杰克逊"侦探"; 自称"警官"
-- Preferred wording and allowed variants: "田中警官"固定; "警官"不用"警佐/警长"
-- Forbidden wording: 不要把他写得油滑或情绪化
+- Preferred wording and allowed variants: “田中警官”固定；“警官”不用“警佐/警长”；回应可按语境用“是，侦探”“没错，侦探”或直接进入事实
+- Forbidden wording: 不要把他写得油滑或情绪化；不要把每个 `Yes, Detective` 都机械写成“是的，侦探”
 - Traits that must remain visible: 规范、勤勉、专业
 - Features that may be naturalized: 警衔表述用"警官"符合选择
 - Line-length and layout constraints: 短句为主
@@ -101,7 +101,7 @@ Use only human-reviewed translations.
 | Source key | Route/stage | Original | Approved translation | Character feature demonstrated |
 |---|---|---|---|---|
 | 34066 2802 | 调查 | Witnesses claim having seen her entering the building, and, immediately after her, sneaking in behind her... someone wearing a green suit. | 目击者声称看见她走进大楼; 紧接着, 在门还没完全关上之前, 有人悄悄跟在她身后进去……那人穿着绿色西装。 | 精确陈述 |
-| 33072 2744 | 调查 | Yes, Detective. He's considering taking legal action. | 是的, 侦探。他正在考虑采取法律行动。 | 规范回应 |
+| 33072 2744 | 调查 | Yes, Detective. He's considering taking legal action. | 是，侦探。他正考虑起诉。 | 简洁、事实先行的规范回应 |
 | 22385 10152 | 调查 | All part of the job, Detective. | 职责所在, 侦探。 | 职业精神 |
 
 ## Counterexamples
@@ -113,6 +113,6 @@ Use only human-reviewed translations.
 
 ## Human review
 
-- Reviewer:
-- Review date:
-- Unresolved decisions:
+- Reviewer: Codex 全局自然度复核
+- Review date: 2026-08-10
+- Unresolved decisions: 无

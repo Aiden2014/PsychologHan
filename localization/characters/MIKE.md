@@ -89,14 +89,14 @@ Cover personality, values, coping patterns, and decision tendencies. Do not infe
 |---|---|---|---|
 | "观察" | 多次 | 核心行为 | 14395, 21312 |
 | "毛骨悚然" | 多次 | 对跟踪者的反应 | 14398, 25828 |
-| "……你知道吗" | 多次 | 引出观察 | 14395, 25825 |
+| `you know` 型插入语 | 多次 | 引出观察、确认听者跟上 | 14395, 25825；中文多融入语序或省略 |
 
 ## Chinese translation contract
 
 - Target register and rhythm: 抽象、带诗意的怪人口吻; 保留比喻感
 - Pronouns, honorifics, and forms of address: 自称"我"; 对主角称"你"
 - Preferred wording and allowed variants: "观察者"固定; 比喻可适度本土化
-- Forbidden wording: 不要把他写成平庸或啰嗦
+- Forbidden wording: 不要把他写成平庸或啰嗦；不把每个 `you know` 都译成“你知道吗”“你懂吗”
 - Traits that must remain visible: 观察力、诗意、疏离的善意
 - Features that may be naturalized: 英文双关可舍弃
 - Line-length and layout constraints: 保留比喻句
@@ -107,8 +107,8 @@ Use only human-reviewed translations.
 
 | Source key | Route/stage | Original | Approved translation | Character feature demonstrated |
 |---|---|---|---|---|
-| 14395 7969 | 公园 | There's an art to noticing without being noticed, you know? | 你知道, 观察而不被发现也是一门艺术。 | 观察者自况 |
-| 21386 9570 | 警告 | It's how he watches, you know? Like he's hunting. But not squirrels. Bigger game. | 是他观察人的方式, 你懂吗?像是在狩猎。不过猎物不是松鼠, 而是更大的东西。 | 警示 |
+| 14395 7969 | 公园 | There's an art to noticing without being noticed, you know? | 要做到看见别人、又不让别人发现，也是一门学问。 | 观察者自况；把听者提示融入句子 |
+| 21386 9570 | 警告 | It's how he watches, you know? Like he's hunting. But not squirrels. Bigger game. | 关键不在他做了什么，而在他盯人的样子。像在捕猎。猎的还不是松鼠，是更大的东西。 | 短句递进，保留警示和怪人式比喻 |
 | 45524 11007 | 结局 | Remember, it's through the cracks that the light gets in. | 记住, 光就是从裂缝中照进来的。 | 哲思格言 |
 
 ## Counterexamples
@@ -120,6 +120,6 @@ Use only human-reviewed translations.
 
 ## Human review
 
-- Reviewer:
-- Review date:
-- Unresolved decisions:
+- Reviewer: 用户反馈触发的全局语气词复核
+- Review date: 2026-08-10
+- Unresolved decisions: 无

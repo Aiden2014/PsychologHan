@@ -80,7 +80,7 @@ Cover personality, values, coping patterns, and decision tendencies. Do not infe
 ## Language fingerprint
 
 - Typical sentence length and complexity: 短句为主, 情绪激烈时用全大写强调(如 "I DON'T KNOW WHAT TO DO!")
-- Pauses, hesitation, repetition, correction, and emphasis: 多"……""我是说""你懂吗"; 会用大写强调
+- Pauses, hesitation, repetition, correction, and emphasis: 多“……”“我是说”；源文常用 `you know` 寻求确认，中文按当下情绪落句；会用大写强调
 - Formality, politeness, slang, profanity, and euphemism: 对医生礼貌; 激烈时粗口("I'm going bat-shit crazy")
 - Recurring speech acts: 求证("我疯了吗?")、求助("帮帮我")、防御("你别沉默")
 - Changes by emotion, relationship, route, or story stage: 恐慌时大写和重复增多
@@ -112,6 +112,8 @@ Use only human-reviewed translations.
 | 14480 2404 | 会谈 | That I'll go crazy, just like... just like Mom. | 我会变得疯狂, 就像……就像妈妈一样。 | 对遗传的恐惧 |
 | 18424 2467 | 会谈 | I DON'T KNOW WHAT TO DO! | 我不知道该怎么办! | 恐慌求助 |
 | 77778 2430 | 会谈 | Am I going mad or not? | 我是疯了吗? | 求证 |
+| 88401 2627 | 卡彭特路 | Thanks for coming to see me. | 谢谢你来看我。 | 直接道谢，不绕“你能来看我，真好”的译文腔 |
+| 88402 2628 | 卡彭特路 | Is it okay if we talk for a while more? Then, I think I'll be able to go back to the apartment. My dad should be home soon, anyway. | 再陪我聊一会儿，好吗？聊完我应该就能回公寓了。反正我爸也快回来了。 | 挽留谈话的请求写得像聊天，“聊完……”“反正……”是自然口吻 |
 
 ## Counterexamples
 

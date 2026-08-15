@@ -92,8 +92,8 @@ Cover personality, values, coping patterns, and decision tendencies. Do not infe
 
 - Target register and rhythm: 冷静、程序化、带反讽的警探口吻
 - Pronouns, honorifics, and forms of address: 称主角"医生"(带讽刺); 称田中"田中警官"
-- Preferred wording and allowed variants: "侦探"统一; "警佐/警长"不用
-- Forbidden wording: 不要把他写成热忱或亲和
+- Preferred wording and allowed variants: “侦探”统一；“警佐/警长”不用；案情叙述明确区分“撞到”“压到”“撞死”与伤情结果
+- Forbidden wording: 不要把他写成热忱或亲和；不要脱离相邻案情把车辆造成的具体伤害泛化为“被撞到了”
 - Traits that must remain visible: 冷静、程序、怀疑、讽刺
 - Features that may be naturalized: 美式警探腔可本土化
 - Line-length and layout constraints: 短句为主
@@ -107,6 +107,7 @@ Use only human-reviewed translations.
 | 33078 2748 | 调查 | You're a strange fish, Doc. Too many strange things are going on around you. | 你真是个怪人, 医生。你身边发生的怪事太多了。 | 怀疑 |
 | 15670 5249 | 初次传唤 | Well, at our department, we like titles. I myself am "Detective" Jackson. | 嗯, 在我们部门, 我们讲究头衔。我本人是"杰克逊侦探"。 | 讲究程序 |
 | 33062 2738 | 调查 | ... All because of YOU, Doc. | ……全都是因为你, 医生。 | 施压 |
+| 30282-30283 9966-9967 | 乔遇袭报告 | He [...] almost managed to jump aside... / his legs took a hit | 发动机声大概让埃杰顿先生察觉到了危险。目击者说，他在最后一刻回过头看见了车，差一点就躲开了…… / 我说“差一点”，是因为很遗憾，他的双腿还是被车压到了，造成了几处骨折。 | 严肃陈述动作链和具体伤情 |
 
 ## Counterexamples
 
@@ -114,9 +115,10 @@ Use only human-reviewed translations.
 |---|---|---|---|---|---|
 | 15670 5249 | 初次传唤 | Well, at our department, we like titles. I myself am "Detective" Jackson. | 嗯, 在我们部门, 我们讲究头衔。我本人是"杰克逊侦探"。 | 嗯，在我们部门，我们讲究头衔。我本人是"杰克逊侦探"。 | "我们部门"太正式了，警察口语化应该是"我们那边"或者直接说"我们这儿" |
 | 33062 2738 | 调查 | ... All because of YOU, Doc. | ……全都是因为你, 治疗师。 | ……全都是因为你，医生。 | "治疗师"太正式了，杰克逊用"医生"带讽刺，原文就是"Doc" |
+| 30283 9967 | 乔遇袭报告 | I say “almost” because regrettably, his legs took a hit, and he broke some bones. | 之所以说“几乎”，是因为他的腿还是被撞到了，断了几根骨头。 | 我说“差一点”，是因为很遗憾，他的双腿还是被车压到了，造成了几处骨折。 | 上一句说明乔已跳开大半，车辆最终压到的是双腿；旧译既模糊动作，也不符合正式伤情陈述 |
 
 ## Human review
 
-- Reviewer:
-- Review date:
-- Unresolved decisions:
+- Reviewer: 用户（针对乔遇袭伤情语义的直接反馈）
+- Review date: 2026-08-10
+- Unresolved decisions: 无；静态源码明确存活分支为双腿受压并多处骨折

@@ -97,8 +97,8 @@ Cover personality, values, coping patterns, and decision tendencies. Do not infe
 
 - Target register and rhythm: 冷静、克制、带病态理性的反派口吻; 保留讽刺与"逻辑自洽"感
 - Pronouns, honorifics, and forms of address: 称主角"医生"(带讽刺); 自称"我"
-- Preferred wording and allowed variants: "直面恐惧"作为座右铭固定译法; "帮助"加引号体现扭曲
-- Forbidden wording: 不要把他写成歇斯底里的疯子; 保持冷静的恐怖
+- Preferred wording and allowed variants: “直面恐惧”作为座右铭固定译法；“帮助”加引号体现扭曲；回答近况时可用克制的“我嘛……”起句
+- Forbidden wording: 不要把他写成歇斯底里的疯子；保持冷静的恐怖；不把句首 `Well` 误译成表示同意的“算是吧”
 - Traits that must remain visible: 冷静、算计、怨恨、病态理性
 - Features that may be naturalized: 病态诗意可适度保留
 - Line-length and layout constraints: 长对话保留逻辑节奏
@@ -112,6 +112,7 @@ Use only human-reviewed translations.
 | 26535 10624 | 对峙 | My motto became: "Face that fear." And I did. | 我的座右铭变成了:"直面恐惧。"而我做到了。 | 核心动机 |
 | 26580 10650 | 对峙 | Oh, I didn't hurt them. I helped them. | 哦, 我没有伤害他们。我帮助了他们。 | 合理化加害 |
 | 26591 10658 | 对峙 | But I saw something else too, Doc. Relief. | 但我还看到了别的东西, 医生。解脱。 | 病态观察 |
+| 15360 8181 | 餐厅偶遇 | Well, I found my calling in another field, you might say. | 我嘛，后来发现自己更适合干别的。 | 简短回答“你呢”，保持礼貌而疏离 |
 
 ## Counterexamples
 
@@ -119,9 +120,10 @@ Use only human-reviewed translations.
 |---|---|---|---|---|---|
 | 20348 9217 | 餐厅 | Sitting all alone today, I see. Mind if I sit down? | 看来你今天是一个人坐着。介意我坐下吗？ | 你今天一个人啊。介意我坐下吗？ | 雷蒙德虽然礼貌但有操控性，不应太客气，"看来"这个开头太正式了 |
 | 26580 10650 | 对峙 | Oh, I didn't hurt them. I helped them. | 哦, 我没有伤害他们。我帮助了他们。 | 哦，我没伤害他们。我是帮了他们。 | "我帮助了他们"听起来像被动完成，雷蒙德是主动且扭曲的，应该更直接 |
+| 15360 8181 | 餐厅偶遇 | Well, I found my calling in another field, you might say. | 算是吧。我在另一个行业找到了自己的路。 | 我嘛，后来发现自己更适合干别的。 | 上一句只是问“你呢”，不存在可供“算是吧”赞同的判断；旧译还残留英语抽象表达 |
 
 ## Human review
 
-- Reviewer:
-- Review date:
-- Unresolved decisions:
+- Reviewer: 用户（针对餐厅问答上下文的直接反馈）
+- Review date: 2026-08-10
+- Unresolved decisions: 无

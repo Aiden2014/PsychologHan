@@ -23,7 +23,7 @@ Build this profile from the complete available source corpus for this character.
 | 主角 | 同事 | 你 | 香农 | 全程 | 18290 5969 |
 | 乔什 Josh | 前男友(短暂情史) | 乔什 | — | 午休 | 18355 6014 |
 | 老板 Boss | 上司(曾试图骚扰她) | 老板 | — | 午休 | 18388 6063 |
-| 雷蒙德? | 疑似跟踪者 | — | — | 提示 | 14079 7093 |
+| 身份不明的男人 | 办公室闯入者/可疑人物 | “那个人” | — | 提示 | 14079 7093, 18388 6063 |
 
 ## Overall character assessment
 
@@ -37,7 +37,7 @@ Record only facts, actions, and experiences directly supported by source text.
 | 现在和乔什互相躲着 | 18355 6014 | 午休 |
 | 认为乔什是"反社会人格", 不是好人 | 18378 6045 | 午休 |
 | 察觉办公室"不太对劲" | 29000 6058 | 午休 |
-| 曾有人从主角房间出来, 她提醒并锁门 | 14079 7093, 14081 7095 | 办公室 |
+| 曾有陌生男人趁主角不在进入其办公室；她发现后提醒主角并锁门 | 14079 7093, 14081 7095 | 办公室 |
 | 被老板试图"骗上床" | 13520 7751 | 日常 |
 | 在办公室被发现昏迷/倒地 | 14206 7118 | 事故 |
 
@@ -93,10 +93,10 @@ Cover personality, values, coping patterns, and decision tendencies. Do not infe
 
 ## Chinese translation contract
 
-- Target register and rhythm: 直率、坦诚、带点泼辣的同事口吻
+- Target register and rhythm: 直率、坦诚、带点泼辣的熟同事口吻；邀请、催促和告别都用简短日常句，不照搬英文条件句；强硬不等于逢 `scram` 就骂人
 - Pronouns, honorifics, and forms of address: 自称"我"; 对主角称"你"
-- Preferred wording and allowed variants: "反社会人格"统一
-- Forbidden wording: 不要把她写成软弱或圆滑
+- Preferred wording and allowed variants: “反社会人格”统一；熟人间可用“一起去吧”“算我一个”“吐槽”等自然口语；回指办公室闯入者时明确说“之前偷偷进过你办公室的那个男人”
+- Forbidden wording: “如果你去……我就跟你一起”“谢谢你听我说”等逐字直译；不要脱离去向节点把催促误译成“滚”；不要把 `You do? / I have.` 等省略句脱离上一问单独猜译；不要把她写成软弱、圆滑或过分客气
 - Traits that must remain visible: 直率、警觉、独立
 - Features that may be naturalized: 美式吐槽可本土化
 - Line-length and layout constraints: 短句为主
@@ -107,18 +107,30 @@ Use only human-reviewed translations.
 
 | Source key | Route/stage | Original | Approved translation | Character feature demonstrated |
 |---|---|---|---|---|
-| 18360 6024 | 午休 | I'll just say it: we had a thing going recently. For a couple of days. | 我就直说吧：我俩最近有过那么一段，就这几天的事儿。 | 直率 |
+| 18360 6024 | 午休 | I'll just say it: we had a thing going recently. For a couple of days. | 我就直说吧：前阵子我俩在一起过，不过只维持了几天。 | 直率，并明确关系只持续数日 |
 | 18378 6045 | 午休 | As a matter of fact, I think he's something of a... well, sociopath. | 事实上, 我觉得他有点……嗯, 反社会。 | 判断力 |
-| 14079 7093 | 办公室 | This... guy came out from your room. He must have been lurking about randomly. | 有个……家伙从你房间出来了。估计就是在附近乱转悠，鬼头鬼脑的。 | 警觉 |
+| 14079 7093 | 办公室 | This... guy came out from your room. He must have been lurking about randomly. | 有个……男人从你办公室里出来。估计是趁你不在，偷偷溜进去的。 | 明确办公场景与闯入行为，表现警觉 |
+| 18388 6063 | 午休深谈 | I'm... relieved to hear it. I mean, that guy in your office. My problems with Josh, and... and my boss. | 听你也这么觉得，我……就放心些了。我是说，之前偷偷进过你办公室的那个男人，我和乔什之间的事，还有……老板。 | 回扣闯入事件，并串起她察觉办公室不对劲的几项依据 |
+| 13321 7586 | 午休 | I guess it's lunch time. If you're going to Benny's, I'll join. | 也该吃午饭了。你要去本尼餐馆吗？一起去吧。 | 熟同事间自然邀约，不照搬条件句 |
+| 13388 7671 | 午休 | Thanks for listening. See ya tomorrow. | 谢了，听我吐槽这么半天。明天见。 | 直率又熟络的告别 |
+| 14082 7096 | 办公室异常 | Here, take the key. Now scram! | 给，钥匙拿好。赶紧去吧！ | 熟同事间干脆催促，交钥匙后让主角赶紧去处理自己的办公室 |
+| 14256 7136 | 昏睡后 | Oh, I must have missed lunch. Well, I should go back immediately to my office. Excuse me... | 糟了，我把下午的会谈睡过去了。得赶紧回办公室。先走了…… | 结合午饭后剧情流修正原文表层歧义 |
+| 13386 7669 | 午休 | Like a child whose candy's been taken away. | 活像个被抢了糖的小孩。 | 承接前句“他居然一直在闹别扭”，比喻用自然定语语序，聊天式补全画面 |
 
 ## Counterexamples
 
 | Source key | Route/stage | Original | Rejected translation | Corrected translation | Why it is out of character |
 |---|---|---|---|---|---|
 | 14080 7094 | 办公室 | I called out to him, but he just calmly left as if it was the most natural thing in the world. A real psycho. | 我叫住了他，但他只是平静地离开了，就好像那是世界上最自然的事。真是个疯子。 | 我喊了他一声，结果人家特淡定地就走了，跟没事儿人似的。简直是个变态。 | 要口语化一些。 |
+| 13321 7586 | 午休 | I guess it's lunch time. If you're going to Benny's, I'll join. | 该吃午饭了。你去本尼餐馆的话，我跟你一起。 | 也该吃午饭了。你要去本尼餐馆吗？一起去吧。 | “你……的话，我……”保留英文条件句结构，不像熟人当面邀约 |
+| 13388 7671 | 午休 | Thanks for listening. See ya tomorrow. | 谢谢你听我说。明天见。 | 谢了，听我吐槽这么半天。明天见。 | 结合前文是在抱怨老板，“吐槽”比抽象的“听我说”更符合人物关系和情绪 |
+| 14082 7096 | 办公室异常 | Here, take the key. Now scram! | 给，钥匙拿着。现在滚吧！ | 给，钥匙拿好。赶紧去吧！ | 交钥匙后节点回到办公室枢纽，是催主角赶紧去处理，不是敌意辱骂；真正敌意的 `Scram.` 见 19242 |
+| 14256 7136 | 昏睡后 | Oh, I must have missed lunch. Well, I should go back immediately to my office. Excuse me... | 我连午饭都睡过去了吧。得赶紧回办公室。先走了…… | 糟了，我把下午的会谈睡过去了。得赶紧回办公室。先走了…… | 主角已吃完午饭，香农昏睡前也正在吃午饭；源码前后节点表明她错过的是下午工作安排 |
+| 18356 6023 | 午休深谈 | You do? | 你也注意到了？ | 你们在躲着对方？ | 上一句是 Shannon 主动说“我和乔什在躲着对方”；这里是 ME 对这件事的惊讶反问，不是问 Shannon 是否也观察到了什么 |
+| 18388 6063 | 午休深谈 | I'm... relieved to hear it. I mean, that guy in your office. [...] | 听你这么说，我……放心了些。我是说，你办公室里那个人…… | 听你也这么觉得，我……就放心些了。我是说，之前偷偷进过你办公室的那个男人…… | “你办公室里那个人”像是男人仍在办公室里；必须回扣此前从锁住的办公室出来的闯入者 |
 
 ## Human review
 
-- Reviewer:
-- Review date:
-- Unresolved decisions:
+- Reviewer: 用户（针对香农午休、办公室闯入者、办公室钥匙和昏睡场景的直接反馈）
+- Review date: 2026-08-10
+- Unresolved decisions: 仍需在游戏内确认长段吐槽的字幕节奏；下午会谈的具体来访者未在静态源码中点名

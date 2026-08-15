@@ -109,11 +109,15 @@ Use only human-reviewed translations.
 | 4130 3112 | 会谈 | I feel stupid that I've been having trouble simply describing my fear. | 我一直说不清我的恐惧，感觉我真蠢啊。 | 自嘲与防御 |
 | 4221 3146 | 会谈 | I never said anything about my boss being an asshole. But thank's for sharing. | 我可没说过我老板是个混蛋。不过谢谢你分享。 | 带刺的礼貌 |
 | 2431 3202 | 会谈 | I wouldn't dream of questioning your professional judgement. | 我绝不会质疑你的专业判断。 | 反讽 |
+| 4263 3163 | 会谈(暴露安排) | You really think that Carpenter Road is a suitable place for the first exercise, on the twentieth? | 你真觉得二十号去卡彭特路做第一次练习合适吗？ | 按中文时间+地点+动作的语序重排疑问句，保留她对安排的不放心 |
+| 45414 10954 | 公园结局 | Easy there, gramps. You're NOT in my generation. | 悠着点，大叔。你跟我们可不是一代人。 | 调侃乔时用“大叔”代替“老爷子”，保留戏谑称呼但不带方言腔 |
+| 2732 3378 | 卡彭特路暴露 | Alright. I'm going. Wish me luck. | 行，我去了。祝我好运吧！ | 出发前干练地给自己打气，“祝我好运吧”是口语请求 |
+| 2734 3380 | 卡彭特路暴露 | That didn't take long. I did it! | 没花多长时间，我就做到了！ | 完成后的得意，“没花多长时间”是口语说法 |
 
 ## Counterexamples
 
 | Source key | Route/stage | Original | Rejected translation | Corrected translation | Why it is out of character |
-| 4100 3093 | 会谈 | So there you have it, Doc! That's my worst scenario. As you asked | 这就是了，治疗师！这就是我最害怕的情景，正如你要求的。 | 正如你所说的，这就是我最害怕的情景。 | 翻译的太过于按照原版句子了，要有一些语境异译。 |
+| 4100 3093 | 会谈 | So there you have it, Doc! That's my worst scenario. As you asked | 这就是了，治疗师！这就是我最害怕的情景，正如你要求的。 | 喏，医生，这就是我最怕的情形——是你让我说的。 | 翻译的太过于按照原版句子了，要有一些语境异译。 |
 
 ## Human review
 

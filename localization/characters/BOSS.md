@@ -20,7 +20,7 @@ Build this profile from the complete available source corpus for this character.
 
 | Other character | Relationship | Address used by this character | Address used toward this character | Story stage | Source key |
 |---|---|---|---|---|---|
-| 主角 | 下属 | 你/我的朋友 | — | 全程 | 13175 7462 |
+| 主角 | 下属 | 你；英文 `my friend` 通常省略，不逐字作称呼 | — | 全程 | 13175 7462, 13052 7537 |
 | 香农 Shannon | 下属(曾被骚扰) | 香农 | — | 日常 | 13145 7440 |
 | 乔什 Josh | 下属 | 乔什 | — | 调查 | 13186 7483 |
 
@@ -77,7 +77,7 @@ Cover personality, values, coping patterns, and decision tendencies. Do not infe
 ## Language fingerprint
 
 - Typical sentence length and complexity: 中长句, 圆滑; 提问密集
-- Pauses, hesitation, repetition, correction, and emphasis: 少犹豫; 爱用"我的朋友""你知道的"
+- Pauses, hesitation, repetition, correction, and emphasis: 少犹豫；爱用 `my friend`、`you know` 一类套近乎话术；中文靠假客气、反问和“咱们”等表达，不硬译称呼
 - Formality, politeness, slang, profanity, and euphemism: 正式但假亲切
 - Recurring speech acts: 试探、施压、套话、安抚
 - Changes by emotion, relationship, route, or story stage: 试探时话最多
@@ -86,16 +86,16 @@ Cover personality, values, coping patterns, and decision tendencies. Do not infe
 
 | Word or phrase | Count | Context/function | Source keys |
 |---|---|---|---|
-| "我的朋友" | 多次 | 假亲切 | 13175, 13052 |
+| `my friend` | 多次 | 假亲切；中文省略称呼或改用“咱们”等自然口语 | 13175, 13052 |
 | "顺便问一下" | 多次 | 试探 | 13145, 13194 |
 | "好、好" | 多次 | 敷衍赞许 | 13194, 13195 |
 
 ## Chinese translation contract
 
-- Target register and rhythm: 圆滑、假亲切、掌控感的管理者口吻
-- Pronouns, honorifics, and forms of address: 自称"我"; 称主角"我的朋友"
-- Preferred wording and allowed variants: "员工调查"统一
-- Forbidden wording: 不要把他写成真诚或随和
+- Target register and rhythm: 自然的职场口语；圆滑、假亲切，话说得体面却始终带着掌控感
+- Pronouns, honorifics, and forms of address: 自称“我”，称主角“你”；可用“咱们”制造刻意亲近感，但不把 `my friend` 直译成“我的朋友”
+- Preferred wording and allowed variants: “员工调查”统一；用“听听大家怎么想”“工作还顺不顺心”等口语化职场话术
+- Forbidden wording: “我的朋友”“作为管理者，我……”等翻译腔；不要把他写成真诚或随和
 - Traits that must remain visible: 控制欲、话术、假亲近
 - Features that may be naturalized: 办公室话术可本土化
 - Line-length and layout constraints: 长段保留
@@ -106,18 +106,26 @@ Use only human-reviewed translations.
 
 | Source key | Route/stage | Original | Approved translation | Character feature demonstrated |
 |---|---|---|---|---|
-| 13175 7462 | 谈话 | Now, the reason YOU are here, my friend, is for me to make sure that you enjoy working here. | 你加入了我们，我也得让你享受这份工作。 | 假亲切 |
+| 13175 7462 | 谈话 | Now, the reason YOU are here, my friend, is for me to make sure that you enjoy working here. | 今天叫你过来，就是想问问，你在这儿工作还顺不顺心。 | 以自然问句表现假亲切，不直译称呼 |
+| 13178 7465 | 谈话 | I feel that I, as a manager, need to listen in and adapt my approach and leadership style to suit each and every employee, respectively. | 所以我这个当老板的，就得听听你们各自的想法。人不一样，带法自然也不能一样。 | 中文职场口语里仍带管理者姿态 |
+| 13052 7537 | 谈话 | And now, my friend, it's time for my favourite part: the employee survey. | 好了，接下来是我最喜欢的环节——员工调查。 | 省略生硬称呼，用话锋和节奏表现圆滑 |
 | 13163 7450 | 谈话 | ... Ah, no reason in particular... I like to keep tabs on where my employees are. | ……啊, 没什么特别的原因……我喜欢掌握员工的行踪。 | 控制欲 |
 | 13520 7751 | 日常 | So my boss tried to trick Shannon to sleep with him. | 所以老板试图骗香农和他上床。 | 越界行为 |
+| 13185 7479 | 谈话 | Hearing that makes me optimistic about our future relationship here at the firm. We're a small team, and it's important that we all get along together. | 有你这句话，我对咱们今后共事就有信心了。公司人不多，大家合得来比什么都重要。 | 把“Hearing that makes me...”和“it's important that...”化入中文职场表态，“有你这句话”“比什么都重要”是惯用说法 |
+| 13184 7475 | 谈话 | Is that so? Well, they should always be first and foremost, of course. But it's also important that all of us in the team get along together. | 是吗？当然，客户始终是第一位的。不过团队里大家也得处得来。 | 同 13185 的“大家合得来”句式分支，用“处得来”保持自然 |
+| 15458 5193 | 坏消息 | I'm sorry to tell you, but your client... was it Jaden Thompson? | 我得告诉你个不好的消息。你的来访者……是杰登·汤普森吧？ | 传达坏消息的铺垫用“我得告诉你个不好的消息”，“是……吧”是口语确认 |
+| 15465 5198 | 坏消息 | Once again, I'm truly sorry about this news. I'd like for you to come see me afterwards, alright? | 这件事，我真的很遗憾。等你从医院回来，到我办公室来一趟，好吗？ | “这件事”“到我办公室来一趟”是自然职场口吻，不逐句对应英文道歉结构 |
+| 20220-20222 8951-8953 | 全员会 | Also, we have our reputation to think of. / You may think me petty... / And the well-being of my employees is no petty thing. Not for me. | 而且，公司的声誉，咱们也不能不管。 / 你可能觉得，这种时候我还提什么声誉，显得挺小家子气的——可这关系到咱们所有人的饭碗。 / 员工过得好不好，对我来说可不是小事。 | 把“不能不考虑”“提这个很小气”“从来没当成小事”改成自然管理腔：“不能不管”“提什么声誉”“对我来说可不是小事”；生计落成“饭碗” |
 
 ## Counterexamples
 
 | Source key | Route/stage | Original | Rejected translation | Corrected translation | Why it is out of character |
 |---|---|---|---|---|---|
-| 13175 7462 | 谈话 | Now, the reason YOU are here, my friend, is for me to make sure that you enjoy working here. | 你在这里的原因, 我的朋友, 是让我确保你喜欢在这里工作。 | 你加入了我们，我也得让你享受这份工作。 | 翻译太机翻，不够口语化
+| 13175 7462 | 谈话 | Now, the reason YOU are here, my friend, is for me to make sure that you enjoy working here. | 我的朋友，我把你叫来，是想确认你在这儿干得开不开心。 | 今天叫你过来，就是想问问，你在这儿工作还顺不顺心。 | “我的朋友”不符合正常中文职场称呼，整句仍保留英文语序
+| 13178 7465 | 谈话 | I feel that I, as a manager, need to listen in and adapt my approach and leadership style... | 我觉得，作为管理者，我得听进去，再根据每个人的情况调整管理方式。 | 所以我这个当老板的，就得听听你们各自的想法。人不一样，带法自然也不能一样。 | “作为管理者”“听进去”像书面转述，不像人物当面说话
 
 ## Human review
 
-- Reviewer:
-- Review date:
-- Unresolved decisions:
+- Reviewer: 用户（针对 BOSS 中文口吻的直接反馈）
+- Review date: 2026-08-10
+- Unresolved decisions: 仍需在游戏内确认长句布局与停顿节奏

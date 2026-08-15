@@ -93,7 +93,7 @@ internal sealed class FontFallbackManager
 
         if (IsOriginalGameFontScope(textComponent))
         {
-            return false;
+            return TryRestoreOriginalMapping(textComponent);
         }
 
         TMP_FontAsset originalFont = textComponent.font;
@@ -148,7 +148,9 @@ internal sealed class FontFallbackManager
         while (current != null)
         {
             if (current.GetComponent<global::MainMenuButton>() != null ||
-                current.GetComponent<global::CloseClientSectionButton>() != null)
+                current.GetComponent<global::CloseClientSectionButton>() != null ||
+                current.name == "MainMenuButton" ||
+                current.name == "CloseClientSectionButton")
             {
                 return true;
             }
@@ -157,6 +159,40 @@ internal sealed class FontFallbackManager
         }
 
         return false;
+    }
+
+    private bool TryRestoreOriginalMapping(TMP_Text textComponent)
+    {
+        TMP_FontAsset originalFont;
+        if (!originalFontByComponent.TryGetValue(textComponent, out originalFont))
+        {
+            return false;
+        }
+
+        bool changed = false;
+        if (textComponent.font != originalFont)
+        {
+            textComponent.font = originalFont;
+            changed = true;
+        }
+
+        Material originalMaterial;
+        if (originalMaterialByComponent.TryGetValue(textComponent, out originalMaterial) &&
+            textComponent.fontSharedMaterial != originalMaterial)
+        {
+            textComponent.fontSharedMaterial = originalMaterial;
+            changed = true;
+        }
+
+        ITextPreprocessor originalPreprocessor;
+        if (originalTextPreprocessorByComponent.TryGetValue(textComponent, out originalPreprocessor) &&
+            textComponent.textPreprocessor is TypewriterDigitFontPreprocessor)
+        {
+            textComponent.textPreprocessor = originalPreprocessor;
+            changed = true;
+        }
+
+        return changed;
     }
 
     private void InstallTypewriterDigitFont(TMP_Text textComponent, TMP_FontAsset originalFont)

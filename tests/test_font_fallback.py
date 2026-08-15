@@ -80,6 +80,8 @@ class FontFallbackContractTests(unittest.TestCase):
         self.assertIn("IsOriginalGameFontScope", manager)
         self.assertIn("GetComponent<global::MainMenuButton>()", manager)
         self.assertIn("GetComponent<global::CloseClientSectionButton>()", manager)
+        self.assertIn('current.name == "MainMenuButton"', manager)
+        self.assertIn('current.name == "CloseClientSectionButton"', manager)
 
 
 if __name__ == "__main__":

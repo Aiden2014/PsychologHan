@@ -72,6 +72,7 @@ class FontFallbackContractTests(unittest.TestCase):
         self.assertIn("MaterialReferenceManager.AddFontAsset(originalFont);", manager)
         self.assertIn('processedText.Append("<font=\\\"");', manager)
         self.assertIn("character >= '0' && character <= '9'", manager)
+        self.assertIn("character == '%'", manager)
         self.assertIn("originalTextPreprocessorByComponent.Clear()", manager)
 
     def test_client_control_subtrees_keep_the_original_game_font(self):

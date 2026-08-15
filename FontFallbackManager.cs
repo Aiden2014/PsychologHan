@@ -257,7 +257,8 @@ internal sealed class FontFallbackManager
                     insideMarkup = true;
                 }
 
-                if (!insideMarkup && character >= '0' && character <= '9')
+                if (!insideMarkup &&
+                    ((character >= '0' && character <= '9') || character == '%'))
                 {
                     if (processedText == null)
                     {

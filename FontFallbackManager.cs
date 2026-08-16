@@ -157,7 +157,8 @@ internal sealed class FontFallbackManager
             IsInGameMenuSpeakerLineScope(textComponent) ||
             IsPulsingMarkerSymbolScope(textComponent) ||
             IsClientCaptionOriginalFontScope(textComponent) ||
-            IsAssessmentBarOriginalFontScope(textComponent))
+            IsAssessmentBarOriginalFontScope(textComponent) ||
+            IsSpeakerProgressBarOriginalFontScope(textComponent))
         {
             return true;
         }
@@ -358,6 +359,38 @@ internal sealed class FontFallbackManager
 
         return false;
     }
+
+    private static bool IsSpeakerProgressBarOriginalFontScope(TMP_Text textComponent)
+    {
+        if (textComponent == null)
+        {
+            return false;
+        }
+
+        bool insideProgressBar = false;
+        bool insideHeading = false;
+        Transform current = textComponent.transform;
+        while (current != null)
+        {
+            if (current.name == "Heading")
+            {
+                insideHeading = true;
+            }
+            else if (current.name == "ProgressBar")
+            {
+                insideProgressBar = true;
+            }
+            else if (current.name == "Speaker")
+            {
+                return insideProgressBar && !insideHeading;
+            }
+
+            current = current.parent;
+        }
+
+        return false;
+    }
+
     private bool TryRestoreOriginalMapping(TMP_Text textComponent)
     {
         TMP_FontAsset originalFont;

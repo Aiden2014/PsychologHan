@@ -127,6 +127,14 @@ class FontFallbackContractTests(unittest.TestCase):
         self.assertIn("insideHeading", manager)
         self.assertIn("return insideProgressBar && !insideHeading", manager)
 
+    def test_speaker_progress_bar_keeps_the_original_game_font_except_heading(self):
+        manager = (PROJECT / "FontFallbackManager.cs").read_text(encoding="utf-8-sig")
+
+        self.assertIn("IsSpeakerProgressBarOriginalFontScope", manager)
+        self.assertIn('current.name == "ProgressBar"', manager)
+        self.assertIn('current.name == "Speaker"', manager)
+        self.assertIn("return insideProgressBar && !insideHeading", manager)
+
 
 if __name__ == "__main__":
     unittest.main()

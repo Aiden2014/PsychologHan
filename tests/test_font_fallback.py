@@ -84,6 +84,17 @@ class FontFallbackContractTests(unittest.TestCase):
         self.assertIn('current.name == "MainMenuButton"', manager)
         self.assertIn('current.name == "CloseClientSectionButton"', manager)
 
+    def test_speaker_decorations_keep_the_original_game_font(self):
+        manager = (PROJECT / "FontFallbackManager.cs").read_text(encoding="utf-8-sig")
+
+        self.assertIn("IsSpeakerOriginalFontScope", manager)
+        self.assertIn("IsInGameMenuSpeakerLineScope", manager)
+        self.assertIn('current.name == "Speaker"', manager)
+        self.assertIn('current.name == "SpeakerCaption"', manager)
+        self.assertIn('current.name == "CaptionRectangle"', manager)
+        self.assertIn('current.name == "InGameMenuButton"', manager)
+        self.assertIn('componentName.StartsWith("SpeakerLine"', manager)
+
 
 if __name__ == "__main__":
     unittest.main()

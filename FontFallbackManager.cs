@@ -144,6 +144,12 @@ internal sealed class FontFallbackManager
 
     private static bool IsOriginalGameFontScope(TMP_Text textComponent)
     {
+        if (IsSpeakerOriginalFontScope(textComponent) ||
+            IsInGameMenuSpeakerLineScope(textComponent))
+        {
+            return true;
+        }
+
         Transform current = textComponent.transform;
         while (current != null)
         {
@@ -159,6 +165,67 @@ internal sealed class FontFallbackManager
         }
 
         return false;
+    }
+
+    private static bool IsSpeakerOriginalFontScope(TMP_Text textComponent)
+    {
+        if (textComponent == null)
+        {
+            return false;
+        }
+
+        bool isSpeakerLine = IsSpeakerLineName(textComponent.name);
+        bool insideCaptionRectangle = false;
+        bool insideSpeakerCaption = false;
+        Transform current = textComponent.transform;
+        while (current != null)
+        {
+            if (current.name == "CaptionRectangle")
+            {
+                insideCaptionRectangle = true;
+            }
+            else if (current.name == "SpeakerCaption")
+            {
+                insideSpeakerCaption = true;
+            }
+            else if (current.name == "Speaker")
+            {
+                bool inCaptionRectangle = insideCaptionRectangle && insideSpeakerCaption;
+                bool isDirectSpeakerLine = isSpeakerLine && textComponent.transform.parent == current;
+                return inCaptionRectangle || isDirectSpeakerLine;
+            }
+
+            current = current.parent;
+        }
+
+        return false;
+    }
+
+    private static bool IsInGameMenuSpeakerLineScope(TMP_Text textComponent)
+    {
+        if (textComponent == null || !IsSpeakerLineName(textComponent.name))
+        {
+            return false;
+        }
+
+        Transform current = textComponent.transform.parent;
+        while (current != null)
+        {
+            if (current.name == "InGameMenuButton")
+            {
+                return true;
+            }
+
+            current = current.parent;
+        }
+
+        return false;
+    }
+
+    private static bool IsSpeakerLineName(string componentName)
+    {
+        return !string.IsNullOrEmpty(componentName) &&
+            componentName.StartsWith("SpeakerLine", StringComparison.Ordinal);
     }
 
     private bool TryRestoreOriginalMapping(TMP_Text textComponent)

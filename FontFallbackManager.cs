@@ -27,6 +27,7 @@ internal sealed class FontFallbackManager
     private readonly Dictionary<TMP_Text, TMP_FontAsset> originalFontByComponent = new Dictionary<TMP_Text, TMP_FontAsset>();
     private readonly Dictionary<TMP_Text, Material> originalMaterialByComponent = new Dictionary<TMP_Text, Material>();
     private readonly Dictionary<TMP_Text, ITextPreprocessor> originalTextPreprocessorByComponent = new Dictionary<TMP_Text, ITextPreprocessor>();
+    private readonly Dictionary<TMP_Text, bool> originalFontScopeByComponent = new Dictionary<TMP_Text, bool>();
     private Font sourceFont;
     private TMP_FontAsset fontAsset;
     private bool registered;
@@ -91,7 +92,14 @@ internal sealed class FontFallbackManager
             return false;
         }
 
-        if (IsOriginalGameFontScope(textComponent))
+        bool isOriginalGameFontScope;
+        if (!originalFontScopeByComponent.TryGetValue(textComponent, out isOriginalGameFontScope))
+        {
+            isOriginalGameFontScope = IsOriginalGameFontScope(textComponent);
+            originalFontScopeByComponent[textComponent] = isOriginalGameFontScope;
+        }
+
+        if (isOriginalGameFontScope)
         {
             return TryRestoreOriginalMapping(textComponent);
         }
@@ -607,6 +615,7 @@ internal sealed class FontFallbackManager
         }
 
         originalTextPreprocessorByComponent.Clear();
+        originalFontScopeByComponent.Clear();
 
         foreach (TMP_FontAsset mappedFontAsset in mappedFontAssets.Values)
         {

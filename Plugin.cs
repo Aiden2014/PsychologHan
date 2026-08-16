@@ -58,7 +58,7 @@ public class Plugin : BaseUnityPlugin
         }
 
         harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
-        Logger.LogInfo("PsychologHan localization guard: supports GameManager.addMe(int,string,int,Action), addSpeaker(int,string,string,int,Action,string), slowPrint(TextMeshProUGUI,string,float,float), animateUIBar(float,float,string,float), updateClientsSection(), updateSituationView(), and DeathRunes.setRunes(). Dynamic item text uses category-scoped original matching after SitItem callbacks; Chinese dialogue uses targeted character-by-character typing; English and other text preserve the original renderer. Choice text is translated after OptionItem identity fields are initialized. Missing signatures are skipped safely.");
+        Logger.LogInfo("PsychologHan localization guard: supports GameManager.addMe(int,string,int,Action), addSpeaker(int,string,string,int,Action,string), slowPrint(TextMeshProUGUI,string,float,float), animateUIBar(float,float,string,float), updateClientsSection(), updateSituationView(), and DeathRunes.setRunes(). Dynamic item text uses category-scoped original matching after SitItem callbacks; Chinese dialogue uses targeted single-mesh character reveal; English and other text preserve the original renderer. Choice text is translated after OptionItem identity fields are initialized. Missing signatures are skipped safely.");
         harmony.PatchAll();
 
         Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} loaded. Localization directory: {localizationDirectory}. Loaded {Translations.EntryCount} translations from {Translations.FileCount} file(s).");

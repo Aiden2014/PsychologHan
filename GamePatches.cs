@@ -166,9 +166,18 @@ internal static class GamePatches
             gameManager.pulsingMarker.SetActive(value: false);
         }
 
-        for (int index = 0; index <= session.TextLine.Length; index++)
+        // Build the complete TMP mesh once, then reveal its already-parsed
+        // characters. Assigning a growing Substring forced TMP to parse,
+        // layout, and rebuild the dialogue mesh for every character.
+        session.TextObject.maxVisibleCharacters = int.MaxValue;
+        session.TextObject.text = session.TextLine;
+        session.TextObject.ForceMeshUpdate();
+        int characterCount = session.TextObject.textInfo.characterCount;
+        session.TextObject.maxVisibleCharacters = 0;
+
+        for (int index = 0; index <= characterCount; index++)
         {
-            session.TextObject.text = session.TextLine.Substring(0, index);
+            session.TextObject.maxVisibleCharacters = index;
             if (gameManager.hurryUp)
             {
                 timeBetweenCharacters = 0.001f;
@@ -194,6 +203,7 @@ internal static class GamePatches
         }
 
         session.TextObject.text = session.TextLine;
+        session.TextObject.maxVisibleCharacters = int.MaxValue;
         skipInputConsumedAtFrame[gameManager] = Time.frameCount;
         FinishChineseDialogue(gameManager, session);
         return true;
@@ -234,6 +244,11 @@ internal static class GamePatches
             gameManager.StopCoroutine(session.Coroutine);
         }
 
+        if (session.TextObject != null)
+        {
+            session.TextObject.maxVisibleCharacters = int.MaxValue;
+        }
+
         activeChineseDialogues.Remove(gameManager);
         gameManager.hurryUp = false;
         if (gameManager.preventInteractionDuringPrintText != null)
@@ -251,6 +266,11 @@ internal static class GamePatches
             object.ReferenceEquals(activeSession, session))
         {
             activeChineseDialogues.Remove(gameManager);
+        }
+
+        if (session.TextObject != null)
+        {
+            session.TextObject.maxVisibleCharacters = int.MaxValue;
         }
 
         gameManager.hurryUp = false;
@@ -344,7 +364,6 @@ internal static class GamePatches
                 }
             }
 
-            UiPatches.TranslateScreen(__instance.inGame);
             UiPatches.TranslateClientWeeklyPlanner(__instance.notesSection);
 
             string suffix;

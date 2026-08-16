@@ -29,13 +29,15 @@ class DialogueTypingTests(unittest.TestCase):
         self.assertIn("PrintChineseDialogue(", patches)
         self.assertIn("return false;", patches)
 
-    def test_chinese_dialogue_is_character_based_and_slightly_faster(self):
+    def test_chinese_dialogue_reveals_a_single_parsed_tmp_mesh(self):
         patches = (PROJECT / "GamePatches.cs").read_text(encoding="utf-8-sig")
 
         self.assertIn("private const float ChineseDialogueSpeedMultiplier = 1.25f;", patches)
         self.assertIn("float charactersPerSecond = lettersPerSecond * ChineseDialogueSpeedMultiplier;", patches)
-        self.assertIn("for (int index = 0; index <= session.TextLine.Length; index++)", patches)
-        self.assertIn("session.TextObject.text = session.TextLine.Substring(0, index);", patches)
+        self.assertIn("session.TextObject.ForceMeshUpdate();", patches)
+        self.assertIn("int characterCount = session.TextObject.textInfo.characterCount;", patches)
+        self.assertIn("session.TextObject.maxVisibleCharacters = index;", patches)
+        self.assertNotIn("session.TextLine.Substring(0, index)", patches)
         self.assertIn("preventInteractionDuringPrintText.SetActive(value: true)", patches)
         self.assertIn("preventInteractionDuringPrintText.SetActive(value: false)", patches)
 

@@ -226,6 +226,22 @@ class Task4UiHookTests(unittest.TestCase):
 
         self.assertIn("ApplyFontMappings(__instance.meText);", patches)
         self.assertIn("ApplyFontMappings(__instance.speakerText);", patches)
+        self.assertNotIn("ApplyFontMappings(__instance.storyScreen);", patches)
+
+    def test_screen_refreshes_reuse_cached_tmp_components(self):
+        patches = (PROJECT / "UiPatches.cs").read_text(encoding="utf-8-sig")
+
+        self.assertIn("ScreenTextCaches", patches)
+        self.assertIn("GetScreenTexts(screen)", patches)
+        self.assertIn("GetScreenTexts(notesSection)", patches)
+
+    def test_client_refresh_does_not_rescan_the_entire_in_game_root(self):
+        game_patches = (PROJECT / "GamePatches.cs").read_text(encoding="utf-8-sig")
+        client_refresh_start = game_patches.index("private static class UpdateClientsSectionPatch")
+        client_refresh_end = game_patches.index("    [HarmonyPatch", client_refresh_start + 20)
+        client_refresh = game_patches[client_refresh_start:client_refresh_end]
+
+        self.assertNotIn("UiPatches.TranslateScreen(__instance.inGame);", client_refresh)
 
     def test_client_details_refresh_scans_the_verified_details_section(self):
         game_patches = (PROJECT / "GamePatches.cs").read_text(encoding="utf-8-sig")

@@ -85,6 +85,27 @@ internal static class UiPatches
             }
         };
 
+    private sealed class ScreenTextCache
+    {
+        internal ScreenTextCache(int directChildCount, TextMeshProUGUI[] texts)
+        {
+            DirectChildCount = directChildCount;
+            Texts = texts;
+        }
+
+        internal int DirectChildCount { get; }
+
+        internal TextMeshProUGUI[] Texts { get; }
+    }
+
+    // The level1 UI roots are scene-owned and keep their TMP components while
+    // gameplay changes their text and active state. Cache the component arrays
+    // so refresh hooks do not allocate and traverse the same UI hierarchy on
+    // every client/dialogue interaction. A direct-child count change or a
+    // destroyed cached component causes a safe rescan for dynamic UI changes.
+    private static readonly Dictionary<GameObject, ScreenTextCache> ScreenTextCaches =
+        new Dictionary<GameObject, ScreenTextCache>();
+
     // ClientSessionTitle stores the visible strings on its controller rather
     // than on the four TMP components. Unity does not expose serialized
     // PathIDs at runtime, so the fixed level1 build uses the verified
@@ -173,7 +194,6 @@ internal static class UiPatches
 
             ApplyFontMappings(__instance.meText);
             ApplyFontMappings(__instance.speakerText);
-            ApplyFontMappings(__instance.storyScreen);
         }
     }
 
@@ -336,7 +356,7 @@ internal static class UiPatches
             return;
         }
 
-        TextMeshProUGUI[] texts = screen.GetComponentsInChildren<TextMeshProUGUI>(includeInactive: true);
+        TextMeshProUGUI[] texts = GetScreenTexts(screen);
         for (int index = 0; index < texts.Length; index++)
         {
             TranslateText(texts[index]);
@@ -350,12 +370,51 @@ internal static class UiPatches
             return;
         }
 
-        TranslateScreen(notesSection);
-        TextMeshProUGUI[] texts = notesSection.GetComponentsInChildren<TextMeshProUGUI>(includeInactive: true);
+        TextMeshProUGUI[] texts = GetScreenTexts(notesSection);
         for (int index = 0; index < texts.Length; index++)
         {
+            TranslateText(texts[index]);
             TranslateHandwrittenPlannerText(texts[index]);
         }
+    }
+
+    private static TextMeshProUGUI[] GetScreenTexts(GameObject screen)
+    {
+        if (screen == null)
+        {
+            return new TextMeshProUGUI[0];
+        }
+
+        int directChildCount = screen.transform.childCount;
+        ScreenTextCache cached;
+        if (ScreenTextCaches.TryGetValue(screen, out cached) &&
+            cached.DirectChildCount == directChildCount &&
+            HasLiveTextComponents(cached.Texts))
+        {
+            return cached.Texts;
+        }
+
+        TextMeshProUGUI[] texts = screen.GetComponentsInChildren<TextMeshProUGUI>(includeInactive: true);
+        ScreenTextCaches[screen] = new ScreenTextCache(directChildCount, texts);
+        return texts;
+    }
+
+    private static bool HasLiveTextComponents(TextMeshProUGUI[] texts)
+    {
+        if (texts == null)
+        {
+            return false;
+        }
+
+        for (int index = 0; index < texts.Length; index++)
+        {
+            if (texts[index] == null)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static void TranslateHandwrittenPlannerText(TextMeshProUGUI textComponent)
@@ -370,11 +429,6 @@ internal static class UiPatches
         if (!string.Equals(textComponent.text, translated, System.StringComparison.Ordinal))
         {
             textComponent.text = translated;
-        }
-
-        if (Plugin.Fonts != null)
-        {
-            Plugin.Fonts.TryApplyMapping(textComponent);
         }
 
         if (textComponent.font != null && !string.IsNullOrEmpty(textComponent.font.name) &&
@@ -493,14 +547,14 @@ internal static class UiPatches
 
         string original = textComponent.text;
 
-        if (Plugin.Translations == null)
-        {
-            return;
-        }
-
         if (Plugin.Fonts != null)
         {
             Plugin.Fonts.TryApplyMapping(textComponent);
+        }
+
+        if (Plugin.Translations == null)
+        {
+            return;
         }
 
         string approvedKey;

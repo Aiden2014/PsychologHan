@@ -164,6 +164,29 @@ Psycholog is a Chinese localization project built from managed code evidence and
 | `22430|||DEBORAH|||3483` | “哎哟，你可真惨！” | 哎哟，可真够可怜的！ | Said after ME was held up by police, it is mocking sympathy, not genuine pity. |
 | `45520|||MIKE|||11005` | “老规矩。大家听好。” | 照例还是有的。大家听好。 | `As always` answers “Any words of wisdom?” — “照例还是有的”, not a rule announcement. |
 | `45464|||VERA|||10978` | “不……大概只是看起来像吧。” | 不……大概只是看着像在牵手吧。 | Restore the omitted object from Joe's “他们牵手了？”: “看着像在牵手”. |
+| `620|||ME|||6714` | “这座城市。” | 脚下的城市。 | The falling-dream opener names what ME sees beneath him; “脚下的城市” keeps the prose-poem register of 621-625. |
+| `14411|||ASHLEY|||2347` | “那个人是唯一不是我编出来的。” | 只有那个人不是我编的，是我妈编的。 | The “唯一不是……” frame is a calque; “只有……不是我编的” is the spoken contrast. |
+| `33076|||DET. JACKSON|||2746` | “他只是考虑起诉，已经够宽宏大量了。” | 他没直接起诉，已经够宽宏大量了。 | The father chose to hear ME out instead of suing; “没直接起诉” states what he actually did. |
+| `2450|||DEBORAH|||3214` | “不过既然你决定了……” | 好极了。那我就跟着你走吧。波希米亚区我可一点都不想去，不过还是你说了算。 | Match the sibling branches 2456/2457 (“还是你说了算”) instead of trailing off mid-thought. |
+| `60946|||ME|||3796` | “罗伯茨医生很有名。” | 我听说罗伯茨医生是数一数二的。还是叫贝内特来着？ | `one of the best` is “数一数二”; the sentence keeps ME's name recall. |
+| `61030|||DR. BENNETT|||3817` | “人体对麻醉的反应多少有些不可预测。” | 人会对麻醉产生什么反应，有点像碰运气。 | `somewhat of a gamble` is “有点像碰运气”, not a clinical paraphrase. |
+| `61083|||DR. BENNETT|||3877` | “该把你那张脸好好处理一下了。” | 是时候收拾收拾你那张脸了。 | The nightmare doctor's menace lands in “收拾收拾”. |
+| `61121|||ME|||3911` | “又是一场疯梦而已。” | 不过是又一场荒唐的梦。 | “疯梦” is not a Chinese collocation; “荒唐的梦” is. |
+| `62080|||JENNIFER|||4265` | “我想要我的姐姐回来。” | 我想让姐姐回到我身边。 | “让……回到我身边” is the natural form of `want my sister back`. |
+| `62090|||JENNIFER|||4266` | “你显然……越来越严重了。” | 我看得出来，你……越来越严重了。 | `It's clear to me` is “我看得出来”, not the flat “你显然”. |
+| `79500|||ME|||4445` | “当我照镜子时，我很清楚，玻璃后面的那张脸……” | 我照镜子时，心里很明白：镜子后面的那张脸…… | “心里很明白” and “镜子后面” read as the mirror scene's inner voice. |
+| `18217|||ME|||5690` | “另一方面，先从长角街车流量较小的路段开始……” | 若先从车流量较小的长角街开始，或许能一步步帮他建立信心。 | Drop the “另一方面” scaffolding; state the gradual option directly. |
+| `15410|||ME|||5182` | “他会不会觉得我太小看他了？” | 我让他去了三楼。他会不会因此失望？也许我该冒点险。 | The question is whether Jaden is disappointed; “太小看他” overinterprets. |
+| `26631|||RAYMOND|||10682` | “消除恐惧本身的‘载体’” | 把恐惧的“宿主”一起除掉 | The carrier of the phobia is the client; “宿主” is the natural word, not “载体”. |
+| `26672|||RAYMOND|||10714` | “我要你捅自己的眼睛。” | 我要你挖自己的眼睛。 | Eyes are “挖”, not “捅”; keep the sibling choice 26679 aligned. |
+| `45412|||JOE|||10953` | “这不是很典型嘛？” | 你看，又是咱俩先到。我们这代人，骨子里就带着守时。 | `typical` here is “果然又是老样子”; “骨子里就带着守时” naturalizes the generation remark. |
+| `13098|||ME|||7371` | “你说巧不巧？……” | 真会挑时候。难得今天一整天没约来访者，老板却非要我来办公室。 | `Isn't it typical?` as a complaint about bad timing is “真会挑时候”, not a coincidence question. |
+| `13386|||SHANNON|||7669` | “活像个被抢了糖的小孩。” | 活像个被抢了糖的小孩，气鼓鼓的。 | The simile needs the sulky visual (“气鼓鼓的”) after 13385's “闹别扭” to be recognizable in casual chat. |
+| `61075|||61077|||3873` | “我听够了……告辞。” | 我听够了……我走了。 | “告辞” is stage-dialect formal; Vera leaves with a plain “我走了”. |
+| `14379|||14380|||7907` | “那到底是什么方法？快说。” | 就用一种套路？ | `Stick to ONE approach?` is ME guessing the method Josh teaches, not demanding it; the next line confirms “假设你只用一种套路”. |
+| `20907|||20909|||9247` | “别烦我，好吗？走开。” | 别烦我，好吗？滚。 | ME's hostile `Scram.` to Raymond is “滚”, matching the 19242 register; “走开” is too soft. |
+| `26675|||26679|||10728` / `45682|||45682|||10936` | “用刀割你的眼睛” | 挖掉自己的眼睛 | Align both choice variants with dialogue 26672: eyes are “挖”, not “割”. |
+| `45664|||45664|||10905` | “担心我？没理由。” | 担心我？没必要。 | `No reason` answering “worried about me?” is “没必要”, not the calque “没理由”. |
 
 ## Naming and consistency decisions (2026-08-04)
 

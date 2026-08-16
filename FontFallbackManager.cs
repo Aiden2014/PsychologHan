@@ -153,6 +153,7 @@ internal sealed class FontFallbackManager
     private static bool IsOriginalGameFontScope(TMP_Text textComponent)
     {
         if (IsSpeakerOriginalFontScope(textComponent) ||
+            IsMeOriginalFontScope(textComponent) ||
             IsInGameMenuSpeakerLineScope(textComponent) ||
             IsPulsingMarkerSymbolScope(textComponent) ||
             IsClientCaptionOriginalFontScope(textComponent) ||
@@ -168,6 +169,27 @@ internal sealed class FontFallbackManager
                 current.GetComponent<global::CloseClientSectionButton>() != null ||
                 current.name == "MainMenuButton" ||
                 current.name == "CloseClientSectionButton")
+            {
+                return true;
+            }
+
+            current = current.parent;
+        }
+
+        return false;
+    }
+
+    private static bool IsMeOriginalFontScope(TMP_Text textComponent)
+    {
+        if (textComponent == null || !IsSpeakerLineName(textComponent.name))
+        {
+            return false;
+        }
+
+        Transform current = textComponent.transform.parent;
+        while (current != null)
+        {
+            if (current.name == "Me")
             {
                 return true;
             }

@@ -268,6 +268,32 @@ internal static class UiPatches
         }
     }
 
+    [HarmonyPatch(typeof(SaveSystem), nameof(SaveSystem.ExtractSaveGameInfo))]
+    private static class SaveSystemInfoPatch
+    {
+        [HarmonyPostfix]
+        private static void Postfix(ref Dictionary<int, string> __result)
+        {
+            if (__result == null)
+            {
+                return;
+            }
+
+            Plugin.Logger.LogInfo("hook ExtractSaveGameInfo");
+            foreach (var cur in new Dictionary<int, string>(__result))
+            {
+                Plugin.Logger.LogInfo("cur key: " + cur.Key + "cur value: " + cur.Value);
+                __result[cur.Key] = cur.Value == null
+                    ? null
+                    : cur.Value
+                        .Replace("EASY", "简单")
+                        .Replace("NORMAL", "普通")
+                        .Replace("HARD", "困难")
+                        .Replace("Started", "开始于");
+            }
+        }
+    }
+
     private static void TranslateChoiceButtons(global::GameManager gameManager)
     {
         if (gameManager == null || Plugin.Translations == null || gameManager.gS == null ||

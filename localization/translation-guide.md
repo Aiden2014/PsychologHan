@@ -187,6 +187,26 @@ Psycholog is a Chinese localization project built from managed code evidence and
 | `20907|||20909|||9247` | “别烦我，好吗？走开。” | 别烦我，好吗？滚。 | ME's hostile `Scram.` to Raymond is “滚”, matching the 19242 register; “走开” is too soft. |
 | `26675|||26679|||10728` / `45682|||45682|||10936` | “用刀割你的眼睛” | 挖掉自己的眼睛 | Align both choice variants with dialogue 26672: eyes are “挖”, not “割”. |
 | `45664|||45664|||10905` | “担心我？没理由。” | 担心我？没必要。 | `No reason` answering “worried about me?” is “没必要”, not the calque “没理由”. |
+| `91082|||JADEN|||5431` | “明白，清清楚楚。我会小心的。” | 明白，听清楚了。我会小心的。 | `Loud and clear` as a stand-alone “清清楚楚” reads as an echo; spoken Chinese says “听清楚了”. |
+| `16001|||ME|||8426` | “今天本尼餐馆的那个人，雷蒙德……我几乎不记得他什么。” | 今天本尼餐馆那个雷蒙德，我对他几乎没什么印象，只记得自己一点都不喜欢他。真奇怪。 | Put the name into the topic (“那个雷蒙德”), not as a trailing appositive; “没什么印象” is the spoken form of remembering almost nothing. |
+| `16002|||ME|||8430` | “杰登。我的天啊。” | 杰登……天哪。 | The dawning realization needs the ellipsis, not two flat sentences. |
+| `14465|||ASHLEY|||2383` | “他只存在于我妈妈的脑子里。” | 他从来都只活在我妈的脑子里。 | `only real in her head` is “只活在她脑子里”, not the clinical “只存在于”. |
+| `79518|||ME|||4461` | “我是说，试试总不会有坏处，对吧？” | 反正试试总不会有坏处，对吧？ | Filler `I mean` before a reassurance is “反正”, not “我是说”. |
+| `5404|||JADEN|||5088` | “我是说，我们之前那些步骤都做了——” | 我们之前明明都做过那些步骤—— | The enumeration is the point; “明明都做过” reads as speech. |
+| `15675/15683|||DET. JACKSON|||5257/5268` | “也就是说，你有博士学位之类的？” | 就是说，你有博士学位之类的？ | `As in` is the spoken “就是说”, not the written “也就是说”. |
+| `15952/15960|||JADEN|||5385/5386` | “我只是说，不管怎么说，……有关。” | 我只是觉得，发生的事多多少少都和我来见你有关。 / 所以，这事儿多多少少都跟我来见你有关。 | `somehow` here is “多多少少”; avoid the doubled 说 construction. |
+| `45450|||JOE|||10972` | “我是说，开个玩笑。” | 就是，开个玩笑。 | `As in` echoing Deborah's remark is “就是”. |
+| `1651|||VERA|||11359` | “她看我的眼神就像……像我疯了似的。” | 她看我的眼神，就像在看个疯子。 | Collapse the doubled 像 simile into one natural image. |
+| `1496|||ME|||11484` | “也就是说，谁都能从这儿进屋。” | 说白了，谁都能从这儿进屋。 | A deduction in ME's inner voice is “说白了”, not “也就是说”. |
+| `20356|||RAYMOND|||9224` | “你还和上学时一模一样，真让人欣慰。” | 看到你和上学时一模一样，我就放心了。 | `It's a relief` is “我就放心了”, not the written “真让人欣慰”. |
+| `20948|||ME|||9271` | “他怎么突然这么着急？” | 他怎么突然一副很着急的样子？ | `looked very much in a hurry` needs the visual “一副……的样子”. |
+| `20555|||ME|||9340` | “真有意思。那个女人很像……” | 怪了。那个女人很像…… | `That's funny` in the dream scene is “怪了”, not “有意思”. |
+| `21341|||ME|||9508` | “我都快希望有雷蒙德陪着了……” | 我甚至都开始盼着雷蒙德来陪我了…… | `Almost makes me wish` is “都开始盼着……了”, not “都快希望”. |
+| `21523|||ME|||9729` | “至少感觉是这样。” | 至少我是这么觉得的。 | `Or so it feels` is “至少我是这么觉得的”. |
+| `23263|||ME|||10575` | “他们排斥的不只是我这个人。” | 可后来我才发现，那种排斥远不止社交层面。 | `the rejection wasn't just social` contrasts social vs academic rejection, not “not just me”. |
+| `45103|||ME|||10847` | “一直缠着我。” | 它一直缠着我。 | Restore the subject in the memory fragment. |
+| `45670|||JOSH|||10913` | “你一走神，就会陷进自己的思绪里。” | 你好像经常会陷进自己的思绪里。 | `seem to get lost in your own thoughts` is a habit observation, not a conditional. |
+| `1235|||VERA|||11291` | “对，你是心理学家。抱歉。” | 哦，对。你是心理学家，抱歉。 | `Oh. Right.` is “哦，对”, not a flat “对”. |
 
 ## Naming and consistency decisions (2026-08-04)
 

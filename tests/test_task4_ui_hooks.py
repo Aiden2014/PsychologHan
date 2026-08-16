@@ -16,6 +16,13 @@ class Task4UiHookTests(unittest.TestCase):
         self.assertIn('[HarmonyPatch(typeof(global::LoadGameButton), "onClick")]', patches)
         self.assertIn("TryTranslateByOriginal", patches)
 
+    def test_save_game_info_hook_updates_existing_entries_safely(self):
+        patches = (PROJECT / "UiPatches.cs").read_text(encoding="utf-8-sig")
+
+        self.assertIn("foreach (var cur in new Dictionary<int, string>(__result))", patches)
+        self.assertIn("__result[cur.Key] =", patches)
+        self.assertNotIn("__result.Add(cur.Key", patches)
+
     def test_main_menu_hook_scans_the_whole_menu_subtree(self):
         patches = (PROJECT / "UiPatches.cs").read_text(encoding="utf-8-sig")
 

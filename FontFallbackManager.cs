@@ -304,14 +304,14 @@ internal sealed class FontFallbackManager
             return false;
         }
 
-        bool insideAssessmentBarDecoration = false;
         bool insideProgressBar = false;
+        bool insideHeading = false;
         Transform current = textComponent.transform;
         while (current != null)
         {
-            if (IsAssessmentBarDecorationName(current.name))
+            if (current.name == "Heading")
             {
-                insideAssessmentBarDecoration = true;
+                insideHeading = true;
             }
             else if (current.name == "TrustProgressBar" ||
                 current.name == "TreatmentProgressBar")
@@ -320,7 +320,7 @@ internal sealed class FontFallbackManager
             }
             else if (current.name == "AssessmentBars")
             {
-                return insideAssessmentBarDecoration && insideProgressBar;
+                return insideProgressBar && !insideHeading;
             }
 
             current = current.parent;
@@ -328,16 +328,6 @@ internal sealed class FontFallbackManager
 
         return false;
     }
-
-    private static bool IsAssessmentBarDecorationName(string componentName)
-    {
-        return componentName == "BarVertical" ||
-            componentName == "RightVertical" ||
-            componentName == "LeftVertical" ||
-            componentName == "HorizontalTop" ||
-            componentName == "HorizontalBottom";
-    }
-
     private bool TryRestoreOriginalMapping(TMP_Text textComponent)
     {
         TMP_FontAsset originalFont;

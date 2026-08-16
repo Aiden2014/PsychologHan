@@ -147,7 +147,8 @@ internal sealed class FontFallbackManager
         if (IsSpeakerOriginalFontScope(textComponent) ||
             IsInGameMenuSpeakerLineScope(textComponent) ||
             IsPulsingMarkerSymbolScope(textComponent) ||
-            IsClientCaptionOriginalFontScope(textComponent))
+            IsClientCaptionOriginalFontScope(textComponent) ||
+            IsAssessmentBarOriginalFontScope(textComponent))
         {
             return true;
         }
@@ -294,6 +295,47 @@ internal sealed class FontFallbackManager
     {
         return componentName == "CaptionRectangle" ||
             componentName == "CaptionRectangleSelected";
+    }
+
+    private static bool IsAssessmentBarOriginalFontScope(TMP_Text textComponent)
+    {
+        if (textComponent == null)
+        {
+            return false;
+        }
+
+        bool insideAssessmentBarDecoration = false;
+        bool insideProgressBar = false;
+        Transform current = textComponent.transform;
+        while (current != null)
+        {
+            if (IsAssessmentBarDecorationName(current.name))
+            {
+                insideAssessmentBarDecoration = true;
+            }
+            else if (current.name == "TrustProgressBar" ||
+                current.name == "TreatmentProgressBar")
+            {
+                insideProgressBar = true;
+            }
+            else if (current.name == "AssessmentBars")
+            {
+                return insideAssessmentBarDecoration && insideProgressBar;
+            }
+
+            current = current.parent;
+        }
+
+        return false;
+    }
+
+    private static bool IsAssessmentBarDecorationName(string componentName)
+    {
+        return componentName == "BarVertical" ||
+            componentName == "RightVertical" ||
+            componentName == "LeftVertical" ||
+            componentName == "HorizontalTop" ||
+            componentName == "HorizontalBottom";
     }
 
     private bool TryRestoreOriginalMapping(TMP_Text textComponent)

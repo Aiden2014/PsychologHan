@@ -114,6 +114,20 @@ class FontFallbackContractTests(unittest.TestCase):
         self.assertIn('componentName == "CaptionRectangle"', manager)
         self.assertIn('componentName == "CaptionRectangleSelected"', manager)
 
+    def test_assessment_bar_decorations_keep_the_original_game_font(self):
+        manager = (PROJECT / "FontFallbackManager.cs").read_text(encoding="utf-8-sig")
+
+        self.assertIn("IsAssessmentBarOriginalFontScope", manager)
+        self.assertIn("IsAssessmentBarDecorationName", manager)
+        self.assertIn('current.name == "AssessmentBars"', manager)
+        self.assertIn('current.name == "TrustProgressBar"', manager)
+        self.assertIn('current.name == "TreatmentProgressBar"', manager)
+        self.assertIn('componentName == "BarVertical"', manager)
+        self.assertIn('componentName == "RightVertical"', manager)
+        self.assertIn('componentName == "LeftVertical"', manager)
+        self.assertIn('componentName == "HorizontalTop"', manager)
+        self.assertIn('componentName == "HorizontalBottom"', manager)
+
 
 if __name__ == "__main__":
     unittest.main()

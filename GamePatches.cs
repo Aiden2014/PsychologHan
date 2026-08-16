@@ -22,7 +22,6 @@ internal static class GamePatches
     private const string DynamicJoshSpeaker = "JOSH";
     private const int DynamicDeborahNodeId = 2820;
     private const string DynamicDeborahPlaceholder = "[DECIDE DYNAMICALLY]";
-    private const float ChineseDialogueSpeedMultiplier = 1.25f;
     private static readonly Dictionary<global::GameManager, ChineseDialogueSession> activeChineseDialogues =
         new Dictionary<global::GameManager, ChineseDialogueSession>();
     private static readonly Dictionary<global::GameManager, int> skipInputConsumedAtFrame =
@@ -63,7 +62,7 @@ internal static class GamePatches
             }
 
             CancelActiveChineseDialogue(__instance);
-            float charactersPerSecond = lettersPerSecond * ChineseDialogueSpeedMultiplier;
+            float charactersPerSecond = lettersPerSecond * Plugin.GetChineseDialogueSpeedMultiplier();
             ChineseDialogueSession session = new ChineseDialogueSession(textObject, textLine);
             activeChineseDialogues[__instance] = session;
             session.Coroutine = __instance.StartCoroutine(PrintChineseDialogue(

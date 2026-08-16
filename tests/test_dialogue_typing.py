@@ -32,8 +32,19 @@ class DialogueTypingTests(unittest.TestCase):
     def test_chinese_dialogue_reveals_a_single_parsed_tmp_mesh(self):
         patches = (PROJECT / "GamePatches.cs").read_text(encoding="utf-8-sig")
 
-        self.assertIn("private const float ChineseDialogueSpeedMultiplier = 1.25f;", patches)
-        self.assertIn("float charactersPerSecond = lettersPerSecond * ChineseDialogueSpeedMultiplier;", patches)
+        plugin = (PROJECT / "Plugin.cs").read_text(encoding="utf-8-sig")
+
+        self.assertIn("ConfigEntry<float> ChineseDialogueSpeedMultiplier { get; private set; }", plugin)
+        self.assertIn("private const float DefaultChineseDialogueSpeedMultiplier = 1.25f;", plugin)
+        self.assertIn(
+            'Config.Bind(\n            "Dialogue",\n            "ChineseDialogueSpeedMultiplier",\n            DefaultChineseDialogueSpeedMultiplier,',
+            plugin,
+        )
+        self.assertIn("GetChineseDialogueSpeedMultiplier()", plugin)
+        self.assertIn("float.IsNaN(multiplier)", plugin)
+        self.assertIn("float.IsInfinity(multiplier)", plugin)
+        self.assertIn("float charactersPerSecond = lettersPerSecond * Plugin.GetChineseDialogueSpeedMultiplier();", patches)
+        self.assertNotIn("private const float ChineseDialogueSpeedMultiplier = 1.25f;", patches)
         self.assertIn("session.TextObject.ForceMeshUpdate();", patches)
         self.assertIn("int characterCount = session.TextObject.textInfo.characterCount;", patches)
         self.assertIn("session.TextObject.maxVisibleCharacters = index;", patches)

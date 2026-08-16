@@ -14,8 +14,10 @@ public class Plugin : BaseUnityPlugin
     internal static TranslationManager Translations;
     internal static MissingTextTracker MissingText;
     internal static FontFallbackManager Fonts;
+    internal static ConfigEntry<float> ChineseDialogueSpeedMultiplier { get; private set; }
 
     private const string LocalizationDirectoryName = "localization";
+    private const float DefaultChineseDialogueSpeedMultiplier = 1.25f;
 
     private ConfigEntry<bool> developmentDiagnostics;
     private ConfigEntry<KeyboardShortcut> scanCurrentSceneHotkey;
@@ -25,6 +27,11 @@ public class Plugin : BaseUnityPlugin
     private void Awake()
     {
         Logger = base.Logger;
+        ChineseDialogueSpeedMultiplier = Config.Bind(
+            "Dialogue",
+            "ChineseDialogueSpeedMultiplier",
+            DefaultChineseDialogueSpeedMultiplier,
+            "Multiplier applied to the Chinese dialogue typing speed. Default 1.25.");
         developmentDiagnostics = Config.Bind(
             "Audit",
             "DevelopmentDiagnostics",
@@ -64,6 +71,19 @@ public class Plugin : BaseUnityPlugin
         Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} loaded. Localization directory: {localizationDirectory}. Loaded {Translations.EntryCount} translations from {Translations.FileCount} file(s).");
         Logger.LogInfo("UI localization hooks enabled for GameManager main-menu refresh, verified SettingsButton/LoadGameButton screen controllers, and ClientSessionTitle.playCutscene. Other UI preserves original text when no approved ui.csv match exists.");
         Logger.LogInfo("Scene text scan diagnostic is bound to " + scanCurrentSceneHotkey.Value + ". Press it in-game to print active-scene TMP components.");
+    }
+
+    internal static float GetChineseDialogueSpeedMultiplier()
+    {
+        float multiplier = ChineseDialogueSpeedMultiplier == null
+            ? DefaultChineseDialogueSpeedMultiplier
+            : ChineseDialogueSpeedMultiplier.Value;
+        if (multiplier <= 0f || float.IsNaN(multiplier) || float.IsInfinity(multiplier))
+        {
+            return DefaultChineseDialogueSpeedMultiplier;
+        }
+
+        return multiplier;
     }
 
     private void Update()

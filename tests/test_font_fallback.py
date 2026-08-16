@@ -104,6 +104,16 @@ class FontFallbackContractTests(unittest.TestCase):
         self.assertIn('componentName == "Symbol"', manager)
         self.assertIn('componentName == "Symbol (3)"', manager)
 
+    def test_client_caption_rectangles_keep_the_original_game_font(self):
+        manager = (PROJECT / "FontFallbackManager.cs").read_text(encoding="utf-8-sig")
+
+        self.assertIn("IsClientCaptionOriginalFontScope", manager)
+        self.assertIn("IsClientCaptionRectangleName", manager)
+        self.assertIn('current.name == "ClientsSection"', manager)
+        self.assertIn('current.name == "ClientCaptions"', manager)
+        self.assertIn('componentName == "CaptionRectangle"', manager)
+        self.assertIn('componentName == "CaptionRectangleSelected"', manager)
+
 
 if __name__ == "__main__":
     unittest.main()

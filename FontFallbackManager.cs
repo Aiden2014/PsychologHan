@@ -146,7 +146,8 @@ internal sealed class FontFallbackManager
     {
         if (IsSpeakerOriginalFontScope(textComponent) ||
             IsInGameMenuSpeakerLineScope(textComponent) ||
-            IsPulsingMarkerSymbolScope(textComponent))
+            IsPulsingMarkerSymbolScope(textComponent) ||
+            IsClientCaptionOriginalFontScope(textComponent))
         {
             return true;
         }
@@ -256,6 +257,43 @@ internal sealed class FontFallbackManager
             componentName == "Symbol (1)" ||
             componentName == "Symbol (2)" ||
             componentName == "Symbol (3)";
+    }
+
+    private static bool IsClientCaptionOriginalFontScope(TMP_Text textComponent)
+    {
+        if (textComponent == null)
+        {
+            return false;
+        }
+
+        bool insideClientCaptionRectangle = false;
+        bool insideClientCaptions = false;
+        Transform current = textComponent.transform;
+        while (current != null)
+        {
+            if (IsClientCaptionRectangleName(current.name))
+            {
+                insideClientCaptionRectangle = true;
+            }
+            else if (current.name == "ClientCaptions")
+            {
+                insideClientCaptions = true;
+            }
+            else if (current.name == "ClientsSection")
+            {
+                return insideClientCaptionRectangle && insideClientCaptions;
+            }
+
+            current = current.parent;
+        }
+
+        return false;
+    }
+
+    private static bool IsClientCaptionRectangleName(string componentName)
+    {
+        return componentName == "CaptionRectangle" ||
+            componentName == "CaptionRectangleSelected";
     }
 
     private bool TryRestoreOriginalMapping(TMP_Text textComponent)

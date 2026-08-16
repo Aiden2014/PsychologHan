@@ -95,6 +95,15 @@ class FontFallbackContractTests(unittest.TestCase):
         self.assertIn('current.name == "InGameMenuButton"', manager)
         self.assertIn('componentName.StartsWith("SpeakerLine"', manager)
 
+    def test_pulsing_marker_symbols_keep_the_original_game_font(self):
+        manager = (PROJECT / "FontFallbackManager.cs").read_text(encoding="utf-8-sig")
+
+        self.assertIn("IsPulsingMarkerSymbolScope", manager)
+        self.assertIn("IsPulsingMarkerSymbolName", manager)
+        self.assertIn('current.name == "PulsingMarker"', manager)
+        self.assertIn('componentName == "Symbol"', manager)
+        self.assertIn('componentName == "Symbol (3)"', manager)
+
 
 if __name__ == "__main__":
     unittest.main()

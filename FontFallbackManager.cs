@@ -145,7 +145,8 @@ internal sealed class FontFallbackManager
     private static bool IsOriginalGameFontScope(TMP_Text textComponent)
     {
         if (IsSpeakerOriginalFontScope(textComponent) ||
-            IsInGameMenuSpeakerLineScope(textComponent))
+            IsInGameMenuSpeakerLineScope(textComponent) ||
+            IsPulsingMarkerSymbolScope(textComponent))
         {
             return true;
         }
@@ -226,6 +227,35 @@ internal sealed class FontFallbackManager
     {
         return !string.IsNullOrEmpty(componentName) &&
             componentName.StartsWith("SpeakerLine", StringComparison.Ordinal);
+    }
+
+    private static bool IsPulsingMarkerSymbolScope(TMP_Text textComponent)
+    {
+        if (textComponent == null || !IsPulsingMarkerSymbolName(textComponent.name))
+        {
+            return false;
+        }
+
+        Transform current = textComponent.transform.parent;
+        while (current != null)
+        {
+            if (current.name == "PulsingMarker")
+            {
+                return true;
+            }
+
+            current = current.parent;
+        }
+
+        return false;
+    }
+
+    private static bool IsPulsingMarkerSymbolName(string componentName)
+    {
+        return componentName == "Symbol" ||
+            componentName == "Symbol (1)" ||
+            componentName == "Symbol (2)" ||
+            componentName == "Symbol (3)";
     }
 
     private bool TryRestoreOriginalMapping(TMP_Text textComponent)

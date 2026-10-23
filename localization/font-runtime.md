@@ -26,6 +26,27 @@ BepInEx/plugins/fonts/南西油墨宋.ttf
 - `TMP_FontAsset.CreateFontAsset(Font, int, int, GlyphRenderMode, int, int, AtlasPopulationMode, bool)`；
 - 目标程序集中的 `UnityEngine.TextCoreFontEngineModule.dll` 和 `UnityEngine.TextCoreTextEngineModule.dll`。
 
-字体源文件来自项目现有的 `resources/fonts`；其再分发许可尚未由项目独立确认。验证器会把 fallback、Typewriter 映射字体和 GochiHand 手写映射字体复制到 dist，并在 `package-manifest.json` 中记录字体 hash。
+字体源文件来自项目现有的 `resources/fonts`；其再分发许可尚未由项目独立确认。验证器会把 fallback、Typewriter 映射字体和 GochiHand 手写映射字体生成子集后复制到 dist，并在 `package-manifest.json` 中记录字体 hash。
+
+## 发布时的字体子集化
+
+构建发布包前，验证器会从 `resources/work/approved-translations/**/*.csv` 的全部字段，以及主补丁 C# 源文件中的字符串/字符字面量收集字符，写入忽略目录下的 `resources/work/font-characters.txt`。三个映射字体都会根据同一份字符集生成 TTF 子集后再复制到：
+
+```text
+dist/BepInEx/plugins/PsychologHan/fonts/
+```
+
+首次执行发布校验前安装字体子集化依赖：
+
+```powershell
+python -m pip install fonttools
+python scripts/validate_localization.py `
+  --project-root . `
+  --translations resources/work/approved-translations `
+  --profile localization/project-profile.json `
+  --dist dist
+```
+
+`package-manifest.json` 的 `font_coverage` 会记录字符文件 hash、补丁源文件、每个字体的源/目标大小和源字体缺失字符。缺失字符不会被伪造为字形；发布前应结合运行时字体 fallback 和人工路线检查这些记录。
 
 如果字体文件缺失或运行时创建失败，插件会保留原字体行为并记录警告；这不会阻塞游戏启动。

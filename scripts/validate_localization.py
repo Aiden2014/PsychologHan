@@ -9,6 +9,7 @@ import hashlib
 import json
 import shutil
 import sys
+import tempfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -16,6 +17,14 @@ if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from scripts.translation_workspace import validate_import
+from scripts.font_packaging import (
+    FontPackagingError,
+    FontSubsetResult,
+    collect_font_characters,
+    find_patch_sources,
+    subset_font,
+    write_character_file,
+)
 
 
 def _parse_args(argv: list[str] | None) -> argparse.Namespace:
@@ -201,6 +210,7 @@ def _collect_validation(
 
     font_source: Path | None = None
     font_sources: list[Path] = []
+    font_character_file: Path | None = None
     fonts = profile.get("fonts")
     if isinstance(fonts, dict) and fonts.get("strategy") == "runtime-ttf":
         configured_font = fonts.get("source_font", "resources/fonts/NotoSansSC-VF.ttf")
@@ -226,6 +236,14 @@ def _collect_validation(
                     errors.append(f"missing mapped runtime font source: {_relative_to(mapping_font, project_root)}")
                 elif mapping_font not in font_sources:
                     font_sources.append(mapping_font)
+
+        configured_character_file = fonts.get(
+            "character_file", "resources/work/font-characters.txt"
+        )
+        if not isinstance(configured_character_file, str) or not configured_character_file:
+            errors.append("runtime-ttf profile has no valid character_file")
+        else:
+            font_character_file = (project_root / configured_character_file).resolve()
 
     present_csvs: dict[str, Path] = {}
     if not errors:
@@ -260,6 +278,7 @@ def _collect_validation(
             "present_csvs": present_csvs,
             "font_source": font_source,
             "font_sources": font_sources,
+            "font_character_file": font_character_file,
         }
     )
     return errors, details
@@ -273,6 +292,7 @@ def _build_manifest(
     translation_targets: dict[str, Path],
     font_target: Path | None,
     font_targets: dict[str, Path],
+    font_coverage: dict[str, object] | None,
     details: dict[str, object],
 ) -> dict[str, object]:
     scope = details["scope"]
@@ -312,7 +332,7 @@ def _build_manifest(
             "size": target.stat().st_size,
         }
 
-    return {
+    manifest = {
         "schema_version": 1,
         "locale": scope.get("locale") or version.get("locale"),
         "approved_categories": list(scope.get("approved_categories", [])),
@@ -331,6 +351,9 @@ def _build_manifest(
         },
         "files": files,
     }
+    if font_coverage is not None:
+        manifest["font_coverage"] = font_coverage
+    return manifest
 
 
 def _create_dist_package(
@@ -341,29 +364,93 @@ def _create_dist_package(
     details: dict[str, object],
 ) -> Path:
     package_root = dist_dir / "BepInEx" / "plugins" / "PsychologHan"
-    if package_root.exists():
-        shutil.rmtree(package_root)
-    (package_root / "localization").mkdir(parents=True, exist_ok=True)
-
     plugin_dll = details["plugin_dll"]
     assert isinstance(plugin_dll, Path)
     plugin_target = package_root / plugin_dll.name
-    shutil.copy2(plugin_dll, plugin_target)
 
     font_source = details.get("font_source")
     font_target: Path | None = None
     font_targets: dict[str, Path] = {}
+    font_coverage: dict[str, object] | None = None
     font_sources = details.get("font_sources", [])
+    typed_font_sources: list[Path] = []
+    subset_results: dict[str, FontSubsetResult] = {}
     if isinstance(font_sources, list):
-        for configured_font in font_sources:
-            if not isinstance(configured_font, Path):
-                continue
-            target = package_root / "fonts" / configured_font.name
-            target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(configured_font, target)
-            font_targets[configured_font.name] = target
-            if isinstance(font_source, Path) and configured_font == font_source:
-                font_target = target
+        typed_font_sources = [
+            configured_font
+            for configured_font in font_sources
+            if isinstance(configured_font, Path)
+        ]
+        if typed_font_sources:
+            character_file = details.get("font_character_file")
+            if not isinstance(character_file, Path):
+                raise FontPackagingError(
+                    "runtime-ttf profile has no resolved font character file"
+                )
+
+            patch_sources = find_patch_sources(project_root)
+            characters = collect_font_characters(translations_dir, patch_sources)
+            write_character_file(character_file, characters)
+
+            work_dir = project_root / "resources" / "work"
+            work_dir.mkdir(parents=True, exist_ok=True)
+            with tempfile.TemporaryDirectory(
+                prefix="font-subset-", dir=str(work_dir)
+            ) as temporary_directory:
+                temporary_root = Path(temporary_directory)
+                for configured_font in typed_font_sources:
+                    if configured_font.name in subset_results:
+                        raise FontPackagingError(
+                            "multiple configured fonts have the same file name: "
+                            f"{configured_font.name}"
+                        )
+                    subset_target = temporary_root / configured_font.name
+                    subset_results[configured_font.name] = subset_font(
+                        configured_font,
+                        subset_target,
+                        characters,
+                    )
+
+                if package_root.exists():
+                    shutil.rmtree(package_root)
+                (package_root / "localization").mkdir(parents=True, exist_ok=True)
+                shutil.copy2(plugin_dll, plugin_target)
+                for configured_font in typed_font_sources:
+                    result = subset_results[configured_font.name]
+                    target = package_root / "fonts" / configured_font.name
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(result.target, target)
+                    font_targets[configured_font.name] = target
+                    if isinstance(font_source, Path) and configured_font == font_source:
+                        font_target = target
+
+            font_coverage = {
+                "character_file": _relative_to(character_file, project_root),
+                "character_file_sha256": _sha256(character_file),
+                "character_count": len(characters),
+                "patch_sources": [
+                    _relative_to(path, project_root) for path in patch_sources
+                ],
+                "fonts": {
+                    file_name: {
+                        "source_path": _relative_to(result.source, project_root),
+                        "source_sha256": _sha256(result.source),
+                        "source_size": result.source_size,
+                        "target_size": result.target_size,
+                        "reduction_bytes": result.reduction_bytes,
+                        "requested_character_count": result.requested_character_count,
+                        "available_character_count": result.available_character_count,
+                        "missing_characters": result.missing_characters,
+                    }
+                    for file_name, result in sorted(subset_results.items())
+                },
+            }
+
+    if not typed_font_sources:
+        if package_root.exists():
+            shutil.rmtree(package_root)
+        (package_root / "localization").mkdir(parents=True, exist_ok=True)
+        shutil.copy2(plugin_dll, plugin_target)
 
     scope = details["scope"]
     translation_targets: dict[str, Path] = {}
@@ -380,6 +467,7 @@ def _create_dist_package(
         translation_targets=translation_targets,
         font_target=font_target,
         font_targets=font_targets,
+        font_coverage=font_coverage,
         details=details,
     )
     (package_root / "package-manifest.json").write_text(
@@ -412,12 +500,16 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     if dist_dir is not None:
-        package_root = _create_dist_package(
-            project_root=project_root,
-            translations_dir=translations_dir,
-            dist_dir=dist_dir,
-            details=details,
-        )
+        try:
+            package_root = _create_dist_package(
+                project_root=project_root,
+                translations_dir=translations_dir,
+                dist_dir=dist_dir,
+                details=details,
+            )
+        except FontPackagingError as error:
+            print(f"font packaging failed: {error}")
+            return 1
         print(f"validation ok; package created at {package_root.as_posix()}")
         return 0
 

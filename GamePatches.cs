@@ -365,9 +365,29 @@ internal static class GamePatches
 
             UiPatches.TranslateClientWeeklyPlanner(__instance.notesSection);
 
+            // Repair the old-save display only. Never change story/save flags.
+            if (__instance.gS != null)
+            {
+                if (__instance.deceasedAshley != null)
+                    __instance.deceasedAshley.SetActive(ClientDeathStatus.IsKnownDead(__instance.gS, "Ashley"));
+                if (__instance.deceasedDeborah != null)
+                    __instance.deceasedDeborah.SetActive(ClientDeathStatus.IsKnownDead(__instance.gS, "Deborah"));
+            }
+
             string suffix;
             if (!TryGetClientSuffix(__instance.clientCurrentlyChosen, out suffix))
             {
+                return;
+            }
+
+            if (ClientDeathStatus.IsKnownDead(__instance.gS, suffix))
+            {
+                // The game only recomputes stored comments after a metric changes;
+                // death notices can otherwise leave the previous treatment text.
+                string cancelled = TranslateWithCategoryOriginalFallback(
+                    ClientInfoCategory, "treatmentComment" + suffix, ClientDeathStatus.TreatmentCancelled);
+                if (__instance.trustComment != null) __instance.trustComment.text = cancelled;
+                if (__instance.treatmentComment != null) __instance.treatmentComment.text = cancelled;
                 return;
             }
 

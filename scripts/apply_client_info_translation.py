@@ -61,20 +61,37 @@ TRANSLATIONS = [
 ]
 
 
+DEATH_NOTICE = "Treatment is cancelled due to client's death."
+DEATH_NOTICE_TRANSLATION = "来访者已去世，治疗已终止。"
+
+
+def translate_rows(source_rows: list[list[str]], existing_rows: list[list[str]]) -> list[list[str]]:
+    """Keep reviewed edits and insert the chained-assignment death notices."""
+    if any(len(row) != 3 for row in source_rows + existing_rows):
+        raise ValueError("expected three columns in every row")
+    ordinary_count = sum(row[1] != DEATH_NOTICE for row in source_rows)
+    if ordinary_count != len(TRANSLATIONS):
+        raise ValueError(f"expected {len(TRANSLATIONS)} ordinary source rows, found {ordinary_count}")
+    reviewed = {(row[0], row[1]): row[2] for row in existing_rows if row[2]}
+    fallback = iter(TRANSLATIONS)
+    result = []
+    for key, original, _ in source_rows:
+        translation = DEATH_NOTICE_TRANSLATION if original == DEATH_NOTICE else next(fallback)
+        result.append([key, original, reviewed.get((key, original), translation)])
+    return result
+
+
 def main() -> int:
     root = Path(__file__).resolve().parents[1]
     source_path = root / "resources" / "extracted" / "client_info.csv"
     target_path = root / "resources" / "work" / "approved-translations" / "client_info.csv"
     with source_path.open("r", encoding="utf-8-sig", newline="") as handle:
         source_rows = list(csv.reader(handle))
-    if len(source_rows) != len(TRANSLATIONS):
-        raise ValueError(f"expected {len(TRANSLATIONS)} source rows, found {len(source_rows)}")
-    rows = []
-    for source_row, translation in zip(source_rows, TRANSLATIONS):
-        if len(source_row) != 3:
-            raise ValueError(f"expected three columns in source row, found {len(source_row)}")
-        source_row[2] = translation
-        rows.append(source_row)
+    existing_rows = []
+    if target_path.exists():
+        with target_path.open("r", encoding="utf-8-sig", newline="") as handle:
+            existing_rows = list(csv.reader(handle))
+    rows = translate_rows(source_rows, existing_rows)
     with target_path.open("w", encoding="utf-8-sig", newline="") as handle:
         csv.writer(handle).writerows(rows)
     print(f"wrote {len(rows)} client_info translations to {target_path}")

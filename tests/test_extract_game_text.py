@@ -137,6 +137,34 @@ class ExtractGameTextTests(unittest.TestCase):
             [(row.key_suffix, row.text) for row in data.client_info],
         )
 
+    def test_client_death_comments_extract_both_chained_assignment_targets(self):
+        source = Path(self._tmp_dir()) / "GameManager.cs"
+        original = "Treatment is cancelled due to client's death."
+        for expression in (
+            '(gS.trustCommentVera = "' + original + '")',
+            'gS.trustCommentVera = "' + original + '"',
+            '((gS.trustCommentVera = ("' + original + '")))',
+        ):
+            with self.subTest(expression=expression):
+                source.write_text(
+                    'void Update() {\n gS.treatmentCommentVera = ' + expression + ';\n}',
+                    encoding="utf-8",
+                )
+                data = parse_game_manager(source)
+                self.assertEqual(
+                    [(row.key_suffix, row.text) for row in data.client_info],
+                    [("gS.treatmentCommentVera|||2", original),
+                     ("gS.trustCommentVera|||2", original)],
+                )
+
+    def test_client_assignments_do_not_turn_conditionals_into_death_notices(self):
+        source = Path(self._tmp_dir()) / "GameManager.cs"
+        source.write_text(
+            'void Update() { gS.treatmentCommentVera = '
+            '(gS.notifiedDeathVera ? "Dead" : "Alive"); }', encoding="utf-8",
+        )
+        self.assertEqual(parse_game_manager(source).client_info, [])
+
     def test_resource_index_resolves_audio_source_to_audio_clip(self):
         root = Path(self._tmp_dir()) / "resources"
         (root / "AudioSource").mkdir(parents=True)

@@ -509,8 +509,28 @@ def _scan_text_assignments(
     pattern = re.compile(
         rf"(?P<target>{target_pattern})\s*=\s*(?P<expression>[^;]+);"
     )
+    chained_target = re.compile(rf"(?P<target>{target_pattern})\s*=(?!=|>)\s*")
     for match in pattern.finditer(source):
-        yield source.count("\n", 0, match.start()) + 1, match.group("target"), match.group("expression").strip()
+        targets = [(match.start("target"), match.group("target"))]
+        expression = match.group("expression")
+        offset = match.start("expression")
+        while True:
+            offset += len(expression) - len(expression.lstrip())
+            expression = expression.strip()
+            if expression.startswith("(") and _matching_paren(expression, 0) == len(expression) - 1:
+                expression = expression[1:-1]
+                offset += 1
+                continue
+            nested = chained_target.match(expression)
+            if not nested:
+                break
+            targets.append((offset, nested.group("target")))
+            expression = expression[nested.end():]
+            offset += nested.end()
+        # ILSpy emits a = (b = "text"). Both fields receive the same text;
+        # passing the entire assignment to literal_text would discard it.
+        for position, target in targets:
+            yield source.count("\n", 0, position) + 1, target, expression
 
 
 def _parse_state_texts(path: Path) -> tuple[list[TextRow], list[TextRow]]:

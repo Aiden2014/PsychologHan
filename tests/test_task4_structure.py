@@ -43,7 +43,7 @@ class Task4StructureTests(unittest.TestCase):
         self.assertIn("harmony.UnpatchSelf();", plugin)
         self.assertNotIn("GamePatches.Apply", plugin)
 
-    def test_csproj_references_target_unity_2021_managed_assemblies(self):
+    def test_csproj_references_target_game_managed_assemblies(self):
         csproj = (PROJECT / "PsychologHan.csproj").read_text(encoding="utf-8-sig")
 
         self.assertNotIn("UnityEngine.Modules", csproj)

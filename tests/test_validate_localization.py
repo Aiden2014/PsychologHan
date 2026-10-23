@@ -52,6 +52,11 @@ class ValidateLocalizationTests(unittest.TestCase):
         self.assertTrue((package_root / "localization" / "ui.csv").exists())
         manifest = json.loads((package_root / "package-manifest.json").read_text(encoding="utf-8"))
         self.assertEqual(manifest["locale"], "zh-CN")
+        self.assertEqual(manifest["supported_game"]["build"], "test-build")
+        self.assertEqual(
+            manifest["supported_game"]["managed_sha256"]["Assembly-CSharp.dll"],
+            "f" * 64,
+        )
         self.assertEqual(
             sorted(manifest["approved_categories"]),
             ["character_name", "ui"],
@@ -248,6 +253,10 @@ class ValidateLocalizationTests(unittest.TestCase):
     ) -> None:
         profile = {
             "schema_version": 1,
+            "game": {
+                "build": "test-build",
+                "managed_sha256": {"Assembly-CSharp.dll": "f" * 64},
+            },
             "paratranz": {
                 "approved_categories": [
                     "dialogue",

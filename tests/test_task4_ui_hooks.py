@@ -294,7 +294,7 @@ class Task4UiHookTests(unittest.TestCase):
 
         self.assertIn("NormalizeNewlines", manager)
         self.assertIn("if (!OriginalsMatch(entry.Original, original))", manager)
-        self.assertIn("OriginalsMatch(candidate.Original, original)", manager)
+        self.assertIn("RuntimeOriginalsMatch(category, runtimeKey, candidate.Original, original)", manager)
         self.assertIn("normalizedOriginalsByCategory", manager)
         fallback = manager[manager.index("public bool TryTranslateByOriginal"):manager.index("private void LoadCsv")]
         self.assertLess(

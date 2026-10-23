@@ -2,11 +2,16 @@
   "schema_version": 1,
   "game": {
     "name": "Psycholog",
-    "build": "Psycholog.exe Windows x64 build (Unity 2021.3.7f1, Mono)",
-    "unity_version": "2021.3.7f1",
+    "build": "Steam build 25496806 (Unity 6000.4.4f1, Mono Windows x64)",
+    "unity_version": "6000.4.4f1",
     "scripting_backend": "Mono",
     "architecture": "x64",
-    "textmeshpro_version": "3.0"
+    "textmeshpro_version": "Game-bundled Unity 6 TMP (assembly version 0.0.0.0)",
+    "managed_sha256": {
+      "Assembly-CSharp.dll": "f8263b697e1b80d820710431eb707bb5ff6bebc6d16f45d555b98a006bd92f1a",
+      "Unity.TextMeshPro.dll": "7a3062fd0d650a724edb3178df2e16a8dfecc737f5640c68d610970b644f68fe",
+      "UnityEngine.CoreModule.dll": "7fb6a9be521cd31e081e6a5a512134d236058fc8572eab5f9db998068e8fb807"
+    }
   },
   "sources": {
     "managed": "resources/Assembly-CSharp-decompiled",
@@ -120,7 +125,8 @@
       "project validation",
       "adapter tests",
       "Paratranz import validation",
-      "plugin build and package inspection"
+      "plugin build and package inspection",
+      "compiled game/Unity member references (scripts/check_runtime_compatibility.ps1)"
     ],
     "required_manual_routes": [
       "menus and settings",

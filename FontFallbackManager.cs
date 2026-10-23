@@ -141,6 +141,9 @@ internal sealed class FontFallbackManager
             changed = true;
         }
 
+        // Unity 6 TMP exposes material as a property; older builds used a field.
+        // Rebuild against the supported game's DLLs and check the binary member
+        // references before deployment, even when this C# expression is unchanged.
         if (mappedFontAsset.material != null && textComponent.fontSharedMaterial != mappedFontAsset.material)
         {
             textComponent.fontSharedMaterial = mappedFontAsset.material;

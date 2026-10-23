@@ -271,6 +271,7 @@ def _collect_validation(
             "assembly_version": assembly_version,
             "plugin_dll": plugin_dll,
             "profile_path": profile_path,
+            "supported_game": profile.get("game", {}),
             "scope_path": scope_path,
             "scope": scope,
             "version_path": version_path,
@@ -349,6 +350,7 @@ def _build_manifest(
             "assembly_name": details["assembly_name"],
             "assembly_version": details["assembly_version"],
         },
+        "supported_game": details.get("supported_game", {}),
         "files": files,
     }
     if font_coverage is not None:

@@ -172,7 +172,7 @@ public sealed class TranslationManager
 
         TranslationEntry exactEntry;
         if (TryGetExactEntry(category, runtimeKey, out exactEntry) &&
-            OriginalsMatch(exactEntry.Original, original))
+            RuntimeOriginalsMatch(category, runtimeKey, exactEntry.Original, original))
         {
             translated = exactEntry.Translation;
             return true;
@@ -200,7 +200,7 @@ public sealed class TranslationManager
         int matchedEntryCount = 0;
         foreach (TranslationEntry candidate in candidates)
         {
-            if (OriginalsMatch(candidate.Original, original))
+            if (RuntimeOriginalsMatch(category, runtimeKey, candidate.Original, original))
             {
                 matchedEntry = candidate;
                 matchedEntryCount++;
@@ -599,6 +599,39 @@ public sealed class TranslationManager
         }
 
         return ambiguousOriginals;
+    }
+
+    private static bool RuntimeOriginalsMatch(string category, string runtimeKey, string expected, string actual)
+    {
+        if (OriginalsMatch(expected, actual))
+        {
+            return true;
+        }
+
+        if (expected == null || actual == null)
+        {
+            return false;
+        }
+
+        // Steam build 25496806 changed punctuation encoding in these seven
+        // verified nodes. Compare the complete source after that exact change;
+        // do not treat arbitrary '?' characters or changed prose as a match.
+        // Keep the approved CSV originals and translations intact.
+        switch (category + ":" + FirstTwoSegmentPrefix(runtimeKey))
+        {
+            case "dialogue:88106|||ME":
+            case "dialogue:88110|||ME":
+            case "dialogue:88111|||ME":
+                return OriginalsMatch(expected.Replace('\u2019', '\u009d'), actual);
+            case "dialogue:26616|||RAYMOND":
+            case "choice:26585|||26585":
+            case "choice:26600|||26602":
+                return OriginalsMatch(expected.Replace('\u2019', '?'), actual);
+            case "dialogue:26581|||RAYMOND":
+                return OriginalsMatch(expected.Replace('\u2026', '?'), actual);
+            default:
+                return false;
+        }
     }
 
     private static bool OriginalsMatch(string expected, string actual)

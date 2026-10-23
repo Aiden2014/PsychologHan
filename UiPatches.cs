@@ -586,6 +586,14 @@ internal static class UiPatches
         string approvedKey;
         if (ApprovedUiKeysByHierarchyPath.TryGetValue(GetHierarchyPath(textComponent), out approvedKey))
         {
+            if (approvedKey == "level1|||34132|||TextMeshProUGUI|||TextMeshProUGUI")
+            {
+                // GameResult/ReturnToTitleButton has a Mask on its transparent
+                // hit area (normal alpha 0, hover alpha 1/255). Keep this label
+                // visible without changing the button's tint or click handling.
+                textComponent.maskable = false;
+            }
+
             string keyTranslated;
             if (TryTranslateApprovedUiText(UiCategory, approvedKey, original, out keyTranslated) &&
                 !string.Equals(original, keyTranslated, System.StringComparison.Ordinal))
